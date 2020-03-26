@@ -105,7 +105,7 @@ r0vm 的指令使用 8 位无符号整数标识，后面跟随可变长度的操
 | 0x27 | `div.f`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs / rhs，参数为浮点数      |
 | 0x28 | `adc.i`      | -        | 1:lhs, 2:rhs  | 1:res        | (待确认)                                |
 | 0x29 | `shl`        | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs << rhs                   |
-| 0x2a | `shr`        | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs >> rhs                   |
+| 0x2a | `shr`        | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs >> rhs （算术右移）      |
 | 0x2b | `and`        | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs & rhs                    |
 | 0x2c | `or`         | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs &#124; rhs               |
 | 0x2d | `xor`        | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs ^ rhs                    |
@@ -116,7 +116,7 @@ r0vm 的指令使用 8 位无符号整数标识，后面跟随可变长度的操
 | 0x33 | `neg.f`      | -        | 1:lhs         | 1:res        | 对 lhs 取反                             |
 | 0x34 | `itof`       | -        | 1:lhs         | 1:res        | 把 lhs 从整数转换成浮点数               |
 | 0x35 | `ftoi`       | -        | 1:lhs         | 1:res        | 把 lhs 从浮点数转换成整数               |
-| 0x36 | `shrl`       | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs >>> rhs                  |
+| 0x36 | `shrl`       | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs >>> rhs （逻辑右移）     |
 | 0x40 | `bra`        | -        | 1:addr        |              | 无条件跳转到地址 `addr`                 |
 | 0x41 | `br`         | off:i32  |               |              | 无条件跳转偏移 `off`                    |
 | 0x42 | `bz`         | off:i32  |               | 1:test       | 如果 `test` 是 0 则跳转偏移 `off`       |

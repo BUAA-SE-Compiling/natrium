@@ -1,11 +1,12 @@
-pub enum OpCode {
+#[derive(Debug, Copy, Clone)]
+pub enum Op {
     Nop,
-    Push([u8; 8]),
+    Push(u64),
     Pop,
-    PopN(u32),
+    PopN(u64),
     Dup,
-    LocA(u32),
-    GlobA(u32),
+    LocA(u64),
+    GlobA(u64),
     Load8,
     Load16,
     Load32,
@@ -16,7 +17,7 @@ pub enum OpCode {
     Store64,
     Alloc,
     Free,
-    StackAlloc(u32),
+    StackAlloc(u64),
     AddI,
     SubI,
     MulI,
@@ -39,15 +40,15 @@ pub enum OpCode {
     IToF,
     FToI,
     ShrL,
-    BrA,
-    Br,
-    Bz,
-    Bnz,
-    Bl,
-    Bg,
-    Blz,
-    Bgz,
-    Call,
+    BrA(u64),
+    Br(i32),
+    Bz(i32),
+    Bnz(i32),
+    Bl(i32),
+    Bg(i32),
+    Blz(i32),
+    Bgz(i32),
+    Call(u32),
     Ret,
     ScanI,
     ScanC,
@@ -60,9 +61,9 @@ pub enum OpCode {
     Halt,
 }
 
-impl OpCode {
+impl Op {
     pub fn code(&self) -> u8 {
-        use OpCode::*;
+        use Op::*;
         // TODO: Add OpCode
         match self {
             Nop => 0x00,
@@ -105,15 +106,15 @@ impl OpCode {
             IToF => 0x00,
             FToI => 0x00,
             ShrL => 0x00,
-            BrA => 0x00,
-            Br => 0x00,
-            Bz => 0x00,
-            Bnz => 0x00,
-            Bl => 0x00,
-            Bg => 0x00,
-            Blz => 0x00,
-            Bgz => 0x00,
-            Call => 0x00,
+            BrA(..) => 0x00,
+            Br(..) => 0x00,
+            Bz(..) => 0x00,
+            Bnz(..) => 0x00,
+            Bl(..) => 0x00,
+            Bg(..) => 0x00,
+            Blz(..) => 0x00,
+            Bgz(..) => 0x00,
+            Call(..) => 0x00,
             Ret => 0x00,
             ScanI => 0x00,
             ScanC => 0x00,
