@@ -1,5 +1,3 @@
-mod syntax;
-
 use combine::parser::byte::*;
 use combine::parser::*;
 use combine::stream::position;

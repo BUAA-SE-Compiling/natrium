@@ -27,4 +27,9 @@ name = "natrium"
 version = "0.1.0"
 dependencies = [
  "combine",
+ "r0vm",
 ]
+
+[[package]]
+name = "r0vm"
+version = "0.1.0"
