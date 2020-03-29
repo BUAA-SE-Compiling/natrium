@@ -17,7 +17,9 @@ pub struct R0Vm<'src> {
     stack: Vec<Slot>,
 
     /// Function Pointer
-    fp: &'src Function,
+    fp: &'src FnDef,
+    /// Function ID
+    fn_id: usize,
     /// Instruction Pointer
     ip: usize,
     /// Base Pointer
@@ -30,23 +32,24 @@ pub struct R0Vm<'src> {
 }
 
 impl<'src> R0Vm<'src> {
-    pub fn new(src: &'src S0, stdin: Box<dyn Read>, stdout: Box<dyn Write>) -> R0Vm<'src> {
+    pub fn new(src: &'src S0, stdin: Box<dyn Read>, stdout: Box<dyn Write>) -> Result<R0Vm<'src>> {
         // TODO: Move ip onto start of `_start` function
-        let start = &src.start;
-        R0Vm {
+        let start = src.functions.get(0).ok_or(Error::NoEntryPoint)?;
+        Ok(R0Vm {
             src,
             heap: BTreeMap::new(),
             stack: Vec::new(),
             fp: start,
+            fn_id: 0,
             ip: 0,
             bp: 0,
             stdin,
             stdout,
-        }
+        })
     }
 
     #[inline]
-    fn get_next_instruction(&mut self) -> Op {
+    fn get_next_instruction(&mut self) -> Result<Op> {
         unimplemented!()
     }
 
@@ -58,7 +61,14 @@ impl<'src> R0Vm<'src> {
         }
     }
 
-    pub fn next_instruction(&mut self, op: Op) -> Result<()> {
+    fn get_fn_by_id(&self, id: u32) -> Result<&'src FnDef> {
+        self.src
+            .functions
+            .get(id as usize)
+            .ok_or(Error::InvalidFnId(id))
+    }
+
+    pub fn exec_instruction(&mut self, op: Op) -> Result<()> {
         use Op::*;
         match op {
             Nop => Ok(()),
@@ -87,7 +97,7 @@ impl<'src> R0Vm<'src> {
             SubF => self.sub_f(),
             MulF => self.mul_f(),
             DivF => self.div_f(),
-            AdcI => unimplemented!("ADC is unstable"),
+            DivU => self.div_u(),
             Shl => self.shl(),
             Shr => self.shr(),
             And => self.and(),
@@ -95,6 +105,7 @@ impl<'src> R0Vm<'src> {
             Xor => self.xor(),
             Not => self.not(),
             CmpI => self.cmp_i(),
+            CmpU => self.cmp_u(),
             CmpF => self.cmp_f(),
             NegI => self.neg_i(),
             NegF => self.neg_f(),
@@ -102,24 +113,46 @@ impl<'src> R0Vm<'src> {
             FToI => self.ftoi(),
             ShrL => self.shr_l(),
             BrA(addr) => self.br_a(addr),
-            Br(off) => unimplemented!(),
-            Bz(off) => unimplemented!(),
-            Bnz(off) => unimplemented!(),
-            Bl(off) => unimplemented!(),
-            Bg(off) => unimplemented!(),
-            Blz(off) => unimplemented!(),
-            Bgz(off) => unimplemented!(),
-            Call(id) => unimplemented!(),
-            Ret => unimplemented!(),
-            ScanI => unimplemented!(),
-            ScanC => unimplemented!(),
-            ScanF => unimplemented!(),
-            PrintI => unimplemented!(),
-            PrintC => unimplemented!(),
-            PrintF => unimplemented!(),
-            PrintS => unimplemented!(),
-            PrintLn => unimplemented!(),
-            Halt => unimplemented!(),
+            Br(off) => self.br(off),
+            Bz(off) => self.bz(off),
+            Bnz(off) => self.bnz(off),
+            Bl(off) => self.bl(off),
+            Bg(off) => self.bg(off),
+            Blz(off) => self.blz(off),
+            Bgz(off) => self.bgz(off),
+            Call(id) => self.call(id),
+            Ret => self.ret(),
+            ScanI => self.scan_i(),
+            ScanC => self.scan_c(),
+            ScanF => self.scan_f(),
+            PrintI => self.print_i(),
+            PrintC => self.print_c(),
+            PrintF => self.print_f(),
+            PrintS => self.print_s(),
+            PrintLn => self.print_ln(),
+            Halt => self.halt(),
         }
     }
+
+    /// Unroll all information from current runtime stack. Usually being called
+    /// during panic, halt, stack overflow or debug.
+    pub fn unroll_stack(&self) -> Result<Vec<StackInfo>> {
+        unimplemented!()
+    }
+
+    /// Return the information of current running function
+    pub fn cur_stack_info(&self) -> Result<StackInfo> {
+        Ok(StackInfo {
+            fn_id: self.fn_id as u64,
+            inst: self.ip as u64,
+            fn_name: None,
+        })
+    }
+}
+
+#[derive(Debug)]
+pub struct StackInfo {
+    fn_name: Option<String>,
+    fn_id: u64,
+    inst: u64,
 }
