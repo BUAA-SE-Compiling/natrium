@@ -17,7 +17,7 @@ pub struct R0Vm<'src> {
     stack: Vec<Slot>,
 
     /// Function Pointer
-    fp: &'src FnDef,
+    fn_info: &'src FnDef,
     /// Function ID
     fn_id: usize,
     /// Instruction Pointer
@@ -43,7 +43,7 @@ impl<'src> R0Vm<'src> {
             src,
             heap: BTreeMap::new(),
             stack: Vec::new(),
-            fp: start,
+            fn_info: start,
             fn_id: 0,
             ip: 0,
             bp: 0,
@@ -60,7 +60,7 @@ impl<'src> R0Vm<'src> {
     #[inline]
     fn get_next_instruction(&mut self) -> Result<Op> {
         let op = *self
-            .fp
+            .fn_info
             .ins
             .get(self.ip)
             .ok_or(Error::ControlReachesEnd(self.ip))?;

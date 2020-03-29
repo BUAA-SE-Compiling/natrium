@@ -303,7 +303,7 @@ impl<'src> super::R0Vm<'src> {
             self.ip.checked_sub(off as usize)
         }
         .and_then(|off| {
-            if off > self.fp.ins.len() {
+            if off > self.fn_info.ins.len() {
                 None
             } else {
                 Some(off)
@@ -381,7 +381,7 @@ impl<'src> super::R0Vm<'src> {
         self.push(self.fn_id as u64)?;
 
         self.fn_id = id as usize;
-        self.fp = fp;
+        self.fn_info = fp;
         self.ip = 0;
         self.bp = bp;
 
@@ -396,9 +396,9 @@ impl<'src> super::R0Vm<'src> {
         let fp = self.get_fn_by_id(old_fn as u32)?;
         // %sp = %bp
         self.stack.truncate(old_sp as usize);
-        self.pop_n(self.fp.param_slots as u64)?;
+        self.pop_n(self.fn_info.param_slots as u64)?;
 
-        self.fp = fp;
+        self.fn_info = fp;
         self.ip = old_ip as usize;
 
         Ok(())
