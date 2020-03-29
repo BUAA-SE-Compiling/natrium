@@ -9,3 +9,6 @@
 - `crates/syntax` - 语法分析库
 - `docs/src` - 文档
 
+# 后记
+
+我赌你们不会 Rust（逃
