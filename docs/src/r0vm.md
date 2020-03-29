@@ -126,7 +126,7 @@ r0vm 的指令使用 8 位无符号整数标识，后面跟随可变长度的操
 | 0x17 | `store.64`   | -        | 1:addr, 2:val | -            | 把 val 存入 addr                        |
 | 0x18 | `alloc`      | -        | 1:size        | 1:addr       | 在堆上分配 size 字节的内存              |
 | 0x19 | `free`       | -        | 1:addr        | -            | 释放 addr 指向的内存块                  |
-| 0x1a | `stackalloc` | size:u32 | -             | -            | 在栈上表达式区分配 size slot 的内存     |
+| 0x1a | `stackalloc` | size:u32 | -             | -            | 在当前栈顶分配 size 个 slot，初始化为 0 |
 | 0x20 | `add.i`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs + rhs，参数为整数        |
 | 0x21 | `sub.i`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs - rhs，参数为整数        |
 | 0x22 | `mul.i`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs * rhs，参数为整数        |

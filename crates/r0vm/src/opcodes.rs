@@ -59,6 +59,7 @@ pub enum Op {
     PrintF,
     PrintS,
     PrintLn,
+    Panic,
     Halt,
 }
 
@@ -126,6 +127,7 @@ impl Op {
             PrintF => 0x00,
             PrintS => 0x00,
             PrintLn => 0x00,
+            Panic => 0x00,
             Halt => 0x00,
         }
     }

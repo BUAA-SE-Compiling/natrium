@@ -130,6 +130,7 @@ impl<'src> R0Vm<'src> {
             PrintF => self.print_f(),
             PrintS => self.print_s(),
             PrintLn => self.print_ln(),
+            Panic => self.halt(),
             Halt => self.halt(),
         }
     }
