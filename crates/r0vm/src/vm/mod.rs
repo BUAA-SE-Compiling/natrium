@@ -26,13 +26,17 @@ pub struct R0Vm<'src> {
     bp: usize,
 
     /// Standard Input Stream
-    stdin: Box<dyn Read>,
+    stdin: &'src mut dyn Read,
     /// Standard Output Stream
-    stdout: Box<dyn Write>,
+    stdout: &'src mut dyn Write,
 }
 
 impl<'src> R0Vm<'src> {
-    pub fn new(src: &'src S0, stdin: Box<dyn Read>, stdout: Box<dyn Write>) -> Result<R0Vm<'src>> {
+    pub fn new(
+        src: &'src S0,
+        stdin: &'src mut dyn Read,
+        stdout: &'src mut dyn Write,
+    ) -> Result<R0Vm<'src>> {
         // TODO: Move ip onto start of `_start` function
         let start = src.functions.get(0).ok_or(Error::NoEntryPoint)?;
         Ok(R0Vm {
@@ -48,9 +52,20 @@ impl<'src> R0Vm<'src> {
         })
     }
 
+    pub fn step(&mut self) -> Result<()> {
+        let op = self.get_next_instruction()?;
+        self.exec_instruction(op)
+    }
+
     #[inline]
     fn get_next_instruction(&mut self) -> Result<Op> {
-        unimplemented!()
+        let op = *self
+            .fp
+            .ins
+            .get(self.ip)
+            .ok_or(Error::ControlReachesEnd(self.ip))?;
+        self.ip += 1;
+        Ok(op)
     }
 
     pub(crate) fn check_stack_overflow(&self, pushed: u64) -> Result<()> {
@@ -148,6 +163,10 @@ impl<'src> R0Vm<'src> {
             inst: self.ip as u64,
             fn_name: None,
         })
+    }
+
+    pub fn stack(&self) -> &Vec<Slot> {
+        &self.stack
     }
 }
 

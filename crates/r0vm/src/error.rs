@@ -36,7 +36,7 @@ pub enum Error {
     UnalignedAccess(u64),
 
     #[fail(display = "Control reaches end of function #{} without returning", _0)]
-    ControlReachesEnd(u32),
+    ControlReachesEnd(usize),
 
     #[fail(display = "Unable to find entry point")]
     NoEntryPoint,
