@@ -4,9 +4,29 @@
 
 ## 虚拟机简介
 
-r0vm 是一个具有线性内存空间的栈式虚拟机。栈以外的内存空间以 8 位（1 字节）为单位寻址，栈空间以 64 位（8 字节）为单位寻址。
+r0vm 是一个具有线性内存空间的栈式虚拟机。堆内存空间和栈空间使用相同的地址空间。
+
+## 内存空间
+
+r0vm 的内存空间以 8 位（1 字节）为单位寻址。8、16、32、64 位的数据类型分别以其大小为单位在内存中对齐。当读取或写入操作未对齐时，会产生 `UnalignedAccess` 错误。
+
+r0vm 的栈空间以 8 字节为一个 slot，压栈、弹栈以及各种运算操作均以 slot 为单位进行。默认情况下，栈的大小是 1 MiB (1048576 字节)，即 131072 个 slot。栈空时弹栈和栈满时压栈分别会产生 `StackUnderflow` 和 `StackOverflow` 错误。
+
+## 数据类型
+
+r0vm 在运算中支持三种基本数据类型，分别是 64 位无符号整数 `u64`、64 位有符号整数 `i64`、64 位浮点数 `f64`。
+
+`u64` 和 `i64` 都是 64 位整数，使用[二进制补码](2s_complement)形式表示。两种类型在多数整数运算中不做区分，仅在 `cmp.T`（比较指令，见下）等两种运算结果有差别的地方有所区分。在运算溢出时，两种类型均采用环绕 (wrap-around) 方式处理结果。
+
+`f64` 是符合 [IEEE 754](ieee754) 规定的[双精度浮点数](double)。
+
+[2s_complement]: https://en.wikipedia.org/wiki/Two%27s_complement
+[ieee754]: https://en.wikipedia.org/wiki/IEEE_754
+[double]: https://en.wikipedia.org/wiki/Double-precision_floating-point_format
 
 ## 二进制格式
+
+s0 是 r0vm 所使用的汇编文件格式，其作用和内容类似 Java 的 `.class` 文件或者 DotNet 的 `.dll` 文件。
 
 下面的结构体表示了 s0 的二进制文件结构。其中 `[T]` 表示类型 `T` 为元素的数组，在二进制文件中表示为 `u16` 大小的元素数量紧跟着所有元素的紧凑排列。
 
@@ -17,7 +37,7 @@ struct S0 {
     magic: u32 = 0x72303b3e,
     /// 版本号，定为 1
     version: u32 = 0x00000001,
-    /// 常量池
+    /// 全局变量池
     globals: [GlobalDef],
     /// 函数池
     functions: [FunctionDef],
@@ -25,16 +45,6 @@ struct S0 {
 
 /// 单个常量
 union GlobalDef {
-    /// 32 位整数
-    I32 {
-        tag: u8 = 1,
-        num: i32,
-    },
-    /// 64 位浮点数
-    F64 {
-        tag: u8 = 2,
-        num: f64,
-    },
     /// 二进制块（包括字符串）
     Blob {
         tag: u8 = 3,
@@ -56,10 +66,14 @@ struct FunctionDef {
 ```
 | ...          |
 |              | <- 栈顶 %sp
-| 中间结果     | 
+| 表达式栈 ... |
+| 表达式栈     |
+| 虚拟机参数...| 
 | 虚拟机参数   | <- 被调用者栈底 %bp
-| 局部变量     | 
-| 调用参数     |
+| 局部变量 ... |
+| 局部变量     | <- 调用者调用前 %sp
+| 调用参数 ... | 
+| 调用参数     | 
 |--------------| ===
 | 返回值       | v 
 | 中间结果     | 调用者栈
@@ -68,6 +82,22 @@ struct FunctionDef {
 ```
 
 其中，调用参数和返回值由调用者压栈，调用参数由被调用者清理。
+
+### 虚拟机参数
+
+虚拟机会在表达式栈和局部变量之间插入一系列的虚拟机参数以辅助虚拟机运行，目前暂定格式为（从栈顶到栈底）：
+
+```
+| ...           |
+| 表达式栈      | -- %bp - 24
+|---------------|
+| 调用者函数 ID | -- %bp - 16
+| 调用者 %ip    | -- %bp - 8
+| 调用者 %bp    | <- %bp
+|---------------|
+| 局部变量      | -- %bp + 8
+| ...           |
+```
 
 ## 指令集
 
@@ -98,20 +128,21 @@ r0vm 的指令使用 8 位无符号整数标识，后面跟随可变长度的操
 | 0x20 | `add.i`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs + rhs，参数为整数        |
 | 0x21 | `sub.i`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs - rhs，参数为整数        |
 | 0x22 | `mul.i`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs * rhs，参数为整数        |
-| 0x23 | `div.i`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs / rhs，参数为整数        |
+| 0x23 | `div.i`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs / rhs，参数为有符号整数  |
 | 0x24 | `add.f`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs + rhs，参数为浮点数      |
 | 0x25 | `sub.f`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs - rhs，参数为浮点数      |
 | 0x26 | `mul.f`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs * rhs，参数为浮点数      |
 | 0x27 | `div.f`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs / rhs，参数为浮点数      |
-| 0x28 | `adc.i`      | -        | 1:lhs, 2:rhs  | 1:res        | (待确认)                                |
+| 0x28 | `div.u`      | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs / rhs，参数为无符号整数  |
 | 0x29 | `shl`        | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs << rhs                   |
 | 0x2a | `shr`        | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs >> rhs （算术右移）      |
 | 0x2b | `and`        | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs & rhs                    |
 | 0x2c | `or`         | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs &#124; rhs               |
 | 0x2d | `xor`        | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs ^ rhs                    |
 | 0x2d | `not`        | -        | 1:lhs         | 1:res        | 计算 res = !lhs                         |
-| 0x30 | `cmp.i`      | -        | 1:lhs, 2:rhs  | 1:res        | 比较整数 lhs 和 rhs 大小                |
+| 0x30 | `cmp.i`      | -        | 1:lhs, 2:rhs  | 1:res        | 比较有符号整数 lhs 和 rhs 大小          |
 | 0x31 | `cmp.f`      | -        | 1:lhs, 2:rhs  | 1:res        | 比较浮点数 lhs 和 rhs 大小              |
+| 0x?? | `cmp.u`      | -        | 1:lhs, 2:rhs  | 1:res        | 比较无符号整数 lhs 和 rhs 大小          |
 | 0x32 | `neg.i`      | -        | 1:lhs         | 1:res        | 对 lhs 取反                             |
 | 0x33 | `neg.f`      | -        | 1:lhs         | 1:res        | 对 lhs 取反                             |
 | 0x34 | `itof`       | -        | 1:lhs         | 1:res        | 把 lhs 从整数转换成浮点数               |
