@@ -114,8 +114,8 @@ r0vm 的指令使用 8 位无符号整数标识，后面跟随可变长度的操
 | 0x02 | `pop`        | -        | 1             |              | 弹栈 1 个 slot                          |
 | 0x03 | `popn`       | num:u32  | 1-num         | -            | 弹栈 num 个 slot                        |
 | 0x04 | `dup`        | -        | 1:num         | 1:num, 2:num | 复制栈顶 slot                           |
-| 0x08 | `loca`       | n:u32    | -             | 1:addr       | 加载第 n 个局部变量的地址               |
-| 0x09 | `globa`      | n:u32    | -             | 1:addr       | 加载第 n 个全局变量（常量？）的地址     |
+| 0x08 | `loca`       | off:u32  | -             | 1:addr       | 加载 off 偏移量处局部变量的地址         |
+| 0x09 | `globa`      | n:u32    | -             | 1:addr       | 加载第 n 个全局变量/常量的地址          |
 | 0x10 | `load.8`     | -        | 1:addr        | 1:val        | 从 addr 加载 8 位 value 压栈            |
 | 0x11 | `load.16`    | -        | 1:addr        | 1:val        | 从 addr 加载 16 位 value 压栈           |
 | 0x12 | `load.32`    | -        | 1:addr        | 1:val        | 从 addr 加载 32 位 value 压栈           |
