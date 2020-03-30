@@ -311,13 +311,8 @@ function playpen_text(playpen) {
       stylesheets.tomorrowNight.disabled = true
       stylesheets.highlight.disabled = true
       ace_theme = 'ace/theme/tomorrow_night'
-    } else if (theme == 'city-lights') {
-      stylesheets.ayuHighlight.disabled = true
-      stylesheets.tomorrowNight.disabled = true
-      stylesheets.highlight.disabled = false
-      //   ace_theme = 'ace/theme/city_lights'
     } else {
-      stylesheets.cityLights.disabled = true
+      stylesheets.cityLights.disabled = false
       stylesheets.ayuHighlight.disabled = true
       stylesheets.tomorrowNight.disabled = true
       stylesheets.highlight.disabled = false

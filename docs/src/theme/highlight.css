@@ -11,6 +11,7 @@ Original One Dark Syntax theme from https://github.com/atom/one-dark-syntax
   padding: 0.5em;
   color: #abb2bf;
   background: #282c34;
+  font-family: Iosevka !important;
 }
 .hljs-keyword,
 .hljs-operator {

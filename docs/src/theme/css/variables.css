@@ -7,6 +7,13 @@
   --menu-bar-height: 50px;
 }
 
+body {
+  line-height: 175%;
+}
+code {
+  line-height: 150%;
+}
+
 /* Themes */
 
 .city-lights {
