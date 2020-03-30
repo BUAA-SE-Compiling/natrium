@@ -206,10 +206,10 @@ r0vm 的指令使用 8 位无符号整数标识，后面跟随可变长度的操
 | 0x11 | `load.16`    | -        | 1:addr        | 1:val        | 从 addr 加载 16 位 value 压栈           |
 | 0x12 | `load.32`    | -        | 1:addr        | 1:val        | 从 addr 加载 32 位 value 压栈           |
 | 0x13 | `load.64`    | -        | 1:addr        | 1:val        | 从 addr 加载 64 位 value 压栈           |
-| 0x14 | `store.8`    | -        | 1:addr, 2:val | -            | 把 val 截断到 8 位存入 addr             |
-| 0x15 | `store.16`   | -        | 1:addr, 2:val | -            | 把 val 截断到 16 位存入 addr            |
-| 0x16 | `store.32`   | -        | 1:addr, 2:val | -            | 把 val 截断到 32 位存入 addr            |
-| 0x17 | `store.64`   | -        | 1:addr, 2:val | -            | 把 val 存入 addr                        |
+| 0x14 | `store.8`    | -        | 1:val, 2:addr | -            | 把 val 截断到 8 位存入 addr             |
+| 0x15 | `store.16`   | -        | 1:val, 2:addr | -            | 把 val 截断到 16 位存入 addr            |
+| 0x16 | `store.32`   | -        | 1:val, 2:addr | -            | 把 val 截断到 32 位存入 addr            |
+| 0x17 | `store.64`   | -        | 1:val, 2:addr | -            | 把 val 存入 addr                        |
 | 0x18 | `alloc`      | -        | 1:size        | 1:addr       | 在堆上分配 size 字节的内存              |
 | 0x19 | `free`       | -        | 1:addr        | -            | 释放 addr 指向的内存块                  |
 | 0x1a | `stackalloc` | size:u32 | -             | -            | 在当前栈顶分配 size 个 slot，初始化为 0 |
@@ -257,6 +257,12 @@ r0vm 的指令使用 8 位无符号整数标识，后面跟随可变长度的操
 | 0xfe | `panic`      |          |               |              | 恐慌（导致强行退出）                    |
 | 0xff | `halt`       |          |               |              | 停机                                    |
 
-### 关于 `cmp.T` 指令
+### `cmp.T` 指令
 
 指令会在 `lhs < rhs` 时压入 `-1i64`, `lhs > rhs` 时压入 `1i64`, `lhs == rhs` 时压入 `0i64`。浮点数无法比较时压入 `0`。
+
+### `load.T` 指令
+
+
+
+### `store.T` 指令
