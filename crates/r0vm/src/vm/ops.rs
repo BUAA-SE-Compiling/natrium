@@ -407,6 +407,7 @@ impl<'src> super::R0Vm<'src> {
 
         self.fn_info = fp;
         self.ip = old_ip as usize;
+        self.fn_id = old_fn as usize;
 
         Ok(())
     }

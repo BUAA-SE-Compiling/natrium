@@ -82,7 +82,7 @@ impl<'src> R0Vm<'src> {
             .fn_info
             .ins
             .get(self.ip)
-            .ok_or(Error::ControlReachesEnd(self.ip))?;
+            .ok_or(Error::ControlReachesEnd(self.fn_id))?;
         self.ip += 1;
         Ok(op)
     }

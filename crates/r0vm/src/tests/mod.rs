@@ -1,37 +1,9 @@
+use super::*;
 use crate::error::*;
 use crate::opcodes::Op::*;
 use crate::opcodes::*;
 use crate::s0::*;
 use crate::vm::*;
-
-macro_rules! s0_bin {
-    (
-        $(
-            fn $name:ident $max_stack:literal $param:literal -> $ret:literal {
-                $($inst:expr),* $(,)?
-            }
-        )+
-    ) => {{
-        use crate::opcodes::Op::*;
-        let mut fns = vec![];
-        $({
-            let max_stack = $max_stack;
-            let inst = vec![$($inst),*];
-            let func = FnDef{
-                max_stack,
-                param_slots: $param,
-                ret_slots: $ret,
-                ins: inst,
-            };
-            fns.push(func);
-        })+
-        let s0 = S0{
-            globals: vec![],
-            functions: fns,
-        };
-        s0
-    }};
-}
 
 #[test]
 pub fn base_test() {
@@ -78,10 +50,23 @@ pub fn panic_test() {
 pub fn call_test() {
     let s0 = s0_bin! (
         fn _start 0 0 -> 0 {
-            Call(1)
+            StackAlloc(1),
+            Push(1),
+            Push(2),
+            Call(1),
         }
-        fn main 0 0 -> 0 {
+        fn main 1 2 -> 1 {
+            LocA(1)
+            Load64
+            LocA(2)
+            Load64
+            AddI
             Ret
         }
     );
+    let mut stdin = std::io::empty();
+    let mut stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    vm.run_to_end().unwrap();
+    assert_eq!(vm.stack(), &vec![3])
 }
