@@ -60,12 +60,20 @@ impl<'src> R0Vm<'src> {
         })
     }
 
-    pub const HEAP_START: u64 = 0x00000001_00000000;
-    pub const STACK_START: u64 = 0xffffffff_ffffffff;
-
     pub fn step(&mut self) -> Result<()> {
         let op = self.get_next_instruction()?;
         self.exec_instruction(op)
+    }
+
+    /// Drive virtual machine to end, and abort when any error occurs.
+    pub fn run_to_end(&mut self) -> Result<()> {
+        loop {
+            match self.step() {
+                Ok(()) => (),
+                Err(Error::ControlReachesEnd(0)) => break Ok(()),
+                e @ _ => return e,
+            }
+        }
     }
 
     #[inline]

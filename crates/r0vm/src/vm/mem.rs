@@ -42,7 +42,7 @@ impl ManagedMemory {
     }
 
     /// Get the memory as raw pointer
-    pub unsafe fn get_ptr(&mut self) -> *mut u8 {
+    pub fn get_ptr(&mut self) -> *mut u8 {
         self.ptr
     }
 }
@@ -63,6 +63,11 @@ fn round_up_to_multiple(x: u64, mult: u64) -> u64 {
 }
 
 impl<'src> R0Vm<'src> {
+    pub const HEAP_START: u64 = 0x00000001_00000000;
+    pub const STACK_START: u64 = 0xffffffff_ffffffff;
+
+    /// Find the piece of heap memory by address.
+    /// Returns the memory slice and the index offset from slice start.
     pub fn get_heap_mem(&self, addr: u64) -> Result<(&[u8], usize)> {
         let range = self
             .heap
@@ -77,6 +82,8 @@ impl<'src> R0Vm<'src> {
         }
     }
 
+    /// Find the piece of heap memory by address, as mutable data.
+    /// Returns the memory slice and the index offset from slice start.
     pub fn get_heap_mem_mut(&mut self, addr: u64) -> Result<(&mut [u8], usize)> {
         let range = self
             .heap
