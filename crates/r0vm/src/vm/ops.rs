@@ -1,6 +1,6 @@
-//! Implementation for all operation codes for R0VM
+//! Implementation for all instruction operations for R0VM
 
-use super::Slot;
+use super::{R0Vm, Slot};
 use crate::{error::*, s0::FnDef};
 
 /// Reinterpret x as T
@@ -57,12 +57,13 @@ impl<'src> super::R0Vm<'src> {
         Ok(())
     }
 
+    #[inline]
     pub(crate) fn pop(&mut self) -> Result<u64> {
         self.stack.pop().ok_or(Error::StackUnderflow)
     }
 
-    pub(crate) fn pop_n(&mut self, n: u64) -> Result<()> {
-        let rem = (self.stack.len() as u64)
+    pub(crate) fn pop_n(&mut self, n: u32) -> Result<()> {
+        let rem = (self.stack.len() as u32)
             .checked_sub(n)
             .ok_or(Error::StackUnderflow)?;
         self.stack.truncate(rem as usize);
@@ -74,12 +75,15 @@ impl<'src> super::R0Vm<'src> {
         self.push(top)
     }
 
-    pub(crate) fn loc_a(&mut self, a: u64) -> Result<()> {
-        unimplemented!()
+    pub(crate) fn loc_a(&mut self, a: u32) -> Result<()> {
+        let total_loc = self.total_loc();
+        let bp = self.bp;
+        let addr = R0Vm::STACK_START - bp as u64 + total_loc as u64 - a as u64;
+        self.push(addr)
     }
 
-    pub(crate) fn glob_a(&mut self, a: u64) -> Result<()> {
-        unimplemented!()
+    pub(crate) fn glob_a(&mut self, a: u32) -> Result<()> {
+        unimplemented!("What does address space look like?")
     }
 
     pub(crate) fn load8(&mut self) -> Result<()> {
@@ -122,8 +126,11 @@ impl<'src> super::R0Vm<'src> {
         unimplemented!()
     }
 
-    pub(crate) fn stack_alloc(&mut self, count: u64) -> Result<()> {
-        unimplemented!()
+    pub(crate) fn stack_alloc(&mut self, count: u32) -> Result<()> {
+        for _ in 0..count {
+            self.push(0)?;
+        }
+        Ok(())
     }
 
     pub(crate) fn add_i(&mut self) -> Result<()> {
@@ -146,13 +153,13 @@ impl<'src> super::R0Vm<'src> {
 
     pub(crate) fn div_i(&mut self) -> Result<()> {
         let (lhs, rhs) = self.pop2i()?;
-        let res = lhs.checked_div(rhs).ok_or_else(|| {
-            if rhs == -1 {
-                Error::ArithmeticErr
-            } else {
-                Error::DivZero
-            }
-        })?;
+        let res = lhs
+            .checked_div(rhs)
+            // there's only 2 ways this could raise None:
+            // - lhs == i64::min_value && rhs == -1  => Ok(i64::min_value)
+            // - rhs == 0   => Err(Error::DivZero)
+            .or_else(|| if rhs == -1 { Some(rhs) } else { None })
+            .ok_or(Error::DivZero)?;
         self.push(reinterpret_t(res))?;
         Ok(())
     }
@@ -372,7 +379,7 @@ impl<'src> super::R0Vm<'src> {
         let sp = self.stack.len();
 
         let fp = self.get_fn_by_id(id)?;
-        self.stack_alloc(fp.max_stack as u64)?;
+        self.stack_alloc(fp.max_stack)?;
 
         let bp = self.stack.len();
 
@@ -396,7 +403,7 @@ impl<'src> super::R0Vm<'src> {
         let fp = self.get_fn_by_id(old_fn as u32)?;
         // %sp = %bp
         self.stack.truncate(old_sp as usize);
-        self.pop_n(self.fn_info.param_slots as u64)?;
+        self.pop_n(self.fn_info.param_slots)?;
 
         self.fn_info = fp;
         self.ip = old_ip as usize;
@@ -440,6 +447,8 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn print_s(&mut self) -> Result<()> {
+        let addr = self.pop()?;
+        let len = self.pop()?;
         unimplemented!()
     }
 

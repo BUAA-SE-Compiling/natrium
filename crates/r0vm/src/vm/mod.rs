@@ -1,18 +1,25 @@
+pub mod mem;
 pub mod ops;
+pub mod util;
 
 use crate::error::*;
 use crate::{opcodes::Op, s0::*};
+use mem::*;
+use ops::*;
 use std::{collections::BTreeMap, io::Read, io::Write};
+use util::*;
 
 pub type Slot = u64;
+pub type Addr = u64;
 
 /// An interpreter running S0 code.
 pub struct R0Vm<'src> {
     /// Source file
     src: &'src S0,
+    max_stack_size: usize,
 
     /// Memory heap
-    heap: BTreeMap<u64, Box<[u8]>>,
+    heap: BTreeMap<Addr, ManagedMemory>,
     /// Memory stack
     stack: Vec<Slot>,
 
@@ -41,6 +48,7 @@ impl<'src> R0Vm<'src> {
         let start = src.functions.get(0).ok_or(Error::NoEntryPoint)?;
         Ok(R0Vm {
             src,
+            max_stack_size: 131072,
             heap: BTreeMap::new(),
             stack: Vec::new(),
             fn_info: start,
@@ -51,6 +59,9 @@ impl<'src> R0Vm<'src> {
             stdout,
         })
     }
+
+    pub const HEAP_START: u64 = 0x00000001_00000000;
+    pub const STACK_START: u64 = 0xffffffff_ffffffff;
 
     pub fn step(&mut self) -> Result<()> {
         let op = self.get_next_instruction()?;
@@ -68,8 +79,8 @@ impl<'src> R0Vm<'src> {
         Ok(op)
     }
 
-    pub(crate) fn check_stack_overflow(&self, pushed: u64) -> Result<()> {
-        if (self.stack.len() as u64) < (usize::max_value() as u64 - pushed) {
+    pub(crate) fn check_stack_overflow(&self, push_cnt: usize) -> Result<()> {
+        if self.stack.len() < (self.max_stack_size - push_cnt) {
             Ok(())
         } else {
             Err(Error::StackOverflow)
@@ -165,8 +176,38 @@ impl<'src> R0Vm<'src> {
         })
     }
 
+    pub fn stack_info(&self, bp: usize) -> Result<(StackInfo, usize)> {
+        let prev_bp = *self
+            .stack
+            .get(bp)
+            .ok_or_else(|| Error::InvalidAddress(stack_idx_to_vm_addr(bp)))?;
+        let ip = *self
+            .stack
+            .get(bp + 1)
+            .ok_or_else(|| Error::InvalidAddress(stack_idx_to_vm_addr(bp + 1)))?;
+        let fn_id = *self
+            .stack
+            .get(bp + 2)
+            .ok_or_else(|| Error::InvalidAddress(stack_idx_to_vm_addr(bp + 2)))?;
+
+        Ok((
+            StackInfo {
+                fn_name: None,
+                fn_id,
+                inst: ip,
+            },
+            prev_bp as usize,
+        ))
+    }
+
     pub fn stack(&self) -> &Vec<Slot> {
         &self.stack
+    }
+
+    #[inline]
+    fn total_loc(&self) -> usize {
+        let total_loc = self.fn_info.max_stack + self.fn_info.param_slots + self.fn_info.ret_slots;
+        total_loc as usize
     }
 }
 

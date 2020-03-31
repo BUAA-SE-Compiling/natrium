@@ -29,6 +29,12 @@ pub enum Error {
     #[fail(display = "Arithmetic error")]
     ArithmeticErr,
 
+    #[fail(display = "Allocated 0 size of memory")]
+    AllocZero,
+
+    #[fail(display = "Deallocating memory that is not allocated")]
+    InvalidDeallocation,
+
     #[fail(display = "Out of memory")]
     OutOfMemory,
 
@@ -43,6 +49,9 @@ pub enum Error {
 
     #[fail(display = "IO error")]
     IoError(std::io::Error),
+
+    #[fail(display = "Allocation Layout error")]
+    AllocLayoutError(std::alloc::LayoutErr),
 
     #[fail(display = "Halt")]
     Halt,
@@ -71,5 +80,11 @@ impl Display for InvalidInstructionCtx {
 impl From<std::io::Error> for Error {
     fn from(x: std::io::Error) -> Self {
         Error::IoError(x)
+    }
+}
+
+impl From<std::alloc::LayoutErr> for Error {
+    fn from(x: std::alloc::LayoutErr) -> Self {
+        Error::AllocLayoutError(x)
     }
 }
