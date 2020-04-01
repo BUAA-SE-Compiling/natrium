@@ -89,3 +89,24 @@ pub fn simple_alloc_test() {
     vm.run_to_end().unwrap();
     assert_eq!(vm.stack(), &vec![0x10008086])
 }
+
+#[test]
+pub fn simple_branch_test() {
+    let s0 = s0_bin! (
+        fn _start 0 0 -> 0 {
+            Push(0)
+            Push(1)
+            CmpI
+            Bz(2)
+            Br(2)
+            Push(3)
+            Br(2)
+            Push(5)
+        }
+    );
+    let mut stdin = std::io::empty();
+    let mut stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    vm.run_to_end().unwrap();
+    assert_eq!(vm.stack(), &vec![5])
+}

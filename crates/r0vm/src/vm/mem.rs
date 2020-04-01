@@ -67,6 +67,8 @@ impl<'src> R0Vm<'src> {
     pub const STACK_START: u64 = 0xffffffff_ffffffff;
     pub const STACK_END: u64 = 0xffffffff_fff00000;
 
+    // * Heap stuff -->
+
     /// Find the piece of heap memory by address.
     /// Returns the managed memory instance and the index offset from start.
     pub fn get_heap_mem_managed_ref(&self, addr: u64) -> Result<(&ManagedMemory, usize)> {
@@ -136,6 +138,14 @@ impl<'src> R0Vm<'src> {
         drop(mem);
         Ok(())
     }
+
+    // * Stack stuff -->
+
+    pub fn get_stack_mem<T>(&self) -> Result<T> {
+        unimplemented!("Stack layout needs to change")
+    }
+
+    // * Misc stuff -->
 
     /// Access an immutable reference of a piece of memory at `addr`
     pub fn access_mem<T>(&self, addr: u64) -> Result<&T> {
