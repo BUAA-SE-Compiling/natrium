@@ -10,11 +10,11 @@ pub struct ManagedMemory {
 
 impl ManagedMemory {
     /// Allocate a piece of managed memory using global allocator
-    pub unsafe fn alloc(layout: Layout) -> Result<ManagedMemory> {
+    pub fn alloc(layout: Layout) -> Result<ManagedMemory> {
         if layout.size() == 0 {
             return Err(Error::AllocZero);
         }
-        let mem = std::alloc::alloc_zeroed(layout);
+        let mem = unsafe { std::alloc::alloc_zeroed(layout) };
         if mem.is_null() {
             return Err(Error::OutOfMemory);
         }
@@ -52,6 +52,103 @@ impl Drop for ManagedMemory {
         unsafe { std::alloc::dealloc(self.ptr, self.layout) }
     }
 }
+
+// pub struct StackMemory {
+//     alloc_base: *mut u64,
+//     stack_base: *mut u64,
+//     bp: *mut u64,
+//     sp: *mut u64,
+//     stack_size: usize,
+// }
+
+// impl StackMemory {
+//     /// Allocate a stack with `size` slots.
+//     pub fn alloc(size: usize) -> Result<StackMemory> {
+//         unsafe {
+//             let mem_base = std::alloc::alloc_zeroed(
+//                 Layout::from_size_align(size, std::mem::align_of::<u64>()).unwrap(),
+//             ) as *mut u64;
+//             let stack_top = mem_base.add(size);
+//             Ok(StackMemory {
+//                 alloc_base: mem_base,
+//                 stack_base: stack_top,
+//                 bp: stack_top,
+//                 sp: stack_top,
+//                 stack_size: size,
+//             })
+//         }
+//     }
+
+//     pub fn push(&mut self, val: u64) -> Result<()> {
+//         if self.sp <= self.stack_base {
+//             Err(Error::StackOverflow)
+//         } else {
+//             unsafe {
+//                 self.sp = self.sp.sub(1);
+//                 *self.sp = val;
+//             }
+//             Ok(())
+//         }
+//     }
+
+//     pub fn pop(&mut self) -> Result<u64> {
+//         if self.sp >= self.alloc_base {
+//             Err(Error::StackUnderflow)
+//         } else {
+//             let val = unsafe {
+//                 let val = *self.sp;
+//                 self.sp = self.sp.add(1);
+//                 val
+//             };
+//             Ok(val)
+//         }
+//     }
+
+//     pub fn stack_alloc(&mut self, cnt: usize) -> Result<()> {
+//         let new_ptr = unsafe { self.sp.sub(cnt) };
+//         if new_ptr < self.alloc_base {
+//             Err(Error::StackOverflow)
+//         } else {
+//             self.sp = new_ptr;
+//             Ok(())
+//         }
+//     }
+
+//     pub fn get_relative_to_bp(&self, offset: isize) -> Result<u64> {
+//         let ptr = unsafe { self.bp.offset(offset) };
+//         if ptr > self.stack_base || ptr < self.alloc_base {
+//             Err(Error::InvalidAddress(0))
+//         } else {
+//             Ok(unsafe { *ptr })
+//         }
+//     }
+
+//     pub fn bp(&self) -> *mut u64 {
+//         self.bp
+//     }
+
+//     pub fn sp(&self) -> *mut u64 {
+//         self.sp
+//     }
+
+//     pub fn size(&self) -> usize {
+//         self.stack_size
+//     }
+
+//     pub unsafe fn set_bp(&mut self, bp: *mut u64) {
+//         assert!(bp >= self.sp);
+//         assert!(bp >= self.stack_base);
+//         assert!(bp <= self.alloc_base);
+//         self.bp = bp;
+//     }
+
+//     pub unsafe fn set_sp(&mut self, sp: *mut u64) {
+//         assert!(sp <= self.bp);
+//         assert!(sp >= self.stack_base);
+//         assert!(sp <= self.alloc_base);
+//         self.sp = sp;
+//     }
+// }
 
 pub fn stack_idx_to_vm_addr(idx: usize) -> u64 {
     R0Vm::STACK_START - (idx as u64) * 8
@@ -106,17 +203,35 @@ impl<'src> R0Vm<'src> {
     }
 
     /// Assuming `mem` is heap memory, get the reference of this memory as `&T`.
-    pub unsafe fn get_heap_mem<T>(&self, addr: u64) -> Result<&T> {
+    pub unsafe fn heap_mem_ref<T>(&self, addr: u64) -> Result<&T> {
         let t_ptr = self.get_heap_mem_ptr::<T>(addr)?;
         let t_ptr = t_ptr as *mut T;
         Ok(&*t_ptr)
     }
 
     /// Assuming `mem` is heap memory, get the reference of this memory as `&mut T`.
-    pub unsafe fn get_heap_mem_mut<T>(&self, addr: u64) -> Result<&mut T> {
+    pub unsafe fn heap_mem_mut<T>(&self, addr: u64) -> Result<&mut T> {
         let t_ptr = self.get_heap_mem_ptr::<T>(addr)?;
         let t_ptr = t_ptr as *mut T;
         Ok(&mut *t_ptr)
+    }
+
+    /// Assuming `mem` is heap memory, get the reference of this memory as `&T`.
+    pub unsafe fn heap_mem_get<T>(&self, addr: u64) -> Result<T>
+    where
+        T: Copy,
+    {
+        let t_ptr = self.get_heap_mem_ptr::<T>(addr)?;
+        let t_ptr = t_ptr as *mut T;
+        Ok(*t_ptr)
+    }
+
+    /// Assuming `mem` is heap memory, get the reference of this memory as `&mut T`.
+    pub unsafe fn heap_mem_set<T>(&self, addr: u64, val: T) -> Result<()> {
+        let t_ptr = self.get_heap_mem_ptr::<T>(addr)?;
+        let t_ptr = t_ptr as *mut T;
+        *t_ptr = val;
+        Ok(())
     }
 
     /// Allocate a piece of memory of length `len` onto heap. Returns address.
@@ -148,13 +263,16 @@ impl<'src> R0Vm<'src> {
     // * Misc stuff -->
 
     /// Access an immutable reference of a piece of memory at `addr`
-    pub fn access_mem<T>(&self, addr: u64) -> Result<&T> {
+    pub fn access_mem_get<T>(&self, addr: u64) -> Result<T>
+    where
+        T: Copy,
+    {
         if addr < R0Vm::HEAP_START {
             // Global vars
             unimplemented!("Access global variables")
         } else if addr < R0Vm::STACK_END {
             // Heap vars
-            unsafe { self.get_heap_mem::<T>(addr) }
+            unsafe { self.heap_mem_get::<T>(addr) }
         } else {
             // Stack vars
             unimplemented!("Access stack variables")
@@ -162,13 +280,13 @@ impl<'src> R0Vm<'src> {
     }
 
     /// Access a mutable reference of a piece of memory at `addr`
-    pub fn access_mem_mut<T>(&self, addr: u64) -> Result<&mut T> {
+    pub fn access_mem_set<T>(&self, addr: u64, val: T) -> Result<()> {
         if addr < R0Vm::HEAP_START {
             // Global vars
             unimplemented!("Access global variables")
         } else if addr < R0Vm::STACK_END {
             // Heap vars
-            unsafe { self.get_heap_mem_mut::<T>(addr) }
+            unsafe { self.heap_mem_set::<T>(addr, val) }
         } else {
             // Stack vars
             unimplemented!("Access stack variables")

@@ -93,7 +93,7 @@ impl<'src> super::R0Vm<'src> {
     {
         assert!(std::mem::size_of::<T>() <= std::mem::size_of::<u64>());
         let addr = self.pop()?;
-        let res = *self.access_mem::<T>(addr)?;
+        let res = self.access_mem_get::<T>(addr)?;
         let res = res.into();
         self.push(res)
     }
@@ -123,9 +123,8 @@ impl<'src> super::R0Vm<'src> {
         let t = self.pop()?;
         let t = f(t);
         let addr = self.pop()?;
-        let res = self.access_mem_mut::<T>(addr)?;
-        *res = t;
-        Ok(())
+
+        self.access_mem_set(addr, t)
     }
 
     pub(crate) fn store8(&mut self) -> Result<()> {
