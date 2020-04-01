@@ -70,3 +70,22 @@ pub fn call_test() {
     vm.run_to_end().unwrap();
     assert_eq!(vm.stack(), &vec![3])
 }
+
+#[test]
+pub fn simple_alloc_test() {
+    let s0 = s0_bin! (
+        fn _start 0 0 -> 0 {
+            Push(8),
+            Alloc,
+            Dup,
+            Push(0x10008086),
+            Store64,
+            Load64
+        }
+    );
+    let mut stdin = std::io::empty();
+    let mut stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    vm.run_to_end().unwrap();
+    assert_eq!(vm.stack(), &vec![0x10008086])
+}
