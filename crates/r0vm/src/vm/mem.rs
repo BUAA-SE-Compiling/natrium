@@ -42,7 +42,7 @@ impl ManagedMemory {
     }
 
     /// Get the memory as raw pointer
-    pub fn get_ptr(&mut self) -> *mut u8 {
+    pub fn get_ptr(&self) -> *mut u8 {
         self.ptr
     }
 }
@@ -65,10 +65,11 @@ fn round_up_to_multiple(x: u64, mult: u64) -> u64 {
 impl<'src> R0Vm<'src> {
     pub const HEAP_START: u64 = 0x00000001_00000000;
     pub const STACK_START: u64 = 0xffffffff_ffffffff;
+    pub const STACK_END: u64 = 0xffffffff_fff00000;
 
     /// Find the piece of heap memory by address.
-    /// Returns the memory slice and the index offset from slice start.
-    pub fn get_heap_mem(&self, addr: u64) -> Result<(&[u8], usize)> {
+    /// Returns the managed memory instance and the index offset from start.
+    pub fn get_heap_mem_managed_ref(&self, addr: u64) -> Result<(&ManagedMemory, usize)> {
         let range = self
             .heap
             .range((std::ops::Bound::Unbounded, std::ops::Bound::Included(addr)));
@@ -78,24 +79,42 @@ impl<'src> R0Vm<'src> {
         if addr_offset > mem.len() as u64 {
             Err(Error::InvalidAddress(addr))
         } else {
-            Ok((unsafe { mem.get_slice() }, addr_offset as usize))
+            Ok((mem, addr_offset as usize))
         }
     }
 
-    /// Find the piece of heap memory by address, as mutable data.
-    /// Returns the memory slice and the index offset from slice start.
-    pub fn get_heap_mem_mut(&mut self, addr: u64) -> Result<(&mut [u8], usize)> {
-        let range = self
-            .heap
-            .range_mut((std::ops::Bound::Unbounded, std::ops::Bound::Included(addr)));
-        // Get the last memory chunk that is less or equal than address
-        let (start_addr, mem) = range.last().ok_or(Error::InvalidAddress(addr))?;
-        let addr_offset = addr - start_addr;
-        if addr_offset > mem.len() as u64 {
-            Err(Error::InvalidAddress(addr))
-        } else {
-            Ok((unsafe { mem.get_slice_mut() }, addr_offset as usize))
+    fn get_heap_mem_ptr<T>(&self, addr: u64) -> Result<*mut u8> {
+        assert!(addr > R0Vm::HEAP_START && addr < R0Vm::STACK_END);
+
+        let alignment_of_t = std::mem::align_of::<T>();
+        if addr % alignment_of_t as u64 != 0 {
+            return Err(Error::UnalignedAccess(addr));
         }
+
+        let (slice, offset) = self.get_heap_mem_managed_ref(addr)?;
+        let sizeof_t = std::mem::size_of::<T>();
+
+        // Check remaining space is enough
+        if sizeof_t + offset > slice.len() {
+            return Err(Error::InvalidAddress(addr));
+        }
+
+        let t_ptr = unsafe { slice.get_ptr().add(offset) };
+        Ok(t_ptr)
+    }
+
+    /// Assuming `mem` is heap memory, get the reference of this memory as `&T`.
+    pub unsafe fn get_heap_mem<T>(&self, addr: u64) -> Result<&T> {
+        let t_ptr = self.get_heap_mem_ptr::<T>(addr)?;
+        let t_ptr = t_ptr as *mut T;
+        Ok(&*t_ptr)
+    }
+
+    /// Assuming `mem` is heap memory, get the reference of this memory as `&mut T`.
+    pub unsafe fn get_heap_mem_mut<T>(&self, addr: u64) -> Result<&mut T> {
+        let t_ptr = self.get_heap_mem_ptr::<T>(addr)?;
+        let t_ptr = t_ptr as *mut T;
+        Ok(&mut *t_ptr)
     }
 
     /// Allocate a piece of memory of length `len` onto heap. Returns address.
@@ -116,5 +135,33 @@ impl<'src> R0Vm<'src> {
         let mem = self.heap.remove(&addr).ok_or(Error::InvalidDeallocation)?;
         drop(mem);
         Ok(())
+    }
+
+    /// Access an immutable reference of a piece of memory at `addr`
+    pub fn access_mem<T>(&self, addr: u64) -> Result<&T> {
+        if addr < R0Vm::HEAP_START {
+            // Global vars
+            unimplemented!("Access global variables")
+        } else if addr < R0Vm::STACK_END {
+            // Heap vars
+            unsafe { self.get_heap_mem::<T>(addr) }
+        } else {
+            // Stack vars
+            unimplemented!("Access stack variables")
+        }
+    }
+
+    /// Access a mutable reference of a piece of memory at `addr`
+    pub fn access_mem_mut<T>(&self, addr: u64) -> Result<&mut T> {
+        if addr < R0Vm::HEAP_START {
+            // Global vars
+            unimplemented!("Access global variables")
+        } else if addr < R0Vm::STACK_END {
+            // Heap vars
+            unsafe { self.get_heap_mem_mut::<T>(addr) }
+        } else {
+            // Stack vars
+            unimplemented!("Access stack variables")
+        }
     }
 }

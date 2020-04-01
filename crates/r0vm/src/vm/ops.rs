@@ -86,44 +86,73 @@ impl<'src> super::R0Vm<'src> {
         unimplemented!("What does address space look like?")
     }
 
+    #[inline]
+    fn load_t<T>(&mut self) -> Result<()>
+    where
+        T: Into<u64> + Copy,
+    {
+        assert!(std::mem::size_of::<T>() <= std::mem::size_of::<u64>());
+        let addr = self.pop()?;
+        let res = *self.access_mem::<T>(addr)?;
+        let res = res.into();
+        self.push(res)
+    }
+
     pub(crate) fn load8(&mut self) -> Result<()> {
-        unimplemented!()
+        self.load_t::<u8>()
     }
 
     pub(crate) fn load16(&mut self) -> Result<()> {
-        unimplemented!()
+        self.load_t::<u16>()
     }
 
     pub(crate) fn load32(&mut self) -> Result<()> {
-        unimplemented!()
+        self.load_t::<u32>()
     }
 
     pub(crate) fn load64(&mut self) -> Result<()> {
-        unimplemented!()
+        self.load_t::<u64>()
+    }
+
+    #[inline]
+    fn store_t<T, F>(&mut self, f: F) -> Result<()>
+    where
+        F: Fn(u64) -> T,
+    {
+        assert!(std::mem::size_of::<T>() <= std::mem::size_of::<u64>());
+        let t = self.pop()?;
+        let t = f(t);
+        let addr = self.pop()?;
+        let res = self.access_mem_mut::<T>(addr)?;
+        *res = t;
+        Ok(())
     }
 
     pub(crate) fn store8(&mut self) -> Result<()> {
-        unimplemented!()
+        self.store_t(|x| (x & 0xff) as u8)
     }
 
     pub(crate) fn store16(&mut self) -> Result<()> {
-        unimplemented!()
+        self.store_t(|x| (x & 0xffff) as u16)
     }
 
     pub(crate) fn store32(&mut self) -> Result<()> {
-        unimplemented!()
+        self.store_t(|x| (x & 0xffffffff) as u32)
     }
 
     pub(crate) fn store64(&mut self) -> Result<()> {
-        unimplemented!()
+        self.store_t(|x| x)
     }
 
     pub(crate) fn alloc(&mut self) -> Result<()> {
-        unimplemented!()
+        let len = self.pop()? as usize;
+        let addr = self.alloc_heap(len, 64)?;
+        self.push(addr)
     }
 
     pub(crate) fn free(&mut self) -> Result<()> {
-        unimplemented!()
+        let addr = self.pop()?;
+        self.free_heap(addr)
     }
 
     pub(crate) fn stack_alloc(&mut self, count: u32) -> Result<()> {
@@ -272,11 +301,16 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn neg_i(&mut self) -> Result<()> {
-        unimplemented!()
+        let x = self.pop()?;
+        let res = x.wrapping_neg();
+        self.push(res)
     }
 
     pub(crate) fn neg_f(&mut self) -> Result<()> {
-        unimplemented!()
+        let x = self.pop()?;
+        let f = reinterpret_u::<f64>(x);
+        let res = -f;
+        self.push(reinterpret_t(res))
     }
 
     pub(crate) fn itof(&mut self) -> Result<()> {
