@@ -2,10 +2,11 @@
 
 use super::{R0Vm, Slot};
 use crate::{error::*, s0::FnDef};
+use text_io::try_read;
 
 /// Reinterpret x as T
 #[inline]
-fn reinterpret_u<T>(x: u64) -> T
+pub(crate) fn reinterpret_u<T>(x: u64) -> T
 where
     T: U64Transmutable,
 {
@@ -14,7 +15,7 @@ where
 
 /// Reinterpret T as x
 #[inline]
-fn reinterpret_t<T>(x: T) -> u64
+pub(crate) fn reinterpret_t<T>(x: T) -> u64
 where
     T: U64Transmutable,
 {
@@ -22,7 +23,7 @@ where
 }
 
 /// A value type that is the same size as u64
-trait U64Transmutable {}
+pub(crate) trait U64Transmutable {}
 impl U64Transmutable for i64 {}
 impl U64Transmutable for f64 {}
 impl U64Transmutable for u64 {}
@@ -450,15 +451,52 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn scan_i(&mut self) -> Result<()> {
-        unimplemented!()
+        let mut err = None;
+        let val = try_read!(
+            // HACK: Whenever an IOError is encountered, that error is forwarded to the error variable outside. This allows us to use try_read!() to parse the value.
+            // Remained here until better options are available.
+            "{}",
+            (&mut self.stdin)
+                .map(|x| match x {
+                    Ok(x) => Some(x),
+                    Err(e) => {
+                        err = Some(e);
+                        None
+                    }
+                })
+                .flatten()
+        )
+        .map_err(|_| err.map(|e| Error::IoError(e)).unwrap_or(Error::ParseError))?;
+        self.push(val)
     }
 
     pub(crate) fn scan_c(&mut self) -> Result<()> {
-        unimplemented!()
+        let ch = self.stdin.next().ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::UnexpectedEof,
+                "Input does not provide anything",
+            )
+        })??;
+        let val = ch as u64;
+        self.push(val)
     }
 
     pub(crate) fn scan_f(&mut self) -> Result<()> {
-        unimplemented!()
+        let mut err = None;
+        let val: f64 = try_read!(
+            "{}",
+            (&mut self.stdin)
+                .map(|x| match x {
+                    Ok(x) => Some(x),
+                    Err(e) => {
+                        err = Some(e);
+                        None
+                    }
+                })
+                .flatten()
+        )
+        .map_err(|_| err.map(|e| Error::IoError(e)).unwrap_or(Error::ParseError))?;
+        self.push(reinterpret_t(val))
     }
 
     pub(crate) fn print_i(&mut self) -> Result<()> {
@@ -480,14 +518,20 @@ impl<'src> super::R0Vm<'src> {
         let i = self.pop()?;
         let f = reinterpret_u::<f64>(i);
         self.stdout
-            .write_fmt(format_args!("{}", f))
+            .write_fmt(format_args!("{:.6}", f))
             .map_err(|err| err.into())
     }
 
     pub(crate) fn print_s(&mut self) -> Result<()> {
+        // TODO: Should we use address + length or a simple CString?
         let addr = self.pop()?;
         let len = self.pop()?;
-        unimplemented!()
+        for i in 0..len {
+            let addr = addr + i;
+            let val = self.access_mem_get::<u8>(addr)?;
+            self.stdout.write_all(&[val])?;
+        }
+        Ok(())
     }
 
     pub(crate) fn print_ln(&mut self) -> Result<()> {

@@ -3,6 +3,7 @@ use crate::error::*;
 use crate::opcodes::Op::*;
 use crate::opcodes::*;
 use crate::s0::*;
+use crate::vm::ops::{reinterpret_t, reinterpret_u};
 use crate::vm::*;
 
 #[test]
@@ -156,4 +157,22 @@ pub fn simple_branch_test() {
     let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
     vm.run_to_end().unwrap();
     assert_eq!(vm.stack(), &vec![5])
+}
+
+#[test]
+pub fn simple_stdin_test() {
+    let s0 = s0_bin! (
+        fn _start 0 0 -> 0 {
+            ScanC
+            ScanF
+            ScanI
+        }
+    );
+    let mut stdin = std::io::Cursor::new("A3.1415926e3 1234");
+    let mut stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    vm.run_to_end().unwrap();
+    assert_eq!(vm.stack()[0], b'A' as u64);
+    assert_eq!(vm.stack()[2], 1234u64);
+    assert!((reinterpret_u::<f64>(vm.stack()[1]) - 3.1415926e3f64).abs() < 1e-10);
 }

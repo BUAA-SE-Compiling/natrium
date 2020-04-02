@@ -6,7 +6,11 @@ use crate::error::*;
 use crate::{opcodes::Op, s0::*};
 use mem::*;
 use ops::*;
-use std::{collections::BTreeMap, io::Read, io::Write};
+use std::{
+    collections::BTreeMap,
+    io::Write,
+    io::{Bytes, Read},
+};
 use util::*;
 
 pub type Slot = u64;
@@ -33,7 +37,7 @@ pub struct R0Vm<'src> {
     bp: usize,
 
     /// Standard Input Stream
-    stdin: &'src mut dyn Read,
+    stdin: Bytes<&'src mut dyn Read>,
     /// Standard Output Stream
     stdout: &'src mut dyn Write,
 }
@@ -57,7 +61,7 @@ impl<'src> R0Vm<'src> {
             fn_id: 0,
             ip: 0,
             bp,
-            stdin,
+            stdin: stdin.bytes(),
             stdout,
         })
     }

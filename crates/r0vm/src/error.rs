@@ -47,10 +47,13 @@ pub enum Error {
     #[fail(display = "Unable to find entry point")]
     NoEntryPoint,
 
-    #[fail(display = "IO error")]
+    #[fail(display = "Parse error")]
+    ParseError,
+
+    #[fail(display = "IO error: {}", _0)]
     IoError(std::io::Error),
 
-    #[fail(display = "Allocation Layout error")]
+    #[fail(display = "Allocation Layout error: {}", _0)]
     AllocLayoutError(std::alloc::LayoutErr),
 
     #[fail(display = "Halt")]
