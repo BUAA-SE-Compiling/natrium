@@ -74,6 +74,37 @@ pub fn call_test() {
 }
 
 #[test]
+pub fn simple_local_var_test() {
+    let s0 = s0_bin! (
+        fn _start 1 0 -> 0 {
+            // store 1
+            LocA(0)
+            Push(1)
+            Store32
+
+            // store 2
+            LocA(0)
+            Push(4)
+            AddI
+            Push(2)
+            Store16
+
+            // store 3
+            LocA(0)
+            Push(6)
+            AddI
+            Push(3)
+            Store8
+        }
+    );
+    let mut stdin = std::io::empty();
+    let mut stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    vm.run_to_end().unwrap();
+    assert_eq!(vm.stack(), &vec![0x00_03_0002_00000001])
+}
+
+#[test]
 pub fn simple_alloc_test() {
     let s0 = s0_bin! (
         fn _start 0 0 -> 0 {

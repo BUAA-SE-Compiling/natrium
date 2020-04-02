@@ -82,7 +82,6 @@ impl<'src> super::R0Vm<'src> {
             .wrapping_add((bp) as u64 * 8)
             .wrapping_add(a as u64 * 8)
             .wrapping_sub(total_loc as u64 * 8);
-        dbg!(addr);
         self.push(addr)
     }
 
