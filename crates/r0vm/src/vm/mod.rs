@@ -46,15 +46,17 @@ impl<'src> R0Vm<'src> {
     ) -> Result<R0Vm<'src>> {
         // TODO: Move ip onto start of `_start` function
         let start = src.functions.get(0).ok_or(Error::NoEntryPoint)?;
+        let stack = vec![0; start.max_stack as usize];
+        let bp = start.max_stack as usize;
         Ok(R0Vm {
             src,
             max_stack_size: 131072,
             heap: BTreeMap::new(),
-            stack: Vec::new(),
+            stack,
             fn_info: start,
             fn_id: 0,
             ip: 0,
-            bp: 0,
+            bp,
             stdin,
             stdout,
         })
@@ -69,6 +71,22 @@ impl<'src> R0Vm<'src> {
     pub fn run_to_end(&mut self) -> Result<()> {
         loop {
             match self.step() {
+                Ok(()) => (),
+                Err(Error::ControlReachesEnd(0)) => break Ok(()),
+                e @ _ => return e,
+            }
+        }
+    }
+
+    /// Drive virtual machine to end, and abort when any error occurs.
+    pub fn run_to_end_inspect<F>(&mut self, mut inspect: F) -> Result<()>
+    where
+        F: FnMut(&Self) -> (),
+    {
+        loop {
+            let res = self.step();
+            inspect(self);
+            match res {
                 Ok(()) => (),
                 Err(Error::ControlReachesEnd(0)) => break Ok(()),
                 e @ _ => return e,

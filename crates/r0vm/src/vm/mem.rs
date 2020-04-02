@@ -1,5 +1,6 @@
 //! Memory-related implementations for R0VM
 use super::*;
+use static_assertions as sa;
 use std::alloc::Layout;
 
 /// A piece of managed memory owned by the virtual machine
@@ -151,7 +152,14 @@ impl Drop for ManagedMemory {
 // }
 
 pub fn stack_idx_to_vm_addr(idx: usize) -> u64 {
-    R0Vm::STACK_START - (idx as u64) * 8
+    R0Vm::STACK_START + (idx as u64) * 8
+}
+
+pub fn vm_addr_to_stack_idx(addr: u64) -> (usize, usize) {
+    let off = addr - R0Vm::STACK_START;
+    let idx = off / 8;
+    let off = off % 8;
+    (idx as usize, off as usize)
 }
 
 #[inline]
@@ -161,8 +169,8 @@ fn round_up_to_multiple(x: u64, mult: u64) -> u64 {
 
 impl<'src> R0Vm<'src> {
     pub const HEAP_START: u64 = 0x00000001_00000000;
-    pub const STACK_START: u64 = 0xffffffff_ffffffff;
-    pub const STACK_END: u64 = 0xffffffff_fff00000;
+    pub const STACK_START: u64 = 0xffffffff_00000000;
+    // pub const STACK_END: u64 = 0xffffffff_00000000;
 
     // * Heap stuff -->
 
@@ -183,7 +191,7 @@ impl<'src> R0Vm<'src> {
     }
 
     fn get_heap_mem_ptr<T>(&self, addr: u64) -> Result<*mut u8> {
-        assert!(addr >= R0Vm::HEAP_START && addr < R0Vm::STACK_END);
+        assert!(addr >= R0Vm::HEAP_START && addr < R0Vm::STACK_START);
 
         let alignment_of_t = std::mem::align_of::<T>();
         if addr % alignment_of_t as u64 != 0 {
@@ -256,8 +264,59 @@ impl<'src> R0Vm<'src> {
 
     // * Stack stuff -->
 
-    pub fn get_stack_mem<T>(&self) -> Result<T> {
-        unimplemented!("Stack layout needs to change")
+    pub fn get_stack_mem<T>(&self, addr: u64) -> Result<T>
+    where
+        T: Copy,
+    {
+        let sizeof_t = std::mem::size_of::<T>();
+        assert!(sizeof_t.is_power_of_two());
+        assert!(sizeof_t <= 64);
+        if addr % sizeof_t as u64 != 0 {
+            return Err(Error::UnalignedAccess(addr));
+        }
+        let (idx, off) = vm_addr_to_stack_idx(addr);
+        let val = *self.stack.get(idx).ok_or(Error::InvalidAddress(addr))?;
+        let mask = u64::max_value().wrapping_shr(64 - (sizeof_t as u32) * 8);
+
+        // * R0VM is little-endian in this implementation
+        let val = val.wrapping_shr((off as u32) * 8);
+        let val = val & mask;
+
+        // ! TRUST ME:
+        // ! On little-endian machines, the lower bytes of a value is stored in
+        // ! its front. Thus copying the first sizeof(T) bytes results in the
+        // ! correct T value. This does not apply on big-endian machines, and
+        // ! would need extra care dealing with.
+        let t = unsafe { std::mem::transmute_copy(&val) };
+        Ok(t)
+    }
+
+    pub fn set_stack_mem<T>(&mut self, addr: u64, set_val: T) -> Result<()>
+    where
+        T: Copy + Into<u64>,
+    {
+        let sizeof_t = std::mem::size_of::<T>();
+        assert!(sizeof_t.is_power_of_two());
+        assert!(sizeof_t <= 64);
+        if addr % sizeof_t as u64 != 0 {
+            return Err(Error::UnalignedAccess(addr));
+        }
+        let (idx, off) = vm_addr_to_stack_idx(addr);
+        let val = *self.stack.get(idx).ok_or(Error::InvalidAddress(addr))?;
+
+        let set_val = set_val.into();
+
+        let mask = u64::max_value().wrapping_shr(64 - (sizeof_t as u32) * 8);
+        let set_val = set_val & mask;
+
+        // * R0VM is little-endian in this implementation
+        let set_val = set_val.wrapping_shl((off as u32) * 8);
+
+        let inv_mask = (mask << (off * 8)) ^ u64::max_value();
+
+        let val = (val & inv_mask) | set_val;
+        self.stack[idx] = val;
+        Ok(())
     }
 
     // * Misc stuff -->
@@ -270,26 +329,29 @@ impl<'src> R0Vm<'src> {
         if addr < R0Vm::HEAP_START {
             // Global vars
             unimplemented!("Access global variables")
-        } else if addr < R0Vm::STACK_END {
+        } else if addr < R0Vm::STACK_START {
             // Heap vars
             unsafe { self.heap_mem_get::<T>(addr) }
         } else {
             // Stack vars
-            unimplemented!("Access stack variables")
+            self.get_stack_mem(addr)
         }
     }
 
     /// Access a mutable reference of a piece of memory at `addr`
-    pub fn access_mem_set<T>(&self, addr: u64, val: T) -> Result<()> {
+    pub fn access_mem_set<T>(&mut self, addr: u64, val: T) -> Result<()>
+    where
+        T: Copy + Into<u64>,
+    {
         if addr < R0Vm::HEAP_START {
             // Global vars
             unimplemented!("Access global variables")
-        } else if addr < R0Vm::STACK_END {
+        } else if addr < R0Vm::STACK_START {
             // Heap vars
             unsafe { self.heap_mem_set::<T>(addr, val) }
         } else {
             // Stack vars
-            unimplemented!("Access stack variables")
+            self.set_stack_mem(addr, val)
         }
     }
 }

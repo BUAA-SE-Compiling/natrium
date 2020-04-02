@@ -78,7 +78,11 @@ impl<'src> super::R0Vm<'src> {
     pub(crate) fn loc_a(&mut self, a: u32) -> Result<()> {
         let total_loc = self.total_loc();
         let bp = self.bp;
-        let addr = R0Vm::STACK_START - bp as u64 + total_loc as u64 - a as u64;
+        let addr = R0Vm::STACK_START
+            .wrapping_add((bp) as u64 * 8)
+            .wrapping_add(a as u64 * 8)
+            .wrapping_sub(total_loc as u64 * 8);
+        dbg!(addr);
         self.push(addr)
     }
 
@@ -118,6 +122,7 @@ impl<'src> super::R0Vm<'src> {
     fn store_t<T, F>(&mut self, f: F) -> Result<()>
     where
         F: Fn(u64) -> T,
+        T: Copy + Into<u64>,
     {
         assert!(std::mem::size_of::<T>() <= std::mem::size_of::<u64>());
         let t = self.pop()?;

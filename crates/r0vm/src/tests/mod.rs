@@ -56,11 +56,13 @@ pub fn call_test() {
             Call(1),
         }
         fn main 1 2 -> 1 {
+            LocA(0)
             LocA(1)
             Load64
             LocA(2)
             Load64
             AddI
+            Store64
             Ret
         }
     );
