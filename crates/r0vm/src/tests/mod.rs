@@ -95,13 +95,27 @@ pub fn simple_local_var_test() {
             AddI
             Push(3)
             Store8
+
+            // load 1
+            LocA(0)
+            Load32
+
+            LocA(0)
+            Push(4)
+            AddI
+            Load16
+
+            LocA(0)
+            Push(6)
+            AddI
+            Load8
         }
     );
     let mut stdin = std::io::empty();
     let mut stdout = std::io::sink();
     let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
     vm.run_to_end().unwrap();
-    assert_eq!(vm.stack(), &vec![0x00_03_0002_00000001])
+    assert_eq!(vm.stack(), &vec![0x00_03_0002_00000001, 1, 2, 3])
 }
 
 #[test]
