@@ -223,7 +223,7 @@ impl<'src> R0Vm<'src> {
     }
 
     fn get_heap_mem_ptr<T>(&self, addr: u64) -> Result<*mut u8> {
-        assert!(addr >= R0Vm::HEAP_START && addr < R0Vm::STACK_START);
+        assert!(addr < R0Vm::STACK_START);
 
         let alignment_of_t = std::mem::align_of::<T>();
         if addr % alignment_of_t as u64 != 0 {

@@ -176,3 +176,22 @@ pub fn simple_stdin_test() {
     assert_eq!(vm.stack()[2], 1234u64);
     assert!((reinterpret_u::<f64>(vm.stack()[1]) - 3.1415926e3f64).abs() < 1e-10);
 }
+
+#[test]
+pub fn simple_global_test() {
+    let s0 = s0_bin! (
+        let const 0x1234u64;
+        let 0x5678u64;
+        fn _start 0 0 -> 0 {
+            GlobA(0)
+            Load64
+            GlobA(1)
+            Load64
+        }
+    );
+    let mut stdin = std::io::empty();
+    let mut stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    vm.run_to_end().unwrap();
+    assert_eq!(vm.stack(), &vec![0x1234u64, 0x5678u64])
+}

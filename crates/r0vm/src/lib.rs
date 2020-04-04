@@ -4,6 +4,7 @@ pub mod error;
 pub mod opcodes;
 pub mod s0;
 mod tests;
+mod util;
 pub mod vm;
 
 #[macro_export]
@@ -12,7 +13,7 @@ macro_rules! s0_bin {
     (
         $(
             // TODO: global variable declaration
-            let $(const)? ($val:expr);
+            let $(const)? $val:expr;
         )*
         $(
             fn $name:ident $max_stack:literal $param:literal -> $ret:literal {
@@ -20,12 +21,31 @@ macro_rules! s0_bin {
             }
         )+
     ) => {{
-        use crate::opcodes::Op::*;
+        use $crate::opcodes::Op::*;
+        use $crate::util::IntoBytes;
+        let mut globals = vec![];
+
+        $({
+            let bytes = $val.into_bytes();
+            let glob = GlobalValue {
+                is_const: false,
+                bytes
+            };
+            globals.push(glob);
+        })*
+
         let mut fns = vec![];
         $({
+            let name = stringify!($name);
+            let bytes = name.into_bytes();
+            let glob = GlobalValue{ is_const:true, bytes };
+            let name_idx = globals.len();
+            globals.push(glob);
+
             let max_stack = $max_stack;
             let inst = vec![$($inst),*];
             let func = FnDef{
+                name: name_idx as u32,
                 max_stack,
                 param_slots: $param,
                 ret_slots: $ret,
@@ -34,7 +54,7 @@ macro_rules! s0_bin {
             fns.push(func);
         })+
         let s0 = S0{
-            globals: vec![],
+            globals,
             functions: fns,
         };
         s0

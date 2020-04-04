@@ -15,7 +15,7 @@ pub struct GlobalValue {
 
 /// Function definition
 pub struct FnDef {
-    // pub name: u32,
+    pub name: u32,
     pub max_stack: u32,
     pub param_slots: u32,
     pub ret_slots: u32,
