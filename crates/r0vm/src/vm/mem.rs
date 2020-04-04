@@ -7,6 +7,7 @@ use std::alloc::Layout;
 pub struct ManagedMemory {
     ptr: *mut u8,
     layout: Layout,
+    is_const: bool,
 }
 
 impl ManagedMemory {
@@ -19,12 +20,43 @@ impl ManagedMemory {
         if mem.is_null() {
             return Err(Error::OutOfMemory);
         }
-        Ok(ManagedMemory { ptr: mem, layout })
+        Ok(ManagedMemory {
+            ptr: mem,
+            layout,
+            is_const: false,
+        })
+    }
+
+    /// Allocate a piece of managed memory using global allocator
+    pub fn from_slice(slice: &[u8]) -> Result<ManagedMemory> {
+        if slice.len() == 0 {
+            return Err(Error::AllocZero);
+        }
+        let layout = Layout::from_size_align(slice.len(), 8)?;
+        let mem = unsafe { std::alloc::alloc_zeroed(layout) };
+        if mem.is_null() {
+            return Err(Error::OutOfMemory);
+        }
+
+        // copy slice content to memory
+        unsafe {
+            slice.as_ptr().copy_to_nonoverlapping(mem, slice.len());
+        }
+
+        Ok(ManagedMemory {
+            ptr: mem,
+            layout,
+            is_const: false,
+        })
     }
 
     /// Construct a piece of managed memory using raw pointer and length
-    pub unsafe fn new(ptr: *mut u8, layout: Layout) -> ManagedMemory {
-        ManagedMemory { ptr, layout }
+    pub unsafe fn new(ptr: *mut u8, layout: Layout, is_const: bool) -> ManagedMemory {
+        ManagedMemory {
+            ptr,
+            layout,
+            is_const,
+        }
     }
 
     /// Length of the memory
@@ -163,7 +195,7 @@ pub fn vm_addr_to_stack_idx(addr: u64) -> (usize, usize) {
 }
 
 #[inline]
-fn round_up_to_multiple(x: u64, mult: u64) -> u64 {
+pub fn round_up_to_multiple(x: u64, mult: u64) -> u64 {
     x + (mult - x % mult)
 }
 
@@ -326,10 +358,7 @@ impl<'src> R0Vm<'src> {
     where
         T: Copy,
     {
-        if addr < R0Vm::HEAP_START {
-            // Global vars
-            unimplemented!("Access global variables")
-        } else if addr < R0Vm::STACK_START {
+        if addr < R0Vm::STACK_START {
             // Heap vars
             unsafe { self.heap_mem_get::<T>(addr) }
         } else {
@@ -343,10 +372,7 @@ impl<'src> R0Vm<'src> {
     where
         T: Copy + Into<u64>,
     {
-        if addr < R0Vm::HEAP_START {
-            // Global vars
-            unimplemented!("Access global variables")
-        } else if addr < R0Vm::STACK_START {
+        if addr < R0Vm::STACK_START {
             // Heap vars
             unsafe { self.heap_mem_set::<T>(addr, val) }
         } else {

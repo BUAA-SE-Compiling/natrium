@@ -9,8 +9,8 @@ pub struct S0 {
 
 /// Global variable or constant, described by bytes, addressed by ID
 pub struct GlobalValue {
-    is_const: bool,
-    bytes: Vec<u8>,
+    pub is_const: bool,
+    pub bytes: Vec<u8>,
 }
 
 /// Function definition

@@ -7,7 +7,7 @@ use crate::{opcodes::Op, s0::*};
 use mem::*;
 use ops::*;
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, HashMap},
     io::Write,
     io::{Bytes, Read},
 };
@@ -21,6 +21,9 @@ pub struct R0Vm<'src> {
     /// Source file
     src: &'src S0,
     max_stack_size: usize,
+
+    /// Global variable index
+    global_idx: HashMap<u32, Addr>,
 
     /// Memory heap
     heap: BTreeMap<Addr, ManagedMemory>,
@@ -52,10 +55,12 @@ impl<'src> R0Vm<'src> {
         let start = src.functions.get(0).ok_or(Error::NoEntryPoint)?;
         let stack = vec![0; start.max_stack as usize];
         let bp = start.max_stack as usize;
+        let (globals, global_idx) = Self::index_globals(&src.globals[..])?;
         Ok(R0Vm {
             src,
             max_stack_size: 131072,
-            heap: BTreeMap::new(),
+            global_idx,
+            heap: globals,
             stack,
             fn_info: start,
             fn_id: 0,
@@ -64,6 +69,32 @@ impl<'src> R0Vm<'src> {
             stdin: stdin.bytes(),
             stdout,
         })
+    }
+
+    fn index_globals(
+        globals: &[GlobalValue],
+    ) -> Result<(BTreeMap<Addr, ManagedMemory>, HashMap<u32, Addr>)> {
+        let mut curr_max_addr = 0u64;
+
+        let mut globals_map = BTreeMap::new();
+        let mut idx = HashMap::new();
+
+        for val in globals.into_iter().enumerate() {
+            let (i, x) = val;
+            let x: &GlobalValue = x;
+            let len = x.bytes.len();
+            let managed = ManagedMemory::from_slice(&x.bytes[..])?;
+
+            let mem_addr = round_up_to_multiple(curr_max_addr + len as u64, 8);
+            curr_max_addr = mem_addr;
+            if mem_addr >= R0Vm::HEAP_START {
+                return Err(Error::OutOfMemory);
+            }
+
+            globals_map.insert(mem_addr, managed);
+            idx.insert(i as u32, mem_addr);
+        }
+        Ok((globals_map, idx))
     }
 
     pub fn step(&mut self) -> Result<()> {

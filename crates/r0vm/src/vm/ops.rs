@@ -78,6 +78,12 @@ impl<'src> super::R0Vm<'src> {
 
     pub(crate) fn loc_a(&mut self, a: u32) -> Result<()> {
         let total_loc = self.total_loc();
+
+        // check local index
+        if a as usize > total_loc {
+            return Err(Error::InvalidLocalIndex(a));
+        }
+
         let bp = self.bp;
         let addr = R0Vm::STACK_START
             .wrapping_add((bp) as u64 * 8)
@@ -87,7 +93,11 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn glob_a(&mut self, a: u32) -> Result<()> {
-        unimplemented!("What does address space look like?")
+        let addr = *self
+            .global_idx
+            .get(&a)
+            .ok_or(Error::InvalidGlobalIndex(a))?;
+        self.push(addr)
     }
 
     #[inline]
