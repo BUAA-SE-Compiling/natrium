@@ -51,9 +51,14 @@ impl<'src> R0Vm<'src> {
         stdin: &'src mut dyn Read,
         stdout: &'src mut dyn Write,
     ) -> Result<R0Vm<'src>> {
-        // TODO: Move ip onto start of `_start` function
         let start = src.functions.get(0).ok_or(Error::NoEntryPoint)?;
-        let stack = vec![0; start.max_stack as usize];
+        let mut stack = vec![0; start.max_stack as usize];
+        {
+            // push an invalid stack frame
+            // TODO: Is there a more elegant way here?
+            let usize_max = usize::max_value() as u64;
+            stack.append(&mut vec![usize_max, usize_max, usize_max]);
+        }
         let bp = start.max_stack as usize;
         let (globals, global_idx) = Self::index_globals(&src.globals[..])?;
         Ok(R0Vm {
@@ -222,10 +227,24 @@ impl<'src> R0Vm<'src> {
         }
     }
 
-    /// Unroll all information from current runtime stack. Usually being called
+    /// All information from current runtime stack. Usually being called
     /// during panic, halt, stack overflow or debug.
-    pub fn unroll_stack(&self) -> Result<Vec<StackInfo>> {
-        unimplemented!()
+    pub fn stack_trace(&self) -> Result<Vec<StackInfo>> {
+        let mut infos = Vec::new();
+
+        infos.push(self.cur_stack_info()?);
+
+        let mut bp = self.bp;
+        while bp != usize::max_value() {
+            let (info, bp_) = self.stack_info(bp)?;
+            if info.fn_id == usize::max_value() as u64 {
+                // Stack bottom sentinel item
+                break;
+            }
+            bp = bp_;
+            infos.push(info);
+        }
+        Ok(infos)
     }
 
     /// Return the information of current running function
@@ -233,7 +252,11 @@ impl<'src> R0Vm<'src> {
         Ok(StackInfo {
             fn_id: self.fn_id as u64,
             inst: self.ip as u64,
-            fn_name: None,
+            fn_name: self
+                .src
+                .globals
+                .get(self.fn_info.name as usize)
+                .map(|val| String::from_utf8_lossy(&val.bytes[..]).into()),
         })
     }
 
@@ -250,10 +273,16 @@ impl<'src> R0Vm<'src> {
             .stack
             .get(bp + 2)
             .ok_or_else(|| Error::InvalidAddress(stack_idx_to_vm_addr(bp + 2)))?;
-
+        let fn_name = self.src.functions.get(fn_id as usize).and_then(|f| {
+            self.src
+                .globals
+                .get(f.name as usize)
+                .map(|val| String::from_utf8_lossy(&val.bytes[..]).into())
+        });
+        dbg!(prev_bp);
         Ok((
             StackInfo {
-                fn_name: None,
+                fn_name,
                 fn_id,
                 inst: ip,
             },
@@ -272,9 +301,9 @@ impl<'src> R0Vm<'src> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct StackInfo {
-    fn_name: Option<String>,
-    fn_id: u64,
-    inst: u64,
+    pub fn_name: Option<String>,
+    pub fn_id: u64,
+    pub inst: u64,
 }

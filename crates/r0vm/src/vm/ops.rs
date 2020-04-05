@@ -424,14 +424,12 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn call(&mut self, id: u32) -> Result<()> {
-        let sp = self.stack.len();
-
         let fp = self.get_fn_by_id(id)?;
         self.stack_alloc(fp.max_stack)?;
 
         let bp = self.stack.len();
 
-        self.push(sp as u64)?;
+        self.push(self.bp as u64)?;
         self.push(self.ip as u64)?;
         self.push(self.fn_id as u64)?;
 
@@ -444,16 +442,18 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn ret(&mut self) -> Result<()> {
-        let old_sp = *self.stack.get(self.bp).ok_or(Error::StackUnderflow)?;
+        let old_bp = *self.stack.get(self.bp).ok_or(Error::StackUnderflow)?;
         let old_ip = *self.stack.get(self.bp + 1).ok_or(Error::StackUnderflow)?;
         let old_fn = *self.stack.get(self.bp + 2).ok_or(Error::StackUnderflow)?;
+        let truncate_to =
+            self.bp as u64 - self.fn_info.param_slots as u64 - self.fn_info.max_stack as u64;
 
         let fp = self.get_fn_by_id(old_fn as u32)?;
-        // %sp = %bp
-        self.stack.truncate(old_sp as usize);
-        self.pop_n(self.fn_info.param_slots)?;
+
+        self.stack.truncate(truncate_to as usize);
 
         self.fn_info = fp;
+        self.bp = old_bp as usize;
         self.ip = old_ip as usize;
         self.fn_id = old_fn as usize;
 
