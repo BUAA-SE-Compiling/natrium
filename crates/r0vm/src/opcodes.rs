@@ -1,4 +1,5 @@
 #[derive(Debug, Copy, Clone)]
+#[repr(u8, C)]
 pub enum Op {
     Nop,
     Push(u64),
@@ -130,5 +131,17 @@ impl Op {
             Panic => 0x00,
             Halt => 0x00,
         }
+    }
+
+    pub fn param_size(code: u8) -> usize {
+        match code {
+            0x01 => 8,
+            0x03 | 0x06 | 0x07 | 0x41..=0x49 => 4,
+            _ => 0,
+        }
+    }
+
+    pub fn from_code(code: u8, param: u64) -> Op {
+        unimplemented!("TODO Big match around `code`")
     }
 }
