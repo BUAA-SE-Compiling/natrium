@@ -10,5 +10,6 @@
     - [字面量](./r0/literal.md)
     - [实现笔记](./r0/notes.md)
   - [r0vm 虚拟机说明](./r0vm.md)
+  - [编译原理评测姬说明](./judge.md)
 
 [参考](./reference.md)
