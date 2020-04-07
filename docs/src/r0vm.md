@@ -94,17 +94,20 @@ struct Array<T> {
 
 /// 单个全局变量
 struct GlobalDef {
-    payload: Array<Instruction>,
+    /// 是否为常量？非零值视为真（待确定）
+    is_const: u8,
+    /// 值
+    value: Array<u8>,
 }
 
 /// 函数
 struct FunctionDef {
     /// 函数名称在全局变量中的位置
     name: u16,
-    /// 参数占据的 slot 数
-    param_slots: u16,
     /// 返回值占据的 slot 数
     return_slots: u16,
+    /// 参数占据的 slot 数
+    param_slots: u16,
     /// 局部变量占据的 slot 数
     loc_slots: u16,
     /// 函数体
@@ -298,12 +301,12 @@ r0vm 的指令使用 8 位无符号整数标识，后面跟随可变长度的操
 | 0x2e | `inv`        | -        | 1:lhs         | 1:res        | 计算 res = ~lhs（按位反转）             |
 | 0x30 | `cmp.i`      | -        | 1:lhs, 2:rhs  | 1:res        | 比较有符号整数 lhs 和 rhs 大小          |
 | 0x31 | `cmp.f`      | -        | 1:lhs, 2:rhs  | 1:res        | 比较浮点数 lhs 和 rhs 大小              |
-| 0x?? | `cmp.u`      | -        | 1:lhs, 2:rhs  | 1:res        | 比较无符号整数 lhs 和 rhs 大小          |
-| 0x32 | `neg.i`      | -        | 1:lhs         | 1:res        | 对 lhs 取反                             |
-| 0x33 | `neg.f`      | -        | 1:lhs         | 1:res        | 对 lhs 取反                             |
-| 0x34 | `itof`       | -        | 1:lhs         | 1:res        | 把 lhs 从整数转换成浮点数               |
-| 0x35 | `ftoi`       | -        | 1:lhs         | 1:res        | 把 lhs 从浮点数转换成整数               |
-| 0x36 | `shrl`       | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs >>> rhs （逻辑右移）     |
+| 0x32 | `cmp.u`      | -        | 1:lhs, 2:rhs  | 1:res        | 比较无符号整数 lhs 和 rhs 大小          |
+| 0x34 | `neg.i`      | -        | 1:lhs         | 1:res        | 对 lhs 取反                             |
+| 0x35 | `neg.f`      | -        | 1:lhs         | 1:res        | 对 lhs 取反                             |
+| 0x36 | `itof`       | -        | 1:lhs         | 1:res        | 把 lhs 从整数转换成浮点数               |
+| 0x37 | `ftoi`       | -        | 1:lhs         | 1:res        | 把 lhs 从浮点数转换成整数               |
+| 0x38 | `shrl`       | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs >>> rhs （逻辑右移）     |
 | 0x40 | `bra`        | -        | 1:addr        |              | 无条件跳转到地址 `addr`                 |
 | 0x41 | `br`         | off:i32  |               |              | 无条件跳转偏移 `off`                    |
 | 0x42 | `bz`         | off:i32  |               | 1:test       | 如果 `test` 是 0 则跳转偏移 `off`       |
@@ -312,8 +315,8 @@ r0vm 的指令使用 8 位无符号整数标识，后面跟随可变长度的操
 | 0x45 | `bg`         | off:i32  |               | 1:test       | 如果 `test` 大于 0 则跳转偏移 `off`     |
 | 0x46 | `blz`        | off:i32  |               | 1:test       | 如果 `test` 小于等于 0 则跳转偏移 `off` |
 | 0x47 | `bgz`        | off:i32  |               | 1:test       | 如果 `test` 大于等于 0 则跳转偏移 `off` |
-| 0x49 | `call`       | id:u32   | 见栈帧介绍    | -            | 调用编号为 id 的函数                    |
-| 0x4a | `ret`        | -        | -             | 见栈帧介绍   | 从当前函数返回                          |
+| 0x48 | `call`       | id:u32   | 见栈帧介绍    | -            | 调用编号为 id 的函数                    |
+| 0x49 | `ret`        | -        | -             | 见栈帧介绍   | 从当前函数返回                          |
 | 0x50 | `scan.i`     | -        | -             | 1:n          | 从标准输入读入一个整数 n                |
 | 0x51 | `scan.c`     | -        | -             | 1:c          | 从标准输入读入一个字符 c                |
 | 0x52 | `scan.f`     | -        | -             | 1:f          | 从标准输入读入一个浮点数 f              |
@@ -323,7 +326,6 @@ r0vm 的指令使用 8 位无符号整数标识，后面跟随可变长度的操
 | 0x57 | `print.s`    | -        | 1:addr, 2:l   | -            | 向标准输出写入地址 addr 的 l 长度字符串 |
 | 0x58 | `println`    | -        | -             | -            | 向标准输出写入一个换行                  |
 | 0xfe | `panic`      |          |               |              | 恐慌（导致强行退出）                    |
-| 0xff | `halt`       |          |               |              | 停机                                    |
 
 ### `cmp.T` 指令
 

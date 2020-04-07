@@ -425,7 +425,7 @@ impl<'src> super::R0Vm<'src> {
 
     pub(crate) fn call(&mut self, id: u32) -> Result<()> {
         let fp = self.get_fn_by_id(id)?;
-        self.stack_alloc(fp.max_stack)?;
+        self.stack_alloc(fp.loc_slots)?;
 
         let bp = self.stack.len();
 
@@ -446,7 +446,7 @@ impl<'src> super::R0Vm<'src> {
         let old_ip = *self.stack.get(self.bp + 1).ok_or(Error::StackUnderflow)?;
         let old_fn = *self.stack.get(self.bp + 2).ok_or(Error::StackUnderflow)?;
         let truncate_to =
-            self.bp as u64 - self.fn_info.param_slots as u64 - self.fn_info.max_stack as u64;
+            self.bp as u64 - self.fn_info.param_slots as u64 - self.fn_info.loc_slots as u64;
 
         let fp = self.get_fn_by_id(old_fn as u32)?;
 

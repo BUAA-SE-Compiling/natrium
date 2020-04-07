@@ -52,14 +52,14 @@ impl<'src> R0Vm<'src> {
         stdout: &'src mut dyn Write,
     ) -> Result<R0Vm<'src>> {
         let start = src.functions.get(0).ok_or(Error::NoEntryPoint)?;
-        let mut stack = vec![0; start.max_stack as usize];
+        let mut stack = vec![0; start.loc_slots as usize];
         {
             // push an invalid stack frame
             // TODO: Is there a more elegant way here?
             let usize_max = usize::max_value() as u64;
             stack.append(&mut vec![usize_max, usize_max, usize_max]);
         }
-        let bp = start.max_stack as usize;
+        let bp = start.loc_slots as usize;
         let (globals, global_idx) = Self::index_globals(&src.globals[..])?;
         Ok(R0Vm {
             src,
@@ -223,7 +223,6 @@ impl<'src> R0Vm<'src> {
             PrintS => self.print_s(),
             PrintLn => self.print_ln(),
             Panic => self.halt(),
-            Halt => self.halt(),
         }
     }
 
@@ -296,7 +295,7 @@ impl<'src> R0Vm<'src> {
 
     #[inline]
     fn total_loc(&self) -> usize {
-        let total_loc = self.fn_info.max_stack + self.fn_info.param_slots + self.fn_info.ret_slots;
+        let total_loc = self.fn_info.loc_slots + self.fn_info.param_slots + self.fn_info.ret_slots;
         total_loc as usize
     }
 }

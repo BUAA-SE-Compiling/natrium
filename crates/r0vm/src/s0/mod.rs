@@ -1,3 +1,6 @@
+// #[cfg(parse)]
+pub mod io;
+
 use crate::opcodes::Op;
 use std::collections::HashMap;
 
@@ -16,8 +19,8 @@ pub struct GlobalValue {
 /// Function definition
 pub struct FnDef {
     pub name: u32,
-    pub max_stack: u32,
-    pub param_slots: u32,
     pub ret_slots: u32,
+    pub param_slots: u32,
+    pub loc_slots: u32,
     pub ins: Vec<Op>,
 }
