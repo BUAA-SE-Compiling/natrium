@@ -11,6 +11,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: XAMPPRocky/deploy-mdbook@v1
         with:
-          workspace: ${{ format('{0}/docs/'', github.workspace) }}
+          workspace: ${{ format('{0}/docs/', github.workspace) }}
           repository: "BUAA-SE-Compiling/natrium"
           token: ${{ secrets.GH_PAT }}
