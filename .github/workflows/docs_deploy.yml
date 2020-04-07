@@ -12,4 +12,5 @@ jobs:
       - uses: XAMPPRocky/deploy-mdbook@v1
         with:
           workspace: "./docs/"
+          repository: "BUAA-SE-Compiling/natrium"
           token: ${{ secrets.GH_PAT }}
