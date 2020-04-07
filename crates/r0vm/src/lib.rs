@@ -16,7 +16,7 @@ macro_rules! s0_bin {
             let $(const)? $val:expr;
         )*
         $(
-            fn $name:ident $max_stack:literal $param:literal -> $ret:literal {
+            fn $name:ident $loc_slots:literal $param:literal -> $ret:literal {
                 $($inst:expr $(,)?)*
             }
         )+
@@ -42,11 +42,11 @@ macro_rules! s0_bin {
             let name_idx = globals.len();
             globals.push(glob);
 
-            let max_stack = $max_stack;
+            let loc_slots = $loc_slots;
             let inst = vec![$($inst),*];
             let func = FnDef{
                 name: name_idx as u32,
-                max_stack,
+                loc_slots,
                 param_slots: $param,
                 ret_slots: $ret,
                 ins: inst,
