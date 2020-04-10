@@ -1,0 +1,44 @@
+use crate::s0::io::*;
+use crate::s0::*;
+
+use crate::opcodes::Op::*;
+#[test]
+fn test_ser() {
+    let src: Vec<u8> = vec![
+        0x72, 0x30, 0x3b, 0x3e, // magic
+        0x00, 0x00, 0x00, 0x01, // version
+        0x00, 0x00, 0x00, 0x02, // global.len
+        0x00, // global.1.is_const
+        0x00, 0x00, 0x00, 0x03, // global.1.len
+        0x00, 0x01, 0x02, // global.1.payload
+        0x01, // global.2.is_const
+        0x00, 0x00, 0x00, 0x06, // global.2.len
+        b'_', b's', b't', b'a', b'r', b't', // global.2.payload
+        0x00, 0x00, 0x00, 0x01, // fns.len
+        0x00, 0x00, 0x00, 0x01, // fns.1.name
+        0x00, 0x00, 0x00, 0x00, // fns.1.ret_slots
+        0x00, 0x00, 0x00, 0x00, // fns.1.param_slots
+        0x00, 0x00, 0x00, 0x00, // fns.1.loc_slots
+        0x00, 0x00, 0x00, 0x04, // fns.1.ins.len
+        // fns.1.ins:
+        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // Push(1)
+        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, // Push(2)
+        0x20, // AddI
+        0x34, // NegI
+              // finish
+    ];
+    let s0 = crate::s0_bin!(
+        let vec![0x00,0x01,0x02];
+        fn _start 0 0 -> 0 {
+            Push(1)
+            Push(2)
+            AddI
+            NegI
+        }
+    );
+    let des = S0::read_binary(&mut &src[..]).unwrap().unwrap();
+    assert_eq!(des, s0);
+    let mut ser = vec![];
+    des.write_binary(&mut ser).unwrap();
+    assert_eq!(ser, src);
+}

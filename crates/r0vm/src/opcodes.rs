@@ -1,4 +1,4 @@
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[repr(u8, C)]
 pub enum Op {
     Nop,

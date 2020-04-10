@@ -42,7 +42,7 @@ where
     }
 
     fn write_binary(&self, w: &mut dyn Write) -> std::io::Result<()> {
-        w.write_all(&self.len().to_be_bytes())?;
+        w.write_all(&(self.len() as u32).to_be_bytes())?;
         for item in self {
             item.write_binary(w)?;
         }

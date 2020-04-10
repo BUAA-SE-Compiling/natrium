@@ -1,3 +1,5 @@
+mod ser;
+
 use super::*;
 use crate::error::*;
 use crate::opcodes::Op::*;
