@@ -3,6 +3,7 @@
 pub mod error;
 pub mod opcodes;
 pub mod s0;
+#[cfg(test)]
 mod tests;
 mod util;
 pub mod vm;
