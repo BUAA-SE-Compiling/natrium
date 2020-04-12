@@ -1,8 +1,9 @@
 [package]
-name = "r0_syntax"
+name = "r0syntax"
 version = "0.1.0"
 authors = ["Rynco Maekawa <lynzrand@outlook.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
+"nom" = "^5.1.1"

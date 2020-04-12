@@ -1,5 +1,5 @@
 [package]
-name = "r0_judge"
+name = "r0judge"
 version = "0.1.0"
 authors = ["Rynco Maekawa <lynzrand@outlook.com>"]
 edition = "2018"

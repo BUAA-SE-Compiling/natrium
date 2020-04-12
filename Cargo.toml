@@ -7,4 +7,4 @@ edition = "2018"
 [dependencies]
 "combine" = "^4.0.1"
 "r0vm" = { path = "crates/r0vm" }
-# "r0syntax" = { path = "crates/syntax" }
+"r0syntax" = { path = "crates/syntax" }
