@@ -9,5 +9,9 @@ edition = "2018"
 "failure" = "^0.1.7"
 "static_assertions" = "1.1.0"
 "text_io" = "0.1.8"
+inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "llvm3-7", optional = true }
 
 [features]
+default = ["vm"]
+llvm = ["inkwell"]
+vm = []

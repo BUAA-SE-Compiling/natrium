@@ -1,6 +1,5 @@
 pub mod mem;
 pub mod ops;
-pub mod util;
 
 use crate::error::*;
 use crate::{opcodes::Op, s0::*};
@@ -11,7 +10,6 @@ use std::{
     io::Write,
     io::{Bytes, Read},
 };
-use util::*;
 
 pub type Slot = u64;
 pub type Addr = u64;

@@ -1,3 +1,6 @@
+/// A span representing a section of source file
+pub mod span;
+
 /// Models of r0 tokens
 pub mod token;
 
