@@ -1,6 +1,6 @@
 # 语法表示说明
 
-本文介绍的是一种 EBNF 的变体，用于描述字符写成的编程语言语法。本变体的格式大量参考了 [Rust 的语法描述语言](https://doc.rust-lang.org/reference/notation.html) 和正则表达式。
+本文介绍的是一种 EBNF 的变体，用于描述字符写成的编程语言语法。使用它没什么理由，就是为了更直观一点。本变体的格式大量参考了 [Rust 的语法描述语言](https://doc.rust-lang.org/reference/notation.html) 和正则表达式。
 
 ## 非终结符
 
