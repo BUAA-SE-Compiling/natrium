@@ -6,6 +6,7 @@ pub mod s0;
 #[cfg(test)]
 mod tests;
 mod util;
+#[cfg(feature = "vm")]
 pub mod vm;
 
 #[macro_export]

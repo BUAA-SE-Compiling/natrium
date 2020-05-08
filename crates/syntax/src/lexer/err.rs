@@ -1,1 +1,3 @@
-pub enum LexError {}
+pub enum LexError {
+    Unknown,
+}
