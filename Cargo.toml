@@ -7,8 +7,8 @@ edition = "2018"
 [dependencies]
 "r0vm" = { path = "crates/r0vm", default-features = false }
 "r0syntax" = { path = "crates/syntax" }
-inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "llvm9-0", optional = true }
 
+# inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "llvm9-0", optional = true }
 [features]
 default = ["vm"]
 llvm9 = ["inkwell"]
