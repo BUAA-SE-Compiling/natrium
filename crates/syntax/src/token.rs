@@ -1,15 +1,15 @@
 use crate::span::Span;
 
-pub fn Token(ty: TokenType, span: Span) -> Token {
-    Token { ty, span }
+pub fn token(kind: TokenKind, span: Span) -> Token {
+    Token { kind, span }
 }
 
 pub struct Token {
-    ty: TokenType,
-    span: Span,
+    pub kind: TokenKind,
+    pub span: Span,
 }
 
-pub enum TokenType {
+pub enum TokenKind {
     FnKw,
     LetKw,
 
@@ -27,9 +27,6 @@ pub enum TokenType {
 
 impl Token {
     pub fn is_skipable(&self) -> bool {
-        match self.ty {
-            TokenType::Space | TokenType::Comment => true,
-            _ => false,
-        }
+        matches!(self.kind, TokenKind::Space | TokenKind::Comment)
     }
 }

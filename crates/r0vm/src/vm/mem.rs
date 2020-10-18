@@ -182,7 +182,8 @@ impl<'src> R0Vm<'src> {
         let mem = unsafe { ManagedMemory::alloc(Layout::from_size_align(len, alignment)?)? };
         let mem_addr = self
             .heap
-            .last_key_value()
+            .iter()
+            .next_back()
             .map(|(k, v)| round_up_to_multiple(*k + v.len() as u64, alignment as u64))
             .unwrap_or(R0Vm::HEAP_START);
         self.heap.insert(mem_addr, mem);

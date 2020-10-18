@@ -11,7 +11,7 @@ edition = "2018"
 # inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "llvm9-0", optional = true }
 [features]
 default = ["vm"]
-llvm9 = ["inkwell"]
+# llvm9 = ["inkwell"]
 vm = ["r0vm/vm"]
 
 [workspace]
