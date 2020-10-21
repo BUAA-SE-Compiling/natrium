@@ -1,12 +1,13 @@
 [package]
-name = "natrium"
-version = "0.1.0"
 authors = ["Rynco Maekawa <lynzrand@outlook.com>"]
 edition = "2018"
+name = "natrium"
+version = "0.1.0"
 
 [dependencies]
-"r0vm" = { path = "crates/r0vm", default-features = false }
-"r0syntax" = { path = "crates/syntax" }
+"logos" = "0.11.4"
+"r0syntax" = {path = "crates/syntax"}
+"r0vm" = {path = "crates/r0vm", default-features = false}
 
 # inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "llvm9-0", optional = true }
 [features]

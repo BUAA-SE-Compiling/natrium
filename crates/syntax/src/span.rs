@@ -41,6 +41,12 @@ impl Span {
     }
 }
 
+impl Default for Span {
+    fn default() -> Self {
+        DUMMY_SPAN
+    }
+}
+
 impl<T> Index<Span> for Vec<T> {
     type Output = [T];
     fn index(&self, index: Span) -> &Self::Output {
