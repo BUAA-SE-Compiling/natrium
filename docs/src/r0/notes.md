@@ -312,8 +312,8 @@ fn set(idx: int, val: int) -> void {
 fn main() -> void {
     let a, b, c, t: int;
     let five: int = 5;
-    scan(a);
-    scan(b);
+    a = getint();
+    b = getint();
     set(1, a);
     set(2, b);
     t = 3;
