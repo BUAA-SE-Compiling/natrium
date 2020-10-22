@@ -1,12 +1,7 @@
 use indexmap::IndexMap;
 use smol_str::SmolStr;
 
-use crate::{
-    span::Span,
-    ty::TyKind,
-    util::MutWeak,
-    util::{Mut, P},
-};
+use crate::{ty::Ty, util::MutWeak};
 
 #[derive(Debug)]
 pub struct Scope {
@@ -16,5 +11,5 @@ pub struct Scope {
 
 #[derive(Debug, Clone)]
 pub struct Symbol {
-    pub ty: TyKind,
+    pub ty: Ty,
 }

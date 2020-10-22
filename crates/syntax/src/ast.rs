@@ -2,15 +2,14 @@
 //!
 //! For the pointer type, see `crate::util::{P, Mut}`
 
-use indexmap::IndexMap;
+use crate::{span::Span, util::P};
 use smol_str::SmolStr;
 
-use crate::{
-    span::Span,
-    ty::TyKind,
-    util::MutWeak,
-    util::{Mut, P},
-};
+#[derive(Debug, Clone)]
+pub struct Program {
+    pub decls: Vec<DeclStmt>,
+    pub funcs: Vec<FuncStmt>,
+}
 
 pub trait AstNode {
     fn span(&self) -> Span;
@@ -28,7 +27,7 @@ pub enum Stmt {
     Loop(LoopStmt),
     If(IfStmt),
     Expr(Expr),
-    Decl,
+    Decl(DeclStmt),
 }
 
 #[derive(Debug, Clone)]
@@ -59,7 +58,7 @@ pub struct LoopStmt {
 pub struct IfStmt {
     pub cond: P<Expr>,
     pub if_true: P<Stmt>,
-    pub if_false: P<Stmt>,
+    pub if_false: Option<P<Stmt>>,
 }
 
 #[derive(Debug, Clone)]

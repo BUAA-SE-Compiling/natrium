@@ -15,3 +15,6 @@ pub mod util;
 
 /// Type system
 pub mod ty;
+
+/// Scope ranges
+pub mod scope;
