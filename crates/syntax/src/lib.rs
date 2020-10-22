@@ -12,3 +12,6 @@ pub mod parser;
 
 /// Utilities
 pub mod util;
+
+/// Type system
+pub mod ty;
