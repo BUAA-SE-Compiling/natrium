@@ -1,13 +1,13 @@
 use logos::{Lexer, Logos};
 use smol_str::SmolStr;
 
-fn parse_string_literal(i: &mut Lexer<TokenKind>) -> Option<String> {
+fn parse_string_literal(i: &mut Lexer<Token>) -> Option<String> {
     unescape::unescape(&i.slice()[1..i.slice().len() - 1])
     // Some(i.slice().into())
 }
 
 #[derive(Debug, Clone, Logos)]
-pub enum TokenKind {
+pub enum Token {
     #[token("fn")]
     FnKw,
     #[token("let")]

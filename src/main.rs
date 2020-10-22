@@ -1,5 +1,5 @@
 use logos::{Lexer, Logos};
-use r0syntax::token::TokenKind;
+use r0syntax::token::Token;
 
 static input: &str = r#"
 fn main() {
@@ -12,6 +12,6 @@ fn main() {
 "#;
 
 fn main() {
-    let l = TokenKind::lexer(input);
+    let l = Token::lexer(input);
     l.for_each(|t| println!("{:?}", t))
 }
