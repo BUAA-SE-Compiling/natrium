@@ -3,7 +3,7 @@ use std::ops::Index;
 /// A Span is the information of a piece of source code inside a file.
 ///
 /// `Span`s are only meaningful when indexing the file it is originated from.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Span {
     /// The start index (in bytes or other meaningful item index)
     /// in the file of this span

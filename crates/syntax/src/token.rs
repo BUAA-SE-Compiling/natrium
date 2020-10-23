@@ -12,12 +12,16 @@ pub enum Token {
     FnKw,
     #[token("let")]
     LetKw,
+    #[token("const")]
+    ConstKw,
     #[token("as")]
     AsKw,
     #[token("while")]
     WhileKw,
     #[token("if")]
     IfKw,
+    #[token("else")]
+    ElseKw,
 
     #[regex(r"\d+", |lex| lex.slice().parse(), priority = 2)]
     UIntLiteral(u64),
@@ -58,6 +62,10 @@ pub enum Token {
     LBrace,
     #[token("}")]
     RBrace,
+    #[token(r"->")]
+    Arrow,
+    #[token(r",")]
+    Comma,
     #[token(r":")]
     Colon,
     #[token(r";")]
@@ -72,4 +80,48 @@ pub enum Token {
     // Error token
     #[error]
     Error,
+}
+
+impl Token {
+    pub fn get_ident(&self) -> Option<&str> {
+        match self {
+            Token::Ident(i) => Some(&i),
+            _ => None,
+        }
+    }
+
+    pub fn get_ident_owned(self) -> Option<SmolStr> {
+        match self {
+            Token::Ident(i) => Some(i),
+            _ => None,
+        }
+    }
+
+    pub fn get_uint(&self) -> Option<u64> {
+        match self {
+            Token::UIntLiteral(i) => Some(*i),
+            _ => None,
+        }
+    }
+
+    pub fn get_float(&self) -> Option<f64> {
+        match self {
+            Token::FloatLiteral(i) => Some(*i),
+            _ => None,
+        }
+    }
+
+    pub fn get_string(&self) -> Option<&str> {
+        match self {
+            Token::StringLiteral(i) => Some(&i),
+            _ => None,
+        }
+    }
+
+    pub fn get_string_owned(self) -> Option<String> {
+        match self {
+            Token::StringLiteral(i) => Some(i),
+            _ => None,
+        }
+    }
 }

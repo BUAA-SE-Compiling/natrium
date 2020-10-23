@@ -17,14 +17,22 @@ pub trait AstNode {
 
 #[derive(Debug, Clone)]
 pub struct FuncStmt {
-    pub name: SmolStr,
-    pub body: Stmt,
+    pub name: Ident,
+    pub params: Vec<FuncParam>,
+    pub ret_ty: TyDef,
+    pub body: BlockStmt,
+}
+
+#[derive(Debug, Clone)]
+pub struct FuncParam {
+    pub name: Ident,
+    pub ty: TyDef,
 }
 
 #[derive(Debug, Clone)]
 pub enum Stmt {
     Block(BlockStmt),
-    Loop(LoopStmt),
+    While(WhileStmt),
     If(IfStmt),
     Expr(Expr),
     Decl(DeclStmt),
@@ -49,16 +57,15 @@ pub struct BlockStmt {
 }
 
 #[derive(Debug, Clone)]
-pub struct LoopStmt {
+pub struct WhileStmt {
     pub cond: P<Expr>,
-    pub body: P<Stmt>,
+    pub body: P<BlockStmt>,
 }
 
 #[derive(Debug, Clone)]
 pub struct IfStmt {
-    pub cond: P<Expr>,
-    pub if_true: P<Stmt>,
-    pub if_false: Option<P<Stmt>>,
+    pub cond: Vec<(P<Expr>, P<BlockStmt>)>,
+    pub else_block: Option<P<BlockStmt>>,
 }
 
 #[derive(Debug, Clone)]
@@ -129,5 +136,5 @@ pub enum BinaryOp {
 #[derive(Debug, Clone)]
 pub struct Ident {
     pub span: Span,
-    pub idx: SmolStr,
+    pub val: SmolStr,
 }
