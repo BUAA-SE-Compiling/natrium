@@ -22,6 +22,8 @@ pub enum Token {
     IfKw,
     #[token("else")]
     ElseKw,
+    #[token("return")]
+    ReturnKw,
 
     #[regex(r"\d+", |lex| lex.slice().parse(), priority = 2)]
     UIntLiteral(u64),

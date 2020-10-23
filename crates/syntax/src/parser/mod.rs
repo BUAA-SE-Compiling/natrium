@@ -35,11 +35,12 @@ macro_rules! is_next {
 }
 
 macro_rules! separated {
-    ( $parse:expr, $parse_separator:expr) => {{
+    ( $parse:expr, $detect_sep:expr, $parse_sep:expr) => {{
         let first: Result<_, ParseError> = (|| $parse)();
         if let Ok(val) = first {
             let mut v = vec![val];
-            while $parse_separator.is_ok() {
+            while $detect_sep {
+                let _ = $parse_sep;
                 let next = (|| $parse)()?;
                 v.push(next);
             }
@@ -51,11 +52,11 @@ macro_rules! separated {
 }
 
 macro_rules! repeated {
-    ( $parse:expr, $parse_delimiter:expr) => {{
+    ( $parse:expr, $detect_sep:expr) => {{
         let mut v = vec![];
-        while (|| $parse_delimiter)().is_err() {
+        while !$detect_sep {
             let val: Result<_, ParseError> = (|| $parse)();
-            v.push(val?)
+            v.push(val?);
         }
         v
     }};
@@ -76,7 +77,7 @@ where
     }
 
     fn peek(&mut self) -> Option<&Token> {
-        self.lexer.peek().map(|(t, s)| t)
+        self.lexer.peek().map(|(t, _)| t)
     }
 
     fn next_if<F>(&mut self, f: F) -> Result<(Token, Span), Option<Span>>
@@ -141,7 +142,10 @@ where
             None
         };
 
+        expect!(self, Token::Semicolon)?;
+
         Ok(DeclStmt {
+            is_const: false,
             name: ident,
             val,
             ty,
@@ -158,7 +162,10 @@ where
         expect!(self, Token::Assign)?;
         let val = self.parse_expr()?;
 
+        expect!(self, Token::Semicolon)?;
+
         Ok(DeclStmt {
+            is_const: true,
             name: ident,
             val: Some(val),
             ty,
@@ -166,7 +173,13 @@ where
     }
 
     fn parse_expr(&mut self) -> Result<Expr, ParseError> {
-        todo!()
+        while !is_next!(self, Token::Semicolon) {
+            self.lexer.next();
+        }
+        Ok(Expr::Literal(LiteralExpr {
+            span: Span::default(),
+            kind: LiteralKind::Integer(0),
+        }))
     }
 
     fn parse_expr_stmt(&mut self) -> Result<Expr, ParseError> {
@@ -177,7 +190,8 @@ where
 
     fn parse_block(&mut self) -> Result<BlockStmt, ParseError> {
         expect!(self, Token::LBrace)?;
-        let vals = repeated!(self.parse_stmt(), expect!(self, Token::RBrace));
+        let vals = repeated!(self.parse_stmt(), is_next!(self, Token::RBrace));
+        expect!(self, Token::RBrace)?;
         Ok(BlockStmt { stmts: vals })
     }
 
@@ -199,6 +213,7 @@ where
 
             while is_next!(self, Token::IfKw) {
                 // else-if block
+                expect!(self, Token::IfKw)?;
                 let cond = self.parse_expr()?;
                 let if_blk = self.parse_block()?;
                 conds.push((P::new(cond), P::new(if_blk)));
@@ -226,6 +241,19 @@ where
         })
     }
 
+    fn parse_return_stmt(&mut self) -> Result<ReturnStmt, ParseError> {
+        expect!(self, Token::ReturnKw)?;
+
+        let val = if !is_next!(self, Token::Semicolon) {
+            Some(self.parse_expr()?)
+        } else {
+            None
+        };
+        expect!(self, Token::Semicolon)?;
+
+        Ok(ReturnStmt { val })
+    }
+
     fn parse_stmt(&mut self) -> Result<Stmt, ParseError> {
         let val = if is_next!(self, Token::ConstKw) {
             Stmt::Decl(self.parse_const_decl()?)
@@ -237,6 +265,8 @@ where
             Stmt::If(self.parse_if_stmt()?)
         } else if is_next!(self, Token::WhileKw) {
             Stmt::While(self.parse_while_stmt()?)
+        } else if is_next!(self, Token::ReturnKw) {
+            Stmt::Return(self.parse_return_stmt()?)
         } else {
             Stmt::Expr(self.parse_expr_stmt()?)
         };
@@ -258,7 +288,8 @@ where
                     ty: param_ty,
                 })
             },
-            { expect!(self, Token::Comma) }
+            is_next!(self, Token::Comma),
+            expect!(self, Token::Comma)
         );
         expect!(self, Token::RParen)?;
 

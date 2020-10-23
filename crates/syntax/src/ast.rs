@@ -36,13 +36,20 @@ pub enum Stmt {
     If(IfStmt),
     Expr(Expr),
     Decl(DeclStmt),
+    Return(ReturnStmt),
 }
 
 #[derive(Debug, Clone)]
 pub struct DeclStmt {
+    pub is_const: bool,
     pub name: Ident,
-    pub val: Option<Expr>,
     pub ty: TyDef,
+    pub val: Option<Expr>,
+}
+
+#[derive(Debug, Clone)]
+pub struct ReturnStmt {
+    pub val: Option<Expr>,
 }
 
 #[derive(Debug, Clone)]
