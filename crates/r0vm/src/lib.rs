@@ -15,7 +15,11 @@ macro_rules! s0_bin {
     (
         $(
             // TODO: global variable declaration
-            let $(const)? $val:expr;
+            const $const_val:expr;
+        )*
+        $(
+            // TODO: global variable declaration
+            let $val:expr;
         )*
         $(
             fn $name:ident $loc_slots:literal $param:literal -> $ret:literal {
@@ -27,6 +31,14 @@ macro_rules! s0_bin {
         use $crate::util::IntoBytes;
         let mut globals = vec![];
 
+        $({
+            let bytes = $const_val.into_bytes();
+            let glob = GlobalValue {
+                is_const: true,
+                bytes
+            };
+            globals.push(glob);
+        })*
         $({
             let bytes = $val.into_bytes();
             let glob = GlobalValue {

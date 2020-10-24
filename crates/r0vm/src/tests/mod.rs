@@ -183,7 +183,7 @@ pub fn simple_stdin_test() {
 #[test]
 pub fn simple_global_test() {
     let s0 = s0_bin! (
-        let const 0x1234u64;
+        const 0x1234u64;
         let 0x5678u64;
         fn _start 0 0 -> 0 {
             GlobA(0)
