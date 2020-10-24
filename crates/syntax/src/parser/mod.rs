@@ -16,12 +16,12 @@ pub struct Parser<L> {
 }
 
 macro_rules! expect {
-    ($self:expr, $pat:pat) => {
+    ($self:expr, $($pat:pat)|+) => {
         $self
-            .next_if(|token| matches!(token, $pat))
+            .next_if(|token| matches!(token, $($pat)|+))
             .map_err(|span| {
                 ParseError::new(
-                    ParseErrorKind::ExpectedPattern(stringify!($pat).to_owned()),
+                    ParseErrorKind::ExpectedPattern(stringify!($($pat)|+).to_owned()),
                     span,
                 )
             })
@@ -29,8 +29,8 @@ macro_rules! expect {
 }
 
 macro_rules! is_next {
-    ($self:expr, $pat:pat) => {
-        $self.peek().map_or(false, |token| matches!(token, $pat))
+    ($self:expr, $($pat:pat)|+) => {
+        $self.peek().map_or(false, |token| matches!(token, $($pat)|+))
     };
 }
 
@@ -49,6 +49,30 @@ macro_rules! separated {
             Vec::new()
         }
     }};
+}
+
+/// Combine `lhs` and `rhs` using `op`.
+///
+/// Requires `op` to be a binary operator, aka `op.is_binary_op() == true`
+fn combine_expr(lhs: Expr, rhs: Expr, op: Token) -> Expr {
+    match op {
+        Token::Assign => Expr::Assign(AssignExpr {
+            lhs: P::new(lhs),
+            rhs: P::new(rhs),
+            span: Span::default(),
+        }),
+        _ => {
+            let binary_op = op
+                .to_binary_op()
+                .expect("A token passed in combine_expr should always be a binary operator");
+            Expr::Binary(BinaryExpr {
+                lhs: P::new(lhs),
+                rhs: P::new(rhs),
+                span: Span::default(),
+                op: binary_op,
+            })
+        }
+    }
 }
 
 macro_rules! repeated {
@@ -172,14 +196,137 @@ where
         })
     }
 
-    fn parse_expr(&mut self) -> Result<Expr, ParseError> {
-        while !is_next!(self, Token::Semicolon) {
-            self.lexer.next();
-        }
-        Ok(Expr::Literal(LiteralExpr {
+    fn parse_func_call(&mut self, func: Ident) -> Result<CallExpr, ParseError> {
+        // FunctionCall -> Ident '(' (Expr (,Expr)* )? ')'
+        expect!(self, Token::LParen)?;
+        let params = separated!(
+            self.parse_expr(),
+            is_next!(self, Token::Comma),
+            self.lexer.next()
+        );
+        expect!(self, Token::RParen)?;
+
+        Ok(CallExpr {
             span: Span::default(),
-            kind: LiteralKind::Integer(0),
-        }))
+            func,
+            params,
+        })
+    }
+
+    fn parse_item(&mut self) -> Result<Expr, ParseError> {
+        // Item -> Ident | FunctionCall | Literal | '(' Expr ')'
+        if is_next!(self, Token::Ident(_)) {
+            let (ident, span) = self.lexer.next().unwrap();
+            let ident = Ident {
+                span,
+                val: ident.get_ident_owned().unwrap(),
+            };
+
+            if is_next!(self, Token::LParen) {
+                let call = self.parse_func_call(ident)?;
+                Ok(Expr::Call(call))
+            } else {
+                Ok(Expr::Ident(ident))
+            }
+        } else if is_next!(self, Token::UIntLiteral(_)) {
+            let (num, span) = self.lexer.next().unwrap();
+            Ok(Expr::Literal(LiteralExpr {
+                span,
+                kind: LiteralKind::Integer(num.get_uint().unwrap()),
+            }))
+        } else if is_next!(self, Token::FloatLiteral(_)) {
+            let (num, span) = self.lexer.next().unwrap();
+            Ok(Expr::Literal(LiteralExpr {
+                span,
+                kind: LiteralKind::Float(num.get_float().unwrap()),
+            }))
+        } else if is_next!(self, Token::StringLiteral(_)) {
+            let (num, span) = self.lexer.next().unwrap();
+            Ok(Expr::Literal(LiteralExpr {
+                span,
+                kind: LiteralKind::String(num.get_string_owned().unwrap()),
+            }))
+        } else if is_next!(self, Token::LParen) {
+            expect!(self, Token::LParen)?;
+            let expr = self.parse_expr()?;
+            expect!(self, Token::RParen)?;
+            Ok(expr)
+        } else {
+            Err(ParseError {
+                kind: ParseErrorKind::ExpectedPattern(
+                    "Literal or Identifier or parenthesis".into(),
+                ),
+                span: self
+                    .lexer
+                    .peek()
+                    .map(|(_, s)| *s)
+                    .unwrap_or_else(Span::eof)
+                    .into(),
+            })
+        }
+    }
+
+    fn parse_unary_expr(&mut self) -> Result<Expr, ParseError> {
+        // UExpr -> PreUOp* Item ProUOp*
+        // PreUOp -> '+' | '-'
+        // ProUOp -> 'as' TypeDef
+        let mut prec_ops = vec![];
+        while is_next!(self, Token::Plus | Token::Minus) {
+            prec_ops.push(self.lexer.next().unwrap().0)
+        }
+
+        let mut item = self.parse_item()?;
+        for prec_op in prec_ops.drain(..).rev() {
+            let unary_op = match prec_op {
+                Token::Plus => UnaryOp::Pos,
+                Token::Minus => UnaryOp::Neg,
+                _ => unreachable!(),
+            };
+            item = Expr::Unary(UnaryExpr {
+                span: Span::default(),
+                op: unary_op,
+                expr: P::new(item),
+            });
+        }
+
+        while is_next!(self, Token::AsKw) {
+            self.lexer.next();
+            let ty = self.parse_ty()?;
+            item = Expr::As(AsExpr {
+                span: Span::default(),
+                val: P::new(item),
+                ty,
+            })
+        }
+
+        Ok(item)
+    }
+
+    fn parse_expr_opg(&mut self, lhs: Expr, precedence: u32) -> Result<Expr, ParseError> {
+        let mut lhs = lhs;
+        while self.lexer.peek().map_or(false, |(x, _)| {
+            x.is_binary_op() && x.precedence() >= precedence
+        }) {
+            // OPG
+            let (op, _) = self.lexer.next().unwrap();
+            let mut rhs = self.parse_unary_expr()?;
+
+            while self.lexer.peek().map_or(false, |(x, _)| {
+                x.is_binary_op() && (x.precedence() > op.precedence() || !x.is_left_assoc())
+            }) {
+                let (op, _) = self.lexer.peek().unwrap();
+                let op_precedence = op.precedence();
+                rhs = self.parse_expr_opg(rhs, op_precedence)?;
+            }
+
+            lhs = combine_expr(lhs, rhs, op);
+        }
+        Ok(lhs)
+    }
+
+    fn parse_expr(&mut self) -> Result<Expr, ParseError> {
+        let lhs = self.parse_unary_expr()?;
+        self.parse_expr_opg(lhs, 0)
     }
 
     fn parse_expr_stmt(&mut self) -> Result<Expr, ParseError> {
@@ -304,5 +451,74 @@ where
             ret_ty,
             body,
         })
+    }
+}
+
+impl Token {
+    pub fn is_binary_op(&self) -> bool {
+        matches!(
+            self,
+            Token::Plus
+                | Token::Minus
+                | Token::Mul
+                | Token::Div
+                | Token::Assign
+                | Token::Eq
+                | Token::Neq
+                | Token::Lt
+                | Token::Gt
+                | Token::Le
+                | Token::Ge
+        )
+    }
+
+    pub fn precedence(&self) -> u32 {
+        match self {
+            Token::Plus => 10,
+            Token::Minus => 10,
+            Token::Mul => 20,
+            Token::Div => 20,
+            Token::Assign => 1,
+            Token::Eq => 2,
+            Token::Neq => 2,
+            Token::Lt => 2,
+            Token::Gt => 2,
+            Token::Le => 2,
+            Token::Ge => 2,
+            _ => unreachable!("Precedence should only be called by binary operators"),
+        }
+    }
+
+    pub fn is_left_assoc(&self) -> bool {
+        match self {
+            Token::Plus
+            | Token::Minus
+            | Token::Mul
+            | Token::Div
+            | Token::Eq
+            | Token::Neq
+            | Token::Lt
+            | Token::Gt
+            | Token::Le
+            | Token::Ge => true,
+            Token::Assign => false,
+            _ => unreachable!("Method should only be called by binary operators"),
+        }
+    }
+
+    pub fn to_binary_op(&self) -> Option<BinaryOp> {
+        match self {
+            Token::Plus => Some(BinaryOp::Add),
+            Token::Minus => Some(BinaryOp::Sub),
+            Token::Mul => Some(BinaryOp::Mul),
+            Token::Div => Some(BinaryOp::Div),
+            Token::Eq => Some(BinaryOp::Eq),
+            Token::Neq => Some(BinaryOp::Neq),
+            Token::Lt => Some(BinaryOp::Lt),
+            Token::Gt => Some(BinaryOp::Gt),
+            Token::Le => Some(BinaryOp::Le),
+            Token::Ge => Some(BinaryOp::Ge),
+            _ => None,
+        }
     }
 }

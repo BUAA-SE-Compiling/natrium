@@ -97,6 +97,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dea0c0405123bba743ee3f91f49b1c7cfb684eef0da0a50110f758ccf24cdff0"
 
 [[package]]
+name = "line-span"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "58936323cd930a4c41659aadc8f306085b667d1728ab5395954a4bc79e8f7832"
+
+[[package]]
 name = "logos"
 version = "0.11.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -124,6 +130,7 @@ dependencies = [
 name = "natrium"
 version = "0.1.0"
 dependencies = [
+ "line-span",
  "logos",
  "r0syntax",
  "r0vm",

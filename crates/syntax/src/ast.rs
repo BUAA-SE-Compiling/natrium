@@ -78,6 +78,8 @@ pub struct IfStmt {
 #[derive(Debug, Clone)]
 pub enum Expr {
     Ident(Ident),
+    Assign(AssignExpr),
+    As(AsExpr),
     Literal(LiteralExpr),
     Unary(UnaryExpr),
     Binary(BinaryExpr),
@@ -103,6 +105,20 @@ pub struct UnaryExpr {
     pub span: Span,
     pub op: UnaryOp,
     pub expr: P<Expr>,
+}
+
+#[derive(Debug, Clone)]
+pub struct AssignExpr {
+    pub span: Span,
+    pub lhs: P<Expr>,
+    pub rhs: P<Expr>,
+}
+
+#[derive(Debug, Clone)]
+pub struct AsExpr {
+    pub span: Span,
+    pub val: P<Expr>,
+    pub ty: TyDef,
 }
 
 #[derive(Debug, Clone)]

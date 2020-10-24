@@ -1,16 +1,16 @@
-use std::ops::Index;
+use std::{fmt::Debug, ops::Index};
 
 /// A Span is the information of a piece of source code inside a file.
 ///
 /// `Span`s are only meaningful when indexing the file it is originated from.
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy)]
 pub struct Span {
     /// The start index (in bytes or other meaningful item index)
     /// in the file of this span
-    idx: usize,
+    pub idx: usize,
 
     /// The length of the span
-    len: usize,
+    pub len: usize,
 }
 
 pub const DUMMY_SPAN: Span = Span {
@@ -29,6 +29,13 @@ impl Span {
         let len = hi - lo;
         Span { idx: lo, len }
     }
+
+    pub const fn eof() -> Span {
+        Span {
+            idx: usize::max_value(),
+            len: 0,
+        }
+    }
 }
 
 impl std::ops::Add for Span {
@@ -37,6 +44,12 @@ impl std::ops::Add for Span {
     fn add(self, rhs: Self) -> Self::Output {
         let len = rhs.idx - self.idx + rhs.len;
         Span::new(self.idx, len)
+    }
+}
+
+impl Debug for Span {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{}, {})", self.idx, self.idx + self.len)
     }
 }
 

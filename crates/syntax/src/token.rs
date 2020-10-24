@@ -47,7 +47,7 @@ pub enum Token {
     #[token(r"==")]
     Eq,
     #[token(r"!=")]
-    NEq,
+    Neq,
     #[token(r"<")]
     Lt,
     #[token(r">")]
