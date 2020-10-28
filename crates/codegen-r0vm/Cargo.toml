@@ -8,6 +8,7 @@ version = "0.1.0"
 
 [dependencies]
 indexmap = "1.6.0"
+once_cell = "1.4.1"
 r0syntax = {path = "../syntax"}
 r0vm = {path = "../r0vm", default_features = false}
 smol_str = "0.1.17"

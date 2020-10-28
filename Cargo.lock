@@ -51,6 +51,7 @@ name = "codegen-r0vm"
 version = "0.1.0"
 dependencies = [
  "indexmap",
+ "once_cell",
  "r0syntax",
  "r0vm",
  "smol_str",
@@ -146,6 +147,12 @@ dependencies = [
  "r0syntax",
  "r0vm",
 ]
+
+[[package]]
+name = "once_cell"
+version = "1.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "260e51e7efe62b592207e9e13a68e43692a7a279171d6ba57abd208bf23645ad"
 
 [[package]]
 name = "proc-macro2"
