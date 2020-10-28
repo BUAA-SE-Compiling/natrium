@@ -77,18 +77,34 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn loc_a(&mut self, a: u32) -> Result<()> {
-        let total_loc = self.total_loc();
+        let total_loc = self.fn_info.loc_slots;
 
         // check local index
-        if a as usize > total_loc {
+        if a > total_loc {
             return Err(Error::InvalidLocalIndex(a));
         }
 
         let bp = self.bp;
         let addr = R0Vm::STACK_START
             .wrapping_add((bp) as u64 * 8)
+            .wrapping_add(3 * 8)
+            .wrapping_add(a as u64 * 8);
+        self.push(addr)
+    }
+
+    pub(crate) fn arg_a(&mut self, a: u32) -> Result<()> {
+        let total_arg = self.fn_info.ret_slots + self.fn_info.param_slots;
+
+        // check local index
+        if a > total_arg {
+            return Err(Error::InvalidArgIndex(a));
+        }
+
+        let bp = self.bp;
+        let addr = R0Vm::STACK_START
+            .wrapping_add((bp) as u64 * 8)
             .wrapping_add(a as u64 * 8)
-            .wrapping_sub(total_loc as u64 * 8);
+            .wrapping_sub(total_arg as u64 * 8);
         self.push(addr)
     }
 
@@ -425,13 +441,14 @@ impl<'src> super::R0Vm<'src> {
 
     pub(crate) fn call(&mut self, id: u32) -> Result<()> {
         let fp = self.get_fn_by_id(id)?;
-        self.stack_alloc(fp.loc_slots)?;
 
         let bp = self.stack.len();
 
         self.push(self.bp as u64)?;
         self.push(self.ip as u64)?;
         self.push(self.fn_id as u64)?;
+
+        self.stack_alloc(fp.loc_slots)?;
 
         self.fn_id = id as usize;
         self.fn_info = fp;
@@ -445,8 +462,7 @@ impl<'src> super::R0Vm<'src> {
         let old_bp = *self.stack.get(self.bp).ok_or(Error::StackUnderflow)?;
         let old_ip = *self.stack.get(self.bp + 1).ok_or(Error::StackUnderflow)?;
         let old_fn = *self.stack.get(self.bp + 2).ok_or(Error::StackUnderflow)?;
-        let truncate_to =
-            self.bp as u64 - self.fn_info.param_slots as u64 - self.fn_info.loc_slots as u64;
+        let truncate_to = self.bp as u64 - self.fn_info.param_slots as u64;
 
         let fp = self.get_fn_by_id(old_fn as u32)?;
 

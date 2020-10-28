@@ -17,11 +17,17 @@ pub enum Error {
     #[fail(display = "Invalid local variable index {}", _0)]
     InvalidLocalIndex(u32),
 
+    #[fail(display = "Invalid local variable index {}", _0)]
+    InvalidArgIndex(u32),
+
     #[fail(display = "Invalid global variable index {}", _0)]
     InvalidGlobalIndex(u32),
 
     #[fail(display = "Invalid address 0x{:016x}", _0)]
     InvalidAddress(u64),
+
+    #[fail(display = "Invalid stack offset {} (bp + {})", _0, _1)]
+    InvalidStackOffset(u64, i64),
 
     #[fail(display = "Invalid function ID {}", _0)]
     InvalidFnId(u32),

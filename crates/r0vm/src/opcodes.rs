@@ -7,6 +7,7 @@ pub enum Op {
     PopN(u32),
     Dup,
     LocA(u32),
+    ArgA(u32),
     GlobA(u32),
     Load8,
     Load16,
@@ -72,8 +73,9 @@ impl Op {
             Pop => 0x02,
             PopN(..) => 0x03,
             Dup => 0x04,
-            LocA(..) => 0x08,
-            GlobA(..) => 0x09,
+            LocA(..) => 0x0a,
+            ArgA(..) => 0x0b,
+            GlobA(..) => 0x0c,
             Load8 => 0x10,
             Load16 => 0x11,
             Load32 => 0x12,
@@ -133,7 +135,7 @@ impl Op {
     pub fn param_size(code: u8) -> usize {
         match code {
             0x01 | 0x40 => 8,
-            0x03 | 0x08 | 0x09 | 0x1a | 0x41..=0x49 => 4,
+            0x03 | 0x0a | 0x0b | 0x0c | 0x1a | 0x41..=0x49 => 4,
             _ => 0,
         }
     }
@@ -146,8 +148,9 @@ impl Op {
             0x02 => Pop.into(),
             0x03 => PopN(param as u32).into(),
             0x04 => Dup.into(),
-            0x08 => LocA(param as u32).into(),
-            0x09 => GlobA(param as u32).into(),
+            0x0a => LocA(param as u32).into(),
+            0x0b => ArgA(param as u32).into(),
+            0x0c => GlobA(param as u32).into(),
             0x10 => Load8.into(),
             0x11 => Load16.into(),
             0x12 => Load32.into(),
@@ -211,6 +214,7 @@ impl Op {
             Push(x) => x,
             PopN(x) => x as u64,
             LocA(x) => x as u64,
+            ArgA(x) => x as u64,
             GlobA(x) => x as u64,
             StackAlloc(x) => x as u64,
             BrA(x) => x,

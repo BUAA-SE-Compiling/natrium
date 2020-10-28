@@ -211,7 +211,10 @@ impl<'src> R0Vm<'src> {
             return Err(Error::UnalignedAccess(addr));
         }
         let (idx, off) = vm_addr_to_stack_idx(addr);
-        let val = *self.stack.get(idx).ok_or(Error::InvalidAddress(addr))?;
+        let val = *self.stack.get(idx).ok_or(Error::InvalidStackOffset(
+            idx as u64,
+            idx as i64 - self.bp as i64,
+        ))?;
         let mask = u64::max_value().wrapping_shr(64 - (sizeof_t as u32) * 8);
 
         // * R0VM is little-endian in this implementation
@@ -238,7 +241,10 @@ impl<'src> R0Vm<'src> {
             return Err(Error::UnalignedAccess(addr));
         }
         let (idx, off) = vm_addr_to_stack_idx(addr);
-        let val = *self.stack.get(idx).ok_or(Error::InvalidAddress(addr))?;
+        let val = *self.stack.get(idx).ok_or(Error::InvalidStackOffset(
+            idx as u64,
+            idx as i64 - self.bp as i64,
+        ))?;
 
         let set_val = set_val.into();
 

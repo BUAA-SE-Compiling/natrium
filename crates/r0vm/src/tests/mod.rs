@@ -59,10 +59,10 @@ pub fn call_test() {
             Call(1),
         }
         fn main 1 2 -> 1 {
-            LocA(0)
-            LocA(1)
+            ArgA(0)
+            ArgA(1)
             Load64
-            LocA(2)
+            ArgA(2)
             Load64
             AddI
             Store64
@@ -118,7 +118,7 @@ pub fn simple_local_var_test() {
     let mut stdout = std::io::sink();
     let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
     vm.run_to_end().unwrap();
-    assert_eq!(vm.stack()[0], 0x00_03_0002_00000001);
+    assert_eq!(vm.stack()[3], 0x00_03_0002_00000001,);
     assert_eq!(vm.stack()[4..], vec![1u64, 2, 3][..]);
 }
 
@@ -213,10 +213,10 @@ pub fn stacktrace_test() {
             Ret
         }
         fn test 1 2 -> 1 {
-            LocA(0)
-            LocA(1)
+            ArgA(0)
+            ArgA(1)
             Load64
-            LocA(2)
+            ArgA(2)
             Load64
             AddI
             Store64

@@ -50,14 +50,15 @@ impl<'src> R0Vm<'src> {
         stdout: &'src mut dyn Write,
     ) -> Result<R0Vm<'src>> {
         let start = src.functions.get(0).ok_or(Error::NoEntryPoint)?;
-        let mut stack = vec![0; start.loc_slots as usize];
+        let mut stack = vec![];
         {
             // push an invalid stack frame
             // TODO: Is there a more elegant way here?
             let usize_max = usize::max_value() as u64;
             stack.append(&mut vec![usize_max, usize_max, usize_max]);
         }
-        let bp = start.loc_slots as usize;
+        stack.append(&mut vec![0; start.loc_slots as usize]);
+        let bp = 0usize;
         let (globals, global_idx) = Self::index_globals(&src.globals[..])?;
         Ok(R0Vm {
             src,
@@ -111,7 +112,7 @@ impl<'src> R0Vm<'src> {
             match self.step() {
                 Ok(()) => (),
                 Err(Error::ControlReachesEnd(0)) => break Ok(()),
-                e @ _ => return e,
+                e => return e,
             }
         }
     }
@@ -119,7 +120,7 @@ impl<'src> R0Vm<'src> {
     /// Drive virtual machine to end, and abort when any error occurs.
     pub fn run_to_end_inspect<F>(&mut self, mut inspect: F) -> Result<()>
     where
-        F: FnMut(&Self) -> (),
+        F: FnMut(&Self),
     {
         loop {
             let res = self.step();
@@ -127,7 +128,7 @@ impl<'src> R0Vm<'src> {
             match res {
                 Ok(()) => (),
                 Err(Error::ControlReachesEnd(0)) => break Ok(()),
-                e @ _ => return e,
+                e => return e,
             }
         }
     }
@@ -167,6 +168,7 @@ impl<'src> R0Vm<'src> {
             PopN(n) => self.pop_n(n),
             Dup => self.dup(),
             LocA(n) => self.loc_a(n),
+            ArgA(n) => self.arg_a(n),
             GlobA(n) => self.glob_a(n),
             Load8 => self.load8(),
             Load16 => self.load16(),
