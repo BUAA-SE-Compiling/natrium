@@ -161,7 +161,7 @@ where
 
         let val = if is_next!(self, Token::Assign) {
             expect!(self, Token::Assign)?;
-            Some(self.parse_expr()?)
+            Some(P::new(self.parse_expr()?))
         } else {
             None
         };
@@ -184,7 +184,7 @@ where
         let ty = self.parse_ty()?;
 
         expect!(self, Token::Assign)?;
-        let val = self.parse_expr()?;
+        let val = P::new(self.parse_expr()?);
 
         expect!(self, Token::Semicolon)?;
 
@@ -394,7 +394,7 @@ where
         expect!(self, Token::ReturnKw)?;
 
         let val = if !is_next!(self, Token::Semicolon) {
-            Some(self.parse_expr()?)
+            Some(P::new(self.parse_expr()?))
         } else {
             None
         };

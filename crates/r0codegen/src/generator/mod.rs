@@ -9,7 +9,12 @@ use crate::{
     code::{Cond, JumpInst},
     scope::{Scope, Symbol, SymbolIdGenerator},
 };
-use r0syntax::{ast, span::Span, util::Mut, util::MutWeak};
+use r0syntax::{
+    ast,
+    span::Span,
+    util::Mut,
+    util::{MutWeak, P},
+};
 use r0vm::{opcodes::Op, s0};
 
 static RET_VAL_KEY: &str = "$ret";
@@ -226,7 +231,7 @@ impl<'f> FuncCodegen<'f> {
         );
 
         for (cond, (bb_true, bb_false)) in cond_iter {
-            self.set_jump(cond, JumpInst::JumpIf(Cond::, bb_true, bb_false));
+            self.set_jump(cond, JumpInst::JumpIf(Cond::Eq, bb_true, bb_false));
         }
 
         Ok(end_bb)
@@ -239,6 +244,14 @@ impl<'f> FuncCodegen<'f> {
         scope: &mut Scope,
     ) -> CompileResult<BB> {
         add_decl_scope(stmt, scope)?;
+        if let Some(val) = stmt.val.clone() {
+            let assign_expr = ast::AssignExpr {
+                span: Span::default(),
+                lhs: P::new(ast::Expr::Ident(stmt.name.clone())),
+                rhs: val,
+            };
+            self.compile_assign_expr(&assign_expr, bb_id, scope)?;
+        }
         Ok(bb_id)
     }
 
@@ -252,6 +265,87 @@ impl<'f> FuncCodegen<'f> {
     }
 
     fn compile_expr(&mut self, expr: &ast::Expr, bb_id: BB, scope: &Scope) -> CompileResult<Ty> {
+        match expr {
+            ast::Expr::Ident(expr) => self.compile_ident_expr(expr, bb_id, scope),
+            ast::Expr::Assign(expr) => self.compile_assign_expr(expr, bb_id, scope),
+            ast::Expr::As(expr) => self.compile_as_expr(expr, bb_id, scope),
+            ast::Expr::Literal(expr) => self.compile_literal_expr(expr, bb_id, scope),
+            ast::Expr::Unary(expr) => self.compile_unary_expr(expr, bb_id, scope),
+            ast::Expr::Binary(expr) => self.compile_binary_expr(expr, bb_id, scope),
+            ast::Expr::Call(expr) => self.compile_call_expr(expr, bb_id, scope),
+        }
+    }
+
+    fn compile_l_value(&mut self, expr: &ast::Expr, bb_id: BB, scope: &Scope) -> CompileResult<Ty> {
+        match expr {
+            ast::Expr::Ident(i) => {
+                //
+                todo!()
+            }
+            _ => panic!("TODO: Fail"),
+        }
+    }
+
+    fn compile_assign_expr(
+        &mut self,
+        expr: &ast::AssignExpr,
+        bb_id: BB,
+        scope: &Scope,
+    ) -> CompileResult<Ty> {
+        todo!()
+    }
+
+    fn compile_binary_expr(
+        &mut self,
+        expr: &ast::BinaryExpr,
+        bb_id: BB,
+        scope: &Scope,
+    ) -> CompileResult<Ty> {
+        todo!()
+    }
+
+    fn compile_unary_expr(
+        &mut self,
+        expr: &ast::UnaryExpr,
+        bb_id: BB,
+        scope: &Scope,
+    ) -> CompileResult<Ty> {
+        todo!()
+    }
+
+    fn compile_as_expr(
+        &mut self,
+        expr: &ast::AsExpr,
+        bb_id: BB,
+        scope: &Scope,
+    ) -> CompileResult<Ty> {
+        todo!()
+    }
+
+    fn compile_literal_expr(
+        &mut self,
+        expr: &ast::LiteralExpr,
+        bb_id: BB,
+        scope: &Scope,
+    ) -> CompileResult<Ty> {
+        todo!()
+    }
+
+    fn compile_call_expr(
+        &mut self,
+        expr: &ast::CallExpr,
+        bb_id: BB,
+        scope: &Scope,
+    ) -> CompileResult<Ty> {
+        todo!()
+    }
+
+    fn compile_ident_expr(
+        &mut self,
+        expr: &ast::Ident,
+        bb_id: BB,
+        scope: &Scope,
+    ) -> CompileResult<Ty> {
         todo!()
     }
 }

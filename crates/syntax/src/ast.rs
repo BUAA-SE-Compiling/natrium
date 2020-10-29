@@ -44,12 +44,12 @@ pub struct DeclStmt {
     pub is_const: bool,
     pub name: Ident,
     pub ty: TyDef,
-    pub val: Option<Expr>,
+    pub val: Option<P<Expr>>,
 }
 
 #[derive(Debug, Clone)]
 pub struct ReturnStmt {
-    pub val: Option<Expr>,
+    pub val: Option<P<Expr>>,
 }
 
 #[derive(Debug, Clone)]
