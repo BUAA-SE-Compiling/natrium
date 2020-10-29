@@ -47,17 +47,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b486ce3ccf7ffd79fdeb678eac06a9e6c09fc88d33836340becb8fffe87c5e33"
 
 [[package]]
-name = "codegen-r0vm"
-version = "0.1.0"
-dependencies = [
- "indexmap",
- "once_cell",
- "r0syntax",
- "r0vm",
- "smol_str",
-]
-
-[[package]]
 name = "failure"
 version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -141,9 +130,9 @@ dependencies = [
 name = "natrium"
 version = "0.1.0"
 dependencies = [
- "codegen-r0vm",
  "line-span",
  "logos",
+ "r0codegen",
  "r0syntax",
  "r0vm",
 ]
@@ -170,6 +159,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2bdc6c187c65bca4260c9011c9e3132efe4909da44726bad24cf7572ae338d7f"
 dependencies = [
  "proc-macro2",
+]
+
+[[package]]
+name = "r0codegen"
+version = "0.1.0"
+dependencies = [
+ "indexmap",
+ "once_cell",
+ "r0syntax",
+ "r0vm",
+ "smol_str",
 ]
 
 [[package]]

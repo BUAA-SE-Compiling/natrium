@@ -312,7 +312,9 @@ where
             let mut rhs = self.parse_unary_expr()?;
 
             while self.lexer.peek().map_or(false, |(x, _)| {
-                x.is_binary_op() && (x.precedence() > op.precedence() || !x.is_left_assoc())
+                x.is_binary_op()
+                    && ((x.precedence() > op.precedence() && x.is_left_assoc())
+                        || (x.precedence() == op.precedence() && !x.is_left_assoc()))
             }) {
                 let (op, _) = self.lexer.peek().unwrap();
                 let op_precedence = op.precedence();
