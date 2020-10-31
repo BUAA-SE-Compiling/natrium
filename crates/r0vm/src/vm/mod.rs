@@ -11,6 +11,8 @@ use std::{
     io::{Bytes, Read},
 };
 
+pub const MAX_STACK_SIZE: usize = 131072;
+
 pub type Slot = u64;
 pub type Addr = u64;
 
@@ -26,7 +28,7 @@ pub struct R0Vm<'src> {
     /// Memory heap
     heap: BTreeMap<Addr, ManagedMemory>,
     /// Memory stack
-    stack: Vec<Slot>,
+    stack: *mut u64,
 
     /// Function Pointer
     fn_info: &'src FnDef,
@@ -34,6 +36,8 @@ pub struct R0Vm<'src> {
     fn_id: usize,
     /// Instruction Pointer
     ip: usize,
+    /// Stack Pointer
+    sp: usize,
     /// Base Pointer
     bp: usize,
 
@@ -50,19 +54,25 @@ impl<'src> R0Vm<'src> {
         stdout: &'src mut dyn Write,
     ) -> Result<R0Vm<'src>> {
         let start = src.functions.get(0).ok_or(Error::NoEntryPoint)?;
-        let mut stack = vec![];
-        {
-            // push an invalid stack frame
-            // TODO: Is there a more elegant way here?
+        let stack = unsafe {
+            std::alloc::alloc_zeroed(std::alloc::Layout::array::<u64>(MAX_STACK_SIZE).unwrap())
+                as *mut u64
+        };
+
+        unsafe {
+            // push sentinel values
             let usize_max = usize::max_value() as u64;
-            stack.append(&mut vec![usize_max, usize_max, usize_max]);
+            stack.add(0).write(usize_max);
+            stack.add(1).write(usize_max);
+            stack.add(2).write(usize_max);
         }
-        stack.append(&mut vec![0; start.loc_slots as usize]);
+
         let bp = 0usize;
+        let sp = (start.loc_slots + 3) as usize;
         let (globals, global_idx) = Self::index_globals(&src.globals[..])?;
         Ok(R0Vm {
             src,
-            max_stack_size: 131072,
+            max_stack_size: MAX_STACK_SIZE,
             global_idx,
             heap: globals,
             stack,
@@ -70,6 +80,7 @@ impl<'src> R0Vm<'src> {
             fn_id: 0,
             ip: 0,
             bp,
+            sp,
             stdin: stdin.bytes(),
             stdout,
         })
@@ -145,7 +156,7 @@ impl<'src> R0Vm<'src> {
     }
 
     pub(crate) fn check_stack_overflow(&self, push_cnt: usize) -> Result<()> {
-        if self.stack.len() < (self.max_stack_size - push_cnt) {
+        if self.bp + push_cnt < self.max_stack_size {
             Ok(())
         } else {
             Err(Error::StackOverflow)
@@ -155,6 +166,21 @@ impl<'src> R0Vm<'src> {
     fn get_fn_by_id(&self, id: u32) -> Result<&'src FnDef> {
         self.src
             .functions
+            .get(id as usize)
+            .ok_or(Error::InvalidFnId(id))
+    }
+
+    fn get_fn_by_name(&self, name: &[u8]) -> Result<&'src FnDef> {
+        todo!()
+        // self.src
+        //     .functions
+        //     .get(id as usize)
+        //     .ok_or(Error::InvalidFnId(id))
+    }
+
+    fn get_global_by_id(&self, id: u32) -> Result<&'src GlobalValue> {
+        self.src
+            .globals
             .get(id as usize)
             .ok_or(Error::InvalidFnId(id))
     }
@@ -214,6 +240,7 @@ impl<'src> R0Vm<'src> {
             Bgz(off) => self.bgz(off),
             Call(id) => self.call(id),
             Ret => self.ret(),
+            CallName(id) => self.call(id),
             ScanI => self.scan_i(),
             ScanC => self.scan_c(),
             ScanF => self.scan_f(),
@@ -260,25 +287,15 @@ impl<'src> R0Vm<'src> {
     }
 
     pub fn stack_info(&self, bp: usize) -> Result<(StackInfo, usize)> {
-        let prev_bp = *self
-            .stack
-            .get(bp)
-            .ok_or_else(|| Error::InvalidAddress(stack_idx_to_vm_addr(bp)))?;
-        let ip = *self
-            .stack
-            .get(bp + 1)
-            .ok_or_else(|| Error::InvalidAddress(stack_idx_to_vm_addr(bp + 1)))?;
-        let fn_id = *self
-            .stack
-            .get(bp + 2)
-            .ok_or_else(|| Error::InvalidAddress(stack_idx_to_vm_addr(bp + 2)))?;
+        let prev_bp = self.stack_slot_get(bp)?;
+        let ip = self.stack_slot_get(bp + 1)?;
+        let fn_id = self.stack_slot_get(bp + 2)?;
         let fn_name = self.src.functions.get(fn_id as usize).and_then(|f| {
             self.src
                 .globals
                 .get(f.name as usize)
                 .map(|val| String::from_utf8_lossy(&val.bytes[..]).into())
         });
-        dbg!(prev_bp);
         Ok((
             StackInfo {
                 fn_name,
@@ -289,8 +306,12 @@ impl<'src> R0Vm<'src> {
         ))
     }
 
-    pub fn stack(&self) -> &Vec<Slot> {
-        &self.stack
+    pub fn debug_stack<'s: 'src>(&'s self) -> StackDebugger<'s> {
+        StackDebugger::<'s> { vm: self }
+    }
+
+    pub fn stack(&self) -> &[Slot] {
+        unsafe { std::slice::from_raw_parts(self.stack, self.sp) }
     }
 
     #[inline]
@@ -305,4 +326,36 @@ pub struct StackInfo {
     pub fn_name: Option<String>,
     pub fn_id: u64,
     pub inst: u64,
+}
+
+pub struct StackDebugger<'s> {
+    pub vm: &'s R0Vm<'s>,
+}
+
+impl<'s> std::fmt::Debug for StackDebugger<'s> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let upper_bound = std::cmp::min(self.vm.sp + 5, self.vm.max_stack_size);
+        for i in (0..upper_bound).rev() {
+            write!(
+                f,
+                "{:5} | {:#018x} |",
+                i,
+                self.vm.stack_slot_get(i).unwrap()
+            )?;
+            if i == self.vm.sp {
+                write!(f, " <- sp")?;
+            }
+            if i == self.vm.bp {
+                write!(f, " <- bp")?;
+            }
+            writeln!(f)?;
+        }
+        Ok(())
+    }
+}
+
+impl<'s> std::fmt::Display for StackDebugger<'s> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        (self as &dyn std::fmt::Debug).fmt(f)
+    }
 }

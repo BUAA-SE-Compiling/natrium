@@ -10,6 +10,7 @@ pub struct ManagedMemory {
     is_const: bool,
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl ManagedMemory {
     /// Allocate a piece of managed memory using global allocator
     pub fn alloc(layout: Layout) -> Result<ManagedMemory> {
@@ -200,64 +201,102 @@ impl<'src> R0Vm<'src> {
 
     // * Stack stuff -->
 
+    /// Get the stack memory specified by `addr`.
+    ///
+    /// Note that this function allows reading past `bp`.
     pub fn get_stack_mem<T>(&self, addr: u64) -> Result<T>
     where
         T: Copy,
     {
-        let sizeof_t = std::mem::size_of::<T>();
-        assert!(sizeof_t.is_power_of_two());
-        assert!(sizeof_t <= 64);
-        if addr % sizeof_t as u64 != 0 {
+        let alignof_t = std::mem::align_of::<T>();
+        if addr % alignof_t as u64 != 0 {
             return Err(Error::UnalignedAccess(addr));
         }
-        let (idx, off) = vm_addr_to_stack_idx(addr);
-        let val = *self.stack.get(idx).ok_or(Error::InvalidStackOffset(
-            idx as u64,
-            idx as i64 - self.bp as i64,
-        ))?;
-        let mask = u64::max_value().wrapping_shr(64 - (sizeof_t as u32) * 8);
+        let raw_off = (addr - R0Vm::STACK_START) as usize;
+        if raw_off > self.max_stack_size * std::mem::size_of::<Slot>() {
+            return Err(Error::InvalidAddress(addr));
+        }
 
-        // * R0VM is little-endian in this implementation
-        let val = val.wrapping_shr((off as u32) * 8);
-        let val = val & mask;
+        unsafe {
+            let raw_ptr = (self.stack as *mut u8).add(raw_off) as *mut T;
+            let val = raw_ptr.read();
 
-        // ! TRUST ME:
-        // ! On little-endian machines, the lower bytes of a value is stored in
-        // ! its front. Thus copying the first sizeof(T) bytes results in the
-        // ! correct T value. This does not apply on big-endian machines, and
-        // ! would need extra care dealing with.
-        let t = unsafe { std::mem::transmute_copy(&val) };
-        Ok(t)
+            Ok(val)
+        }
+    }
+
+    #[inline]
+    pub fn stack_slot_get(&self, p: usize) -> Result<Slot> {
+        if p > self.max_stack_size {
+            return Err(Error::InvalidStackOffset(p as u64, 0));
+        }
+        unsafe {
+            let ptr = self.stack.add(p);
+            let val = *ptr;
+            Ok(val)
+        }
     }
 
     pub fn set_stack_mem<T>(&mut self, addr: u64, set_val: T) -> Result<()>
     where
         T: Copy + Into<u64>,
     {
-        let sizeof_t = std::mem::size_of::<T>();
-        assert!(sizeof_t.is_power_of_two());
-        assert!(sizeof_t <= 64);
-        if addr % sizeof_t as u64 != 0 {
+        let alignof_t = std::mem::align_of::<T>();
+        if addr % alignof_t as u64 != 0 {
             return Err(Error::UnalignedAccess(addr));
         }
-        let (idx, off) = vm_addr_to_stack_idx(addr);
-        let val = *self.stack.get(idx).ok_or(Error::InvalidStackOffset(
-            idx as u64,
-            idx as i64 - self.bp as i64,
-        ))?;
+        let raw_off = (addr - R0Vm::STACK_START) as usize;
+        if raw_off > self.max_stack_size * std::mem::size_of::<Slot>() {
+            return Err(Error::InvalidAddress(addr));
+        }
 
-        let set_val = set_val.into();
+        unsafe {
+            let raw_ptr = (self.stack as *mut u8).add(raw_off) as *mut T;
+            raw_ptr.write(set_val);
 
-        let mask = u64::max_value().wrapping_shr(64 - (sizeof_t as u32) * 8);
-        let set_val = set_val & mask;
+            Ok(())
+        }
+    }
 
-        // * R0VM is little-endian in this implementation
-        let set_val = set_val.wrapping_shl((off as u32) * 8);
+    #[inline]
+    pub fn stack_slot_set(&self, p: usize, val: Slot) -> Result<()> {
+        if p > self.max_stack_size {
+            return Err(Error::InvalidStackOffset(p as u64, 0));
+        }
+        unsafe {
+            let ptr = self.stack.add(p);
+            *ptr = val;
+            Ok(())
+        }
+    }
 
-        let inv_mask = (mask << (off * 8)) ^ u64::max_value();
+    #[inline]
+    pub fn stack_push(&mut self, val: Slot) -> Result<()> {
+        self.stack_slot_set(self.sp, val)?;
+        self.sp += 1;
+        Ok(())
+    }
 
-        let val = (val & inv_mask) | set_val;
-        self.stack[idx] = val;
+    #[inline]
+    pub fn stack_pop(&mut self) -> Result<Slot> {
+        self.sp -= 1;
+        self.stack_slot_get(self.sp)
+    }
+
+    #[inline]
+    pub fn stack_top(&mut self) -> Result<Slot> {
+        if self.sp == 0 {
+            return Err(Error::StackUnderflow);
+        }
+        self.stack_slot_get(self.sp - 1)
+    }
+
+    #[inline]
+    pub fn stack_truncate_by(&mut self, size: usize) -> Result<()> {
+        if size > self.sp {
+            return Err(Error::StackUnderflow);
+        }
+        self.sp -= size;
         Ok(())
     }
 

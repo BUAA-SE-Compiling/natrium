@@ -7,6 +7,7 @@ use crate::opcodes::*;
 use crate::s0::*;
 use crate::vm::ops::{reinterpret_t, reinterpret_u};
 use crate::vm::*;
+use ntest::timeout;
 
 #[test]
 pub fn base_test() {
@@ -72,8 +73,16 @@ pub fn call_test() {
     let mut stdin = std::io::empty();
     let mut stdout = std::io::sink();
     let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
-    vm.run_to_end().unwrap();
-    assert_eq!(vm.stack()[3..], vec![3u64][..])
+    match vm.run_to_end() {
+        Ok(_) => {}
+        Err(e) => panic!("{}, stack:\n{}", e, vm.debug_stack()),
+    };
+    assert_eq!(
+        vm.stack()[3..],
+        vec![3u64][..],
+        "stack:\n{}",
+        vm.debug_stack()
+    )
 }
 
 #[test]
@@ -118,8 +127,18 @@ pub fn simple_local_var_test() {
     let mut stdout = std::io::sink();
     let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
     vm.run_to_end().unwrap();
-    assert_eq!(vm.stack()[3], 0x00_03_0002_00000001,);
-    assert_eq!(vm.stack()[4..], vec![1u64, 2, 3][..]);
+    assert_eq!(
+        vm.stack()[3],
+        0x00_03_0002_00000001,
+        "stack:\n{}",
+        vm.debug_stack()
+    );
+    assert_eq!(
+        vm.stack()[4..],
+        vec![1u64, 2, 3][..],
+        "stack:\n{}",
+        vm.debug_stack()
+    );
 }
 
 #[test]
@@ -138,7 +157,12 @@ pub fn simple_alloc_test() {
     let mut stdout = std::io::sink();
     let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
     vm.run_to_end().unwrap();
-    assert_eq!(vm.stack()[3..], vec![0x10008086u64][..])
+    assert_eq!(
+        vm.stack()[3..],
+        vec![0x10008086u64][..],
+        "stack:\n{}",
+        vm.debug_stack()
+    )
 }
 
 #[test]
@@ -159,7 +183,13 @@ pub fn simple_branch_test() {
     let mut stdout = std::io::sink();
     let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
     vm.run_to_end().unwrap();
-    assert_eq!(vm.stack()[3..], vec![5u64][..])
+
+    assert_eq!(
+        vm.stack()[3..],
+        vec![5u64][..],
+        "stack:\n{}",
+        vm.debug_stack()
+    )
 }
 
 #[test]
@@ -177,7 +207,7 @@ pub fn simple_stdin_test() {
     vm.run_to_end().unwrap();
     assert_eq!(vm.stack()[3], b'A' as u64);
     assert!((reinterpret_u::<f64>(vm.stack()[4]) - 3.1415926e3f64).abs() < 1e-10);
-    assert_eq!(vm.stack()[5], 1234u64);
+    assert_eq!(vm.stack()[5], 1234u64, "stack:\n{}", vm.debug_stack());
 }
 
 #[test]
@@ -196,10 +226,16 @@ pub fn simple_global_test() {
     let mut stdout = std::io::sink();
     let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
     vm.run_to_end().unwrap();
-    assert_eq!(vm.stack()[3..], vec![0x1234u64, 0x5678u64][..])
+    assert_eq!(
+        vm.stack()[3..],
+        vec![0x1234u64, 0x5678u64][..],
+        "stack:\n{}",
+        vm.debug_stack()
+    )
 }
 
 #[test]
+#[timeout(1000)]
 pub fn stacktrace_test() {
     let s0 = s0_bin! (
         fn _start 0 0 -> 0 {
@@ -247,6 +283,5 @@ pub fn stacktrace_test() {
             inst: 1,
         },
     ];
-    dbg!(vm.stack());
     assert_eq!(stacktrace, expected);
 }

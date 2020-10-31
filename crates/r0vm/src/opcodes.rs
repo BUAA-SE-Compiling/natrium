@@ -52,6 +52,7 @@ pub enum Op {
     Blz(i32),
     Bgz(i32),
     Call(u32),
+    CallName(u32),
     Ret,
     ScanI,
     ScanC,
@@ -120,6 +121,7 @@ impl Op {
             Bgz(..) => 0x47,
             Call(..) => 0x48,
             Ret => 0x49,
+            CallName(..) => 0x4a,
             ScanI => 0x50,
             ScanC => 0x51,
             ScanF => 0x52,
@@ -195,6 +197,7 @@ impl Op {
             0x47 => Bgz(param as i64 as i32).into(),
             0x48 => Call(param as u32).into(),
             0x49 => Ret.into(),
+            0x4a => CallName(param as u32).into(),
             0x50 => ScanI.into(),
             0x51 => ScanC.into(),
             0x52 => ScanF.into(),
@@ -226,6 +229,7 @@ impl Op {
             Blz(x) => x as u32 as u64,
             Bgz(x) => x as u32 as u64,
             Call(x) => x as u32 as u64,
+            CallName(x) => x as u32 as u64,
             _ => 0u64,
         }
     }

@@ -54,25 +54,22 @@ impl<'src> super::R0Vm<'src> {
 
     pub(crate) fn push(&mut self, x: u64) -> Result<()> {
         self.check_stack_overflow(1)?;
-        self.stack.push(x);
+        self.stack_push(x);
         Ok(())
     }
 
     #[inline]
     pub(crate) fn pop(&mut self) -> Result<u64> {
-        self.stack.pop().ok_or(Error::StackUnderflow)
+        self.stack_pop().map_err(|_| Error::StackUnderflow)
     }
 
     pub(crate) fn pop_n(&mut self, n: u32) -> Result<()> {
-        let rem = (self.stack.len() as u32)
-            .checked_sub(n)
-            .ok_or(Error::StackUnderflow)?;
-        self.stack.truncate(rem as usize);
+        self.stack_truncate_by(n as usize)?;
         Ok(())
     }
 
     pub(crate) fn dup(&mut self) -> Result<()> {
-        let top = *self.stack.last().ok_or(Error::StackUnderflow)?;
+        let top = self.stack_top()?;
         self.push(top)
     }
 
@@ -186,9 +183,7 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn stack_alloc(&mut self, count: u32) -> Result<()> {
-        for _ in 0..count {
-            self.push(0)?;
-        }
+        self.sp += count as usize;
         Ok(())
     }
 
@@ -442,7 +437,7 @@ impl<'src> super::R0Vm<'src> {
     pub(crate) fn call(&mut self, id: u32) -> Result<()> {
         let fp = self.get_fn_by_id(id)?;
 
-        let bp = self.stack.len();
+        let bp = self.sp;
 
         self.push(self.bp as u64)?;
         self.push(self.ip as u64)?;
@@ -459,14 +454,20 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn ret(&mut self) -> Result<()> {
-        let old_bp = *self.stack.get(self.bp).ok_or(Error::StackUnderflow)?;
-        let old_ip = *self.stack.get(self.bp + 1).ok_or(Error::StackUnderflow)?;
-        let old_fn = *self.stack.get(self.bp + 2).ok_or(Error::StackUnderflow)?;
-        let truncate_to = self.bp as u64 - self.fn_info.param_slots as u64;
+        let old_bp = self
+            .stack_slot_get(self.bp)
+            .map_err(|_| Error::StackUnderflow)?;
+        let old_ip = self
+            .stack_slot_get(self.bp + 1)
+            .map_err(|_| Error::StackUnderflow)?;
+        let old_fn = self
+            .stack_slot_get(self.bp + 2)
+            .map_err(|_| Error::StackUnderflow)?;
+        let truncate_to = self.bp - self.fn_info.param_slots as usize;
 
         let fp = self.get_fn_by_id(old_fn as u32)?;
 
-        self.stack.truncate(truncate_to as usize);
+        self.sp = truncate_to;
 
         self.fn_info = fp;
         self.bp = old_bp as usize;
@@ -474,6 +475,11 @@ impl<'src> super::R0Vm<'src> {
         self.fn_id = old_fn as usize;
 
         Ok(())
+    }
+
+    pub(crate) fn call_by_name(&mut self, name_idx: u32) -> Result<()> {
+        // let name = self.glob_a(a)
+        todo!()
     }
 
     pub(crate) fn scan_i(&mut self) -> Result<()> {

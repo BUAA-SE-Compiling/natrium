@@ -1,4 +1,5 @@
 // #![feature(map_first_last)]
+#![allow(clippy::transmute_int_to_float)]
 
 pub mod error;
 pub mod opcodes;
