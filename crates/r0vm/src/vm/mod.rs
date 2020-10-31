@@ -286,6 +286,8 @@ impl<'src> R0Vm<'src> {
         })
     }
 
+    /// Returns information of the stack function at `bp` and the base pointer of the
+    /// caller of this function.
     pub fn stack_info(&self, bp: usize) -> Result<(StackInfo, usize)> {
         let prev_bp = self.stack_slot_get(bp)?;
         let ip = self.stack_slot_get(bp + 1)?;
@@ -307,7 +309,17 @@ impl<'src> R0Vm<'src> {
     }
 
     pub fn debug_stack<'s: 'src>(&'s self) -> StackDebugger<'s> {
-        StackDebugger::<'s> { vm: self }
+        StackDebugger::new(self, self.sp, self.bp, self.fn_info)
+    }
+
+    pub fn debug_frame<'s: 'src>(&'s self, frame: usize) -> Result<StackDebugger<'s>> {
+        let (sp, bp, fn_id) =
+            (0..frame).try_fold((self.sp, self.bp, self.fn_id as u64), |(_sp, bp, _), _| {
+                let (info, nbp) = self.stack_info(bp)?;
+                Ok::<_, Error>((bp, nbp, info.fn_id))
+            })?;
+        let fn_info = self.get_fn_by_id(fn_id as u32)?;
+        Ok(StackDebugger::new(self, sp, bp, fn_info))
     }
 
     pub fn stack(&self) -> &[Slot] {
@@ -328,34 +340,117 @@ pub struct StackInfo {
     pub inst: u64,
 }
 
-pub struct StackDebugger<'s> {
-    pub vm: &'s R0Vm<'s>,
+impl std::fmt::Display for StackInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = self.fn_name.as_deref().unwrap_or("Unnamed function");
+        write!(f, "{} (id={}) +{}", name, self.fn_id, self.inst)
+    }
 }
 
-impl<'s> std::fmt::Debug for StackDebugger<'s> {
+#[derive(Copy, Clone)]
+pub struct StackDebugger<'s> {
+    vm: &'s R0Vm<'s>,
+    sp: usize,
+    bp: usize,
+    fn_info: &'s FnDef,
+    stacktrace: bool,
+    bounds: bool,
+}
+
+impl<'s> StackDebugger<'s> {
+    pub fn new(vm: &'s R0Vm<'s>, sp: usize, bp: usize, fn_info: &'s FnDef) -> StackDebugger<'s> {
+        StackDebugger {
+            vm,
+            sp,
+            bp,
+            fn_info,
+            stacktrace: true,
+            bounds: true,
+        }
+    }
+
+    pub fn stacktrace(mut self, op: bool) -> Self {
+        self.stacktrace = op;
+        self
+    }
+
+    pub fn bounds(mut self, op: bool) -> Self {
+        self.bounds = op;
+        self
+    }
+}
+
+impl<'s> std::fmt::Display for StackDebugger<'s> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let upper_bound = std::cmp::min(self.vm.sp + 5, self.vm.max_stack_size);
-        for i in (0..upper_bound).rev() {
+        let sp = self.sp;
+        let bp = self.bp;
+
+        let ret_slots = self.fn_info.ret_slots as usize;
+        let param_slots = self.fn_info.param_slots as usize;
+        let loc_slots = self.fn_info.loc_slots as usize;
+
+        let upper_bound = std::cmp::min(sp + 5, self.vm.max_stack_size);
+        let lower_bound = bp.saturating_sub((param_slots + ret_slots) as usize);
+
+        let loc_start = bp + 3;
+        let loc_end = loc_start + loc_slots;
+        let ret_end = bp - param_slots;
+
+        if self.stacktrace {
+            writeln!(f, "Stacktrace:")?;
+            let stack = self.vm.stack_trace().ok();
+            if let Some(stack) = stack {
+                for (idx, call) in stack.iter().enumerate() {
+                    writeln!(f, "#{}: at {}", idx, call)?;
+                }
+            } else {
+                writeln!(f, "at unknown function",)?;
+            }
+
+            writeln!(f)?;
+        }
+
+        writeln!(f, "Stack:")?;
+        for i in (lower_bound..upper_bound).rev() {
             write!(
                 f,
                 "{:5} | {:#018x} |",
                 i,
                 self.vm.stack_slot_get(i).unwrap()
             )?;
-            if i == self.vm.sp {
+            if i == sp {
                 write!(f, " <- sp")?;
             }
-            if i == self.vm.bp {
+            if i == bp {
                 write!(f, " <- bp")?;
             }
             writeln!(f)?;
+
+            if self.bounds {
+                if i == sp {
+                    writeln!(f, "------v {:18} -", "expression")?;
+                }
+                if i == loc_end {
+                    writeln!(f, "------v {:18} -", "local variable")?;
+                }
+                if i == loc_start {
+                    writeln!(f, "------v {:18} -", "compiler info")?;
+                }
+                if i == bp {
+                    writeln!(f, "------v {:18} -", "params")?;
+                }
+                if i == ret_end {
+                    writeln!(f, "------v {:18} -", "return value")?;
+                }
+            }
         }
+
         Ok(())
     }
 }
 
-impl<'s> std::fmt::Display for StackDebugger<'s> {
+impl<'s> std::fmt::Debug for StackDebugger<'s> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        (self as &dyn std::fmt::Debug).fmt(f)
+        (self as &dyn std::fmt::Display).fmt(f)
     }
 }

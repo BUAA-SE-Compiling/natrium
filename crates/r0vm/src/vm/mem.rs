@@ -147,6 +147,10 @@ impl<'src> R0Vm<'src> {
     }
 
     /// Assuming `mem` is heap memory, get the reference of this memory as `&T`.
+    ///
+    /// # Safety
+    ///
+    /// addr must be a valid heap memory pointer
     pub unsafe fn heap_mem_ref<T>(&self, addr: u64) -> Result<&T> {
         let t_ptr = self.get_heap_mem_ptr::<T>(addr)?;
         let t_ptr = t_ptr as *mut T;
@@ -154,6 +158,10 @@ impl<'src> R0Vm<'src> {
     }
 
     /// Assuming `mem` is heap memory, get the reference of this memory as `&mut T`.
+    ///
+    /// # Safety
+    ///
+    /// addr must be a valid heap memory pointer
     pub unsafe fn heap_mem_mut<T>(&self, addr: u64) -> Result<&mut T> {
         let t_ptr = self.get_heap_mem_ptr::<T>(addr)?;
         let t_ptr = t_ptr as *mut T;
@@ -161,6 +169,10 @@ impl<'src> R0Vm<'src> {
     }
 
     /// Assuming `mem` is heap memory, get the reference of this memory as `&T`.
+    ///
+    /// # Safety
+    ///
+    /// addr must be a valid heap memory pointer
     pub unsafe fn heap_mem_get<T>(&self, addr: u64) -> Result<T>
     where
         T: Copy,
@@ -171,6 +183,10 @@ impl<'src> R0Vm<'src> {
     }
 
     /// Assuming `mem` is heap memory, get the reference of this memory as `&mut T`.
+    ///
+    /// # Safety
+    ///
+    /// addr must be a valid heap memory pointer
     pub unsafe fn heap_mem_set<T>(&self, addr: u64, val: T) -> Result<()> {
         let t_ptr = self.get_heap_mem_ptr::<T>(addr)?;
         let t_ptr = t_ptr as *mut T;

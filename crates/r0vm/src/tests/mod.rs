@@ -235,7 +235,6 @@ pub fn simple_global_test() {
 }
 
 #[test]
-#[timeout(1000)]
 pub fn stacktrace_test() {
     let s0 = s0_bin! (
         fn _start 0 0 -> 0 {
