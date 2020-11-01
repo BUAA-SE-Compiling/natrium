@@ -90,6 +90,10 @@ impl<'p> Scope<'p> {
             }
         }
     }
+
+    pub fn get_new_id(&self) -> u64 {
+        self.symbol_gen.borrow_mut().next()
+    }
 }
 
 #[derive(Debug, Clone)]

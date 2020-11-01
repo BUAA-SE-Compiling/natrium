@@ -22,6 +22,7 @@ pub enum CompileErrorKind {
     },
     NotLValue,
     InvalidCalculation(String),
+    FuncParamSizeMismatch(usize, usize),
 }
 
 pub trait WithSpan {

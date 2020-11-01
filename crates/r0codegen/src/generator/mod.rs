@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use crate::ty::Ty;
+use crate::ty::{FuncTy, Ty};
 use crate::{
     code::BasicBlock,
     err::{CompileError, CompileErrorKind},
@@ -28,34 +28,121 @@ type BB = usize;
 pub fn compile(tree: &ast::Program) -> CompileResult<s0::S0> {
     let global_sym_gen = RefCell::new(SymbolIdGenerator::new());
     let mut global_scope = Scope::new(&global_sym_gen);
-    let mut global_entries = GlobalEntries {
+    let mut global_entries = Mut::new(GlobalEntries {
         functions: IndexSet::new(),
-        values: IndexSet::new(),
-    };
+        values: IndexMap::new(),
+    });
+
+    create_lib_func(&mut global_scope);
 
     for decl in &tree.decls {
-        let var_id = add_decl_scope(decl, &mut global_scope)?;
-        global_entries.values.insert(var_id);
+        let (var_id, ty) = add_decl_scope(decl, &mut global_scope)?;
+        global_entries
+            .borrow_mut()
+            .values
+            .insert(var_id, vec![0u8; ty.size()]);
     }
 
     for func in &tree.funcs {
-        global_entries.functions.insert(func.name.name.clone());
-        compile_func(func, &mut global_scope, &global_entries)?;
+        global_entries
+            .borrow_mut()
+            .functions
+            .insert(func.name.name.clone());
+        compile_func(func, &mut global_scope, global_entries.clone())?;
     }
     todo!()
 }
 
+fn create_lib_func(scope: &mut Scope) {
+    scope.insert(
+        "putint".into(),
+        Symbol::new(
+            Ty::Func(FuncTy {
+                params: vec![P(Ty::Int)],
+                ret: P(Ty::Void),
+            }),
+            true,
+        ),
+    );
+    scope.insert(
+        "putstr".into(),
+        Symbol::new(
+            Ty::Func(FuncTy {
+                params: vec![P(Ty::Int)],
+                ret: P(Ty::Void),
+            }),
+            true,
+        ),
+    );
+    scope.insert(
+        "putfloat".into(),
+        Symbol::new(
+            Ty::Func(FuncTy {
+                params: vec![P(Ty::Double)],
+                ret: P(Ty::Void),
+            }),
+            true,
+        ),
+    );
+    scope.insert(
+        "putchar".into(),
+        Symbol::new(
+            Ty::Func(FuncTy {
+                params: vec![P(Ty::Int)],
+                ret: P(Ty::Void),
+            }),
+            true,
+        ),
+    );
+    scope.insert(
+        "getchar".into(),
+        Symbol::new(
+            Ty::Func(FuncTy {
+                params: vec![],
+                ret: P(Ty::Int),
+            }),
+            true,
+        ),
+    );
+    scope.insert(
+        "getint".into(),
+        Symbol::new(
+            Ty::Func(FuncTy {
+                params: vec![],
+                ret: P(Ty::Int),
+            }),
+            true,
+        ),
+    );
+    scope.insert(
+        "getdouble".into(),
+        Symbol::new(
+            Ty::Func(FuncTy {
+                params: vec![],
+                ret: P(Ty::Double),
+            }),
+            true,
+        ),
+    );
+}
+
 struct GlobalEntries {
     functions: IndexSet<SmolStr>,
-    values: IndexSet<u64>,
+    values: IndexMap<u64, Vec<u8>>,
 }
 
 impl GlobalEntries {
     pub fn function_id(&self, func_name: &str) -> Option<u32> {
         self.functions.get_index_of(func_name).map(|x| x as u32)
     }
+
     pub fn value_id(&self, symbol_id: u64) -> Option<u32> {
         self.values.get_index_of(&symbol_id).map(|x| x as u32)
+    }
+
+    pub fn insert_string_literal(&mut self, s: &str, val_id: u64) -> u32 {
+        self.values.insert(val_id, s.as_bytes().into());
+        self.value_id(val_id).unwrap()
     }
 }
 
@@ -98,8 +185,26 @@ macro_rules! check_type_eq {
 fn compile_func(
     func: &ast::FuncStmt,
     global_scope: &mut Scope,
-    global_entries: &GlobalEntries,
+    global_entries: Mut<GlobalEntries>,
 ) -> CompileResult<s0::FnDef> {
+    let ret_ty = P::new(get_ty(&func.ret_ty)?);
+
+    let params = func
+        .params
+        .iter()
+        .map(|param| Ok(P::new(get_ty_nonvoid(&param.ty)?)))
+        .collect::<Result<Vec<_>, _>>()?;
+    let func_ty = FuncTy {
+        params,
+        ret: ret_ty,
+    };
+
+    global_scope.insert(func.name.name.clone(), Symbol::new(Ty::Func(func_ty), true));
+    global_entries
+        .borrow_mut()
+        .functions
+        .insert(func.name.name.clone());
+
     let mut fc = FuncCodegen::new(func, global_scope, global_entries);
     fc.compile()
 }
@@ -112,8 +217,8 @@ enum Place {
 
 struct FuncCodegen<'f> {
     func: &'f ast::FuncStmt,
-    global_scope: &'f mut Scope<'f>,
-    global_entries: &'f GlobalEntries,
+    global_scope: &'f Scope<'f>,
+    global_entries: Mut<GlobalEntries>,
     basic_blocks: Vec<BasicBlock>,
     place_mapping: IndexMap<u64, Place>,
     arg_top: u32,
@@ -123,8 +228,8 @@ struct FuncCodegen<'f> {
 impl<'f> FuncCodegen<'f> {
     pub fn new(
         func: &'f ast::FuncStmt,
-        scope: &'f mut Scope<'f>,
-        global_entries: &'f GlobalEntries,
+        scope: &'f Scope<'f>,
+        global_entries: Mut<GlobalEntries>,
     ) -> FuncCodegen<'f> {
         FuncCodegen {
             func,
@@ -324,10 +429,10 @@ impl<'f> FuncCodegen<'f> {
         bb_id: BB,
         scope: &mut Scope,
     ) -> CompileResult<BB> {
-        let val_id = add_decl_scope(stmt, scope)?;
+        let (val_id, ty) = add_decl_scope(stmt, scope)?;
         // add value to stack
         self.place_mapping.insert(val_id, Place::Loc(self.loc_top));
-        let var_size = scope.find_in_self(&stmt.name.name).unwrap().ty.size_slot();
+        let var_size = ty.size_slot();
         self.loc_top += var_size as u32;
 
         if let Some(val) = stmt.val.clone() {
@@ -409,29 +514,32 @@ impl<'f> FuncCodegen<'f> {
         scope: &Scope,
     ) -> CompileResult<Ty> {
         match expr {
-            ast::Expr::Ident(i) => {
-                let (sym, is_global) = scope.find_is_global(&i.name).ok_or_else(|| {
-                    CompileError(
-                        CompileErrorKind::NoSuchSymbol(i.name.to_string()),
-                        Some(i.span),
-                    )
-                })?;
-
-                if is_global {
-                    let global_val_id = self
-                        .global_entries
-                        .value_id(sym.id)
-                        .expect("Reference to non-existent global value");
-
-                    self.append_code(bb_id, Op::GlobA(global_val_id));
-                } else {
-                    let var_id = sym.id;
-                    self.append_code(bb_id, op_load_address(self.get_place(var_id).unwrap()));
-                }
-                Ok(sym.ty.clone())
-            }
+            ast::Expr::Ident(i) => self.gen_ident_addr(i, bb_id, scope),
             _ => Err(CompileError(CompileErrorKind::NotLValue, Some(expr.span()))),
         }
+    }
+
+    fn gen_ident_addr(&mut self, i: &ast::Ident, bb_id: BB, scope: &Scope) -> CompileResult<Ty> {
+        let (sym, is_global) = scope.find_is_global(&i.name).ok_or_else(|| {
+            CompileError(
+                CompileErrorKind::NoSuchSymbol(i.name.to_string()),
+                Some(i.span),
+            )
+        })?;
+
+        if is_global {
+            let global_val_id = self
+                .global_entries
+                .borrow()
+                .value_id(sym.id)
+                .expect("Reference to non-existent global value");
+
+            self.append_code(bb_id, Op::GlobA(global_val_id));
+        } else {
+            let var_id = sym.id;
+            self.append_code(bb_id, op_load_address(self.get_place(var_id).unwrap()));
+        }
+        Ok(sym.ty.clone())
     }
 
     fn compile_assign_expr(
@@ -550,8 +658,13 @@ impl<'f> FuncCodegen<'f> {
                 Ok(Ty::Double)
             }
             ast::LiteralKind::String(s) => {
-                //
-                todo!("Strings")
+                let val_id = scope.get_new_id();
+                let glob_id = self
+                    .global_entries
+                    .borrow_mut()
+                    .insert_string_literal(s, val_id);
+                self.append_code(bb_id, Op::GlobA(glob_id));
+                Ok(Ty::Addr)
             }
             ast::LiteralKind::Char(c) => {
                 self.append_code(bb_id, Op::Push(*c as u64));
@@ -566,7 +679,61 @@ impl<'f> FuncCodegen<'f> {
         bb_id: BB,
         scope: &Scope,
     ) -> CompileResult<Ty> {
-        todo!()
+        let mut expr_tys = vec![];
+
+        for sub in &expr.params {
+            let ty = self.compile_expr(sub, bb_id, scope)?;
+            expr_tys.push(ty);
+        }
+
+        let func_name = &expr.func.name;
+        let func_sig = self.global_scope.find(&func_name).ok_or_else(|| {
+            CompileError(
+                CompileErrorKind::NoSuchSymbol(func_name.to_string()),
+                Some(expr.func.span),
+            )
+        })?;
+
+        let func_ty = func_sig.ty.get_func().ok_or_else(|| {
+            CompileError(
+                CompileErrorKind::TypeMismatch {
+                    expected: "function".into(),
+                    got: Some(func_sig.ty.to_string()),
+                },
+                Some(expr.func.span),
+            )
+        })?;
+
+        if expr_tys.len() != func_ty.params.len() {
+            return Err(CompileError(
+                CompileErrorKind::FuncParamSizeMismatch(expr_tys.len(), func_ty.params.len()),
+                Some(expr.span),
+            ));
+        }
+
+        for ((expr_ty, param_ty), expr_span) in expr_tys
+            .iter()
+            .zip(func_ty.params.iter().map(|x| x.as_ref()))
+            .zip(expr.params.iter().map(|x| x.span()))
+        {
+            check_type_eq!(expr_ty, param_ty, expr_span);
+        }
+
+        let ret_ty = func_ty.ret.as_ref().clone();
+
+        let func_id = self.global_entries.borrow().function_id(func_name);
+        if let Some(id) = func_id {
+            self.append_code(bb_id, Op::Call(id));
+        } else {
+            let val_id = scope.get_new_id();
+            let glob_id = self
+                .global_entries
+                .borrow_mut()
+                .insert_string_literal(func_name, val_id);
+            self.append_code(bb_id, Op::CallName(glob_id));
+        }
+
+        Ok(ret_ty)
     }
 
     fn compile_ident_expr(
@@ -575,19 +742,21 @@ impl<'f> FuncCodegen<'f> {
         bb_id: BB,
         scope: &Scope,
     ) -> CompileResult<Ty> {
-        todo!()
+        let ty = self.gen_ident_addr(expr, bb_id, scope)?;
+        self.append_code(bb_id, load_ty(&ty));
+        Ok(ty)
     }
 }
 
-fn add_decl_scope(decl: &ast::DeclStmt, scope: &mut Scope) -> CompileResult<u64> {
+fn add_decl_scope(decl: &ast::DeclStmt, scope: &mut Scope) -> CompileResult<(u64, Ty)> {
     let ty = get_ty(&decl.ty)?;
     let name = decl.name.name.clone();
 
-    let symbol = Symbol::new(ty, decl.is_const);
+    let symbol = Symbol::new(ty.clone(), decl.is_const);
 
     let symbol = scope.insert(name, symbol);
     match symbol {
-        Some(u) => Ok(u),
+        Some(u) => Ok((u, ty)),
         None => Err(CompileError {
             kind: CompileErrorKind::DuplicateSymbol(decl.name.name.as_str().into()),
             span: Some(decl.name.span),
@@ -640,6 +809,7 @@ fn load_ty(ty: &Ty) -> Op {
         Ty::Int => Op::Load64,
         Ty::Double => Op::Load64,
         Ty::Bool => Op::Load64,
+        Ty::Addr => Op::Load64,
         Ty::Func(_) => panic!("Invalid type"),
         Ty::Void => Op::Pop,
     }
@@ -650,6 +820,7 @@ fn store_ty(ty: &Ty) -> Op {
         Ty::Int => Op::Store64,
         Ty::Double => Op::Store64,
         Ty::Bool => Op::Store64,
+        Ty::Addr => Op::Store64,
         Ty::Func(_) => panic!("Invalid type"),
         Ty::Void => Op::Pop,
     }
@@ -657,7 +828,7 @@ fn store_ty(ty: &Ty) -> Op {
 
 fn binary_op_op(op: ast::BinaryOp, ty: &Ty) -> Option<&[Op]> {
     match ty {
-        Ty::Int => Some(match op {
+        Ty::Int | Ty::Addr => Some(match op {
             ast::BinaryOp::Add => &[Op::AddI],
             ast::BinaryOp::Sub => &[Op::SubI],
             ast::BinaryOp::Mul => &[Op::MulI],
@@ -695,14 +866,14 @@ fn unary_op_op(op: ast::UnaryOp, ty: &Ty) -> Option<&[Op]> {
             ast::UnaryOp::Neg => &[Op::NegF],
             ast::UnaryOp::Pos => &[],
         }),
-        Ty::Bool | Ty::Func(_) | Ty::Void => None,
+        Ty::Addr | Ty::Bool | Ty::Func(_) | Ty::Void => None,
     }
 }
 
 fn as_expr_op(from_ty: &Ty, to_ty: &Ty) -> Option<&'static [Op]> {
     match from_ty {
-        Ty::Int => match to_ty {
-            Ty::Int => Some(&[]),
+        Ty::Int | Ty::Addr => match to_ty {
+            Ty::Int | Ty::Addr => Some(&[]),
             Ty::Double => Some(&[Op::IToF]),
             Ty::Bool => Some(&[]),
             _ => None,
@@ -719,7 +890,7 @@ fn as_expr_op(from_ty: &Ty, to_ty: &Ty) -> Option<&'static [Op]> {
 
 fn binary_op_result_ty(op: ast::BinaryOp, ty: &Ty) -> Option<Ty> {
     match ty {
-        Ty::Int | Ty::Double => match op {
+        Ty::Int | Ty::Double | Ty::Addr => match op {
             ast::BinaryOp::Add => Some(ty.clone()),
             ast::BinaryOp::Sub => Some(ty.clone()),
             ast::BinaryOp::Mul => Some(ty.clone()),
@@ -738,6 +909,6 @@ fn binary_op_result_ty(op: ast::BinaryOp, ty: &Ty) -> Option<Ty> {
 fn unary_op_result_ty(_op: ast::UnaryOp, ty: &Ty) -> Option<Ty> {
     match ty {
         Ty::Int | Ty::Double => Some(ty.clone()),
-        Ty::Bool | Ty::Func(_) | Ty::Void => None,
+        Ty::Addr | Ty::Bool | Ty::Func(_) | Ty::Void => None,
     }
 }

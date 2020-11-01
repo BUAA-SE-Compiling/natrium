@@ -193,6 +193,34 @@ pub fn simple_branch_test() {
 }
 
 #[test]
+pub fn simple_branch_test_2() {
+    let s0 = s0_bin! (
+        fn _start 0 0 -> 0 {
+            Push(0)
+            Push(1)
+            CmpI
+            SetGt
+            BrFalse(2)
+            Br(2)
+            Push(3)
+            Br(2)
+            Push(5)
+        }
+    );
+    let mut stdin = std::io::empty();
+    let mut stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    vm.run_to_end().unwrap();
+
+    assert_eq!(
+        vm.stack()[3..],
+        vec![5u64][..],
+        "stack:\n{}",
+        vm.debug_stack()
+    )
+}
+
+#[test]
 pub fn simple_stdin_test() {
     let s0 = s0_bin! (
         fn _start 0 0 -> 0 {

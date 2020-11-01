@@ -5,6 +5,7 @@ pub enum Ty {
     Int,
     Double,
     Bool,
+    Addr,
     Func(FuncTy),
     Void,
 }
@@ -18,7 +19,7 @@ pub struct FuncTy {
 impl Ty {
     pub fn size(&self) -> usize {
         match self {
-            Ty::Int | Ty::Double => 8,
+            Ty::Int | Ty::Double | Ty::Addr => 8,
             Ty::Bool => 1,
             Ty::Func(_) => 0,
             Ty::Void => 0,
@@ -27,7 +28,7 @@ impl Ty {
 
     pub fn size_slot(&self) -> usize {
         match self {
-            Ty::Int | Ty::Double | Ty::Bool => 1,
+            Ty::Int | Ty::Double | Ty::Bool | Ty::Addr => 1,
             Ty::Func(_) => 0,
             Ty::Void => 0,
         }
@@ -47,6 +48,7 @@ impl std::fmt::Display for Ty {
             Ty::Int => write!(f, "int"),
             Ty::Double => write!(f, "double"),
             Ty::Bool => write!(f, "bool"),
+            Ty::Addr => write!(f, "addr"),
             Ty::Func(ty) => {
                 write!(f, "Fn(")?;
                 let mut param_iter = ty.params.iter();

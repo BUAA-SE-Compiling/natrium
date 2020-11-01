@@ -2,6 +2,11 @@ use std::{cell::RefCell, fmt::Debug, ops::Deref, rc::Rc};
 
 pub type P<T> = Rc<T>;
 
+#[allow(non_snake_case)]
+pub fn P<T>(val: T) -> P<T> {
+    P::new(val)
+}
+
 pub struct Mut<T>(Rc<RefCell<T>>);
 
 pub struct MutWeak<T>(std::rc::Weak<RefCell<T>>);
