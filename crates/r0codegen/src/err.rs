@@ -1,5 +1,6 @@
 use r0syntax::span::Span;
 
+#[derive(Debug, Clone)]
 pub struct CompileError {
     pub kind: CompileErrorKind,
     pub span: Option<Span>,
@@ -23,6 +24,7 @@ pub enum CompileErrorKind {
     NotLValue,
     InvalidCalculation(String),
     FuncParamSizeMismatch(usize, usize),
+    NotAllRoutesReturn,
 }
 
 pub trait WithSpan {

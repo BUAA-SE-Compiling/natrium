@@ -17,16 +17,21 @@ fn main() {
     // l.for_each(|t| println!("{:?}", t))
     let mut p = r0syntax::parser::Parser::new(l);
     let r = p.parse();
-    match r {
-        Ok(p) => println!("{:#?}", p),
+    let program = match r {
+        Ok(p) => p,
         Err(e) => {
             if let Some(span) = e.span {
                 pretty_print_error(INPUT, &format!("{:?}", e.kind), span);
             } else {
                 println!("{:?}", e.kind);
             }
+            std::process::exit(1);
         }
-    }
+    };
+
+    let s0 = r0codegen::generator::compile(&program).unwrap();
+
+    println!("{:#?}", s0);
 }
 
 /// Lines to display around error line

@@ -9,6 +9,7 @@ use crate::{
     code::{Cond, JumpInst},
     scope::{Scope, Symbol, SymbolIdGenerator},
 };
+use ast::FuncStmt;
 use indexmap::{IndexMap, IndexSet};
 use r0syntax::{
     ast,
@@ -28,10 +29,12 @@ type BB = usize;
 pub fn compile(tree: &ast::Program) -> CompileResult<s0::S0> {
     let global_sym_gen = RefCell::new(SymbolIdGenerator::new());
     let mut global_scope = Scope::new(&global_sym_gen);
-    let mut global_entries = Mut::new(GlobalEntries {
-        functions: IndexSet::new(),
+    let global_entries = Mut::new(GlobalEntries {
+        functions: indexmap::indexset! {"_start".into()},
         values: IndexMap::new(),
     });
+
+    let mut funcs = vec![];
 
     create_lib_func(&mut global_scope);
 
@@ -48,9 +51,27 @@ pub fn compile(tree: &ast::Program) -> CompileResult<s0::S0> {
             .borrow_mut()
             .functions
             .insert(func.name.name.clone());
-        compile_func(func, &mut global_scope, global_entries.clone())?;
+        let func = compile_func(func, &mut global_scope, global_entries.clone())?;
+        funcs.push(func);
     }
-    todo!()
+
+    compile_start_func(tree, &mut global_scope, global_entries.clone())?;
+
+    let mut global_entries = Mut::take_inner(global_entries).unwrap_or_else(|_| panic!());
+
+    let s0 = s0::S0 {
+        globals: global_entries
+            .values
+            .drain(..)
+            .map(|(_, val)| s0::GlobalValue {
+                is_const: false,
+                bytes: val,
+            })
+            .collect(),
+        functions: funcs,
+    };
+
+    Ok(s0)
 }
 
 fn create_lib_func(scope: &mut Scope) {
@@ -68,7 +89,7 @@ fn create_lib_func(scope: &mut Scope) {
         "putstr".into(),
         Symbol::new(
             Ty::Func(FuncTy {
-                params: vec![P(Ty::Int)],
+                params: vec![P(Ty::Addr)],
                 ret: P(Ty::Void),
             }),
             true,
@@ -146,27 +167,45 @@ impl GlobalEntries {
     }
 }
 
-// fn compile_start_func()->CompileResult<s0::FnDef>{
-//     let start_func = ast::FuncStmt {
-//         name: ast::Ident {
-//             val: "_start".into(),
-//             span: Span::default(),
-//         },
-//         params: vec![],
-//         ret_ty: ast::TyDef {
-//             name: "void".into(),
-//             params: None,
-//         },
-//         body: ast::BlockStmt {
-//             stmts: tree
-//                 .decls
-//                 .iter()
-//                 .cloned()
-//                 .map(|x| ast::Stmt::Decl(x))
-//                 .collect(),
-//         },
-//     };
-// }
+fn compile_start_func(
+    tree: &ast::Program,
+    global_scope: &mut Scope,
+    global_entries: Mut<GlobalEntries>,
+) -> CompileResult<s0::FnDef> {
+    let start_func = FuncStmt {
+        name: ast::Ident {
+            name: "_start".into(),
+            span: Span::default(),
+        },
+        params: vec![],
+        ret_ty: ast::TyDef {
+            name: "void".into(),
+            params: None,
+            span: Span::default(),
+        },
+        body: ast::BlockStmt {
+            span: Span::default(),
+            stmts: tree
+                .decls
+                .iter()
+                .cloned()
+                .map(ast::Stmt::Decl)
+                .chain(std::iter::once(ast::Stmt::Expr(ast::Expr::Call(
+                    ast::CallExpr {
+                        span: Span::default(),
+                        func: ast::Ident {
+                            span: Span::default(),
+                            name: "main".into(),
+                        },
+                        params: vec![],
+                    },
+                ))))
+                .collect(),
+        },
+        span: Span::default(),
+    };
+    compile_func(&start_func, global_scope, global_entries)
+}
 
 macro_rules! check_type_eq {
     ($lhs:expr, $rhs:expr, $span:expr) => {
@@ -183,7 +222,7 @@ macro_rules! check_type_eq {
 }
 
 fn compile_func(
-    func: &ast::FuncStmt,
+    func: &FuncStmt,
     global_scope: &mut Scope,
     global_entries: Mut<GlobalEntries>,
 ) -> CompileResult<s0::FnDef> {
@@ -216,7 +255,7 @@ enum Place {
 }
 
 struct FuncCodegen<'f> {
-    func: &'f ast::FuncStmt,
+    func: &'f FuncStmt,
     global_scope: &'f Scope<'f>,
     global_entries: Mut<GlobalEntries>,
     basic_blocks: Vec<BasicBlock>,
@@ -227,7 +266,7 @@ struct FuncCodegen<'f> {
 
 impl<'f> FuncCodegen<'f> {
     pub fn new(
-        func: &'f ast::FuncStmt,
+        func: &'f FuncStmt,
         scope: &'f Scope<'f>,
         global_entries: Mut<GlobalEntries>,
     ) -> FuncCodegen<'f> {
@@ -275,9 +314,9 @@ impl<'f> FuncCodegen<'f> {
 
         let start_bb = self.new_bb();
 
-        self.compile_block(&self.func.body, start_bb, &scope)?;
+        let end_bb = self.compile_block(&self.func.body, start_bb, &scope)?;
 
-        todo!()
+        todo!("Arrange basic blocks")
     }
 
     fn add_params(&mut self, scope: &mut Scope) -> CompileResult<()> {
@@ -452,8 +491,9 @@ impl<'f> FuncCodegen<'f> {
         bb_id: BB,
         scope: &Scope,
     ) -> CompileResult<BB> {
-        let func_ty = scope
-            .find(FUNC_VAL_KEY)
+        let func_ty = self
+            .global_scope
+            .find(&self.func.name.name)
             .expect("Function type")
             .ty
             .get_func()

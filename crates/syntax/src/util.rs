@@ -19,6 +19,10 @@ impl<T> Mut<T> {
     pub fn weak(&self) -> MutWeak<T> {
         MutWeak(Rc::downgrade(&self.0))
     }
+
+    pub fn take_inner(this: Self) -> Result<T, Mut<T>> {
+        Rc::try_unwrap(this.0).map(|x| x.into_inner()).map_err(Mut)
+    }
 }
 
 impl<T> Deref for Mut<T> {
