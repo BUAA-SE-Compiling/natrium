@@ -17,6 +17,7 @@ pub trait AstNode {
 
 #[derive(Debug, Clone)]
 pub struct FuncStmt {
+    pub span: Span,
     pub name: Ident,
     pub params: Vec<FuncParam>,
     pub ret_ty: TyDef,
@@ -39,38 +40,57 @@ pub enum Stmt {
     Return(ReturnStmt),
 }
 
+impl Stmt {
+    pub fn span(&self) -> Span {
+        match self {
+            Stmt::Block(i) => i.span,
+            Stmt::While(i) => i.span,
+            Stmt::If(i) => i.span,
+            Stmt::Expr(i) => i.span(),
+            Stmt::Decl(i) => i.span,
+            Stmt::Return(i) => i.span,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct DeclStmt {
     pub is_const: bool,
     pub name: Ident,
     pub ty: TyDef,
     pub val: Option<P<Expr>>,
+    pub span: Span,
 }
 
 #[derive(Debug, Clone)]
 pub struct ReturnStmt {
     pub val: Option<P<Expr>>,
+    pub span: Span,
 }
 
 #[derive(Debug, Clone)]
 pub struct TyDef {
+    pub span: Span,
     pub name: SmolStr,
     pub params: Option<Vec<TyDef>>,
 }
 
 #[derive(Debug, Clone)]
 pub struct BlockStmt {
+    pub span: Span,
     pub stmts: Vec<Stmt>,
 }
 
 #[derive(Debug, Clone)]
 pub struct WhileStmt {
+    pub span: Span,
     pub cond: P<Expr>,
     pub body: P<BlockStmt>,
 }
 
 #[derive(Debug, Clone)]
 pub struct IfStmt {
+    pub span: Span,
     pub cond: Vec<(P<Expr>, P<BlockStmt>)>,
     pub else_block: Option<P<BlockStmt>>,
 }
@@ -84,6 +104,20 @@ pub enum Expr {
     Unary(UnaryExpr),
     Binary(BinaryExpr),
     Call(CallExpr),
+}
+
+impl Expr {
+    pub fn span(&self) -> Span {
+        match self {
+            Expr::Ident(x) => x.span,
+            Expr::Assign(x) => x.span,
+            Expr::As(x) => x.span,
+            Expr::Literal(x) => x.span,
+            Expr::Unary(x) => x.span,
+            Expr::Binary(x) => x.span,
+            Expr::Call(x) => x.span,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -136,13 +170,13 @@ pub struct CallExpr {
     pub params: Vec<Expr>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum UnaryOp {
     Neg,
     Pos,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum BinaryOp {
     Add,
     Sub,
@@ -159,5 +193,5 @@ pub enum BinaryOp {
 #[derive(Debug, Clone)]
 pub struct Ident {
     pub span: Span,
-    pub val: SmolStr,
+    pub name: SmolStr,
 }

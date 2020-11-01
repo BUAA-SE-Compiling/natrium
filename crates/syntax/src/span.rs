@@ -47,6 +47,13 @@ impl std::ops::Add for Span {
     }
 }
 
+impl std::ops::AddAssign for Span {
+    fn add_assign(&mut self, rhs: Self) {
+        let len = rhs.idx - self.idx + rhs.len;
+        *self = Span::new(self.idx, len)
+    }
+}
+
 impl Debug for Span {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "[{}, {})", self.idx, self.idx + self.len)

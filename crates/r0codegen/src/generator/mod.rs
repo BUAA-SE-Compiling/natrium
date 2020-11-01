@@ -9,6 +9,7 @@ use crate::{
     code::{Cond, JumpInst},
     scope::{Scope, Symbol, SymbolIdGenerator},
 };
+use indexmap::{IndexMap, IndexSet};
 use r0syntax::{
     ast,
     span::Span,
@@ -16,8 +17,10 @@ use r0syntax::{
     util::{MutWeak, P},
 };
 use r0vm::{opcodes::Op, s0};
+use smol_str::SmolStr;
 
 static RET_VAL_KEY: &str = "$ret";
+static FUNC_VAL_KEY: &str = "$func";
 
 type CompileResult<T> = std::result::Result<T, CompileError>;
 type BB = usize;
@@ -25,13 +28,35 @@ type BB = usize;
 pub fn compile(tree: &ast::Program) -> CompileResult<s0::S0> {
     let global_sym_gen = RefCell::new(SymbolIdGenerator::new());
     let mut global_scope = Scope::new(&global_sym_gen);
+    let mut global_entries = GlobalEntries {
+        functions: IndexSet::new(),
+        values: IndexSet::new(),
+    };
+
     for decl in &tree.decls {
-        add_decl_scope(decl, &mut global_scope)?;
+        let var_id = add_decl_scope(decl, &mut global_scope)?;
+        global_entries.values.insert(var_id);
     }
+
     for func in &tree.funcs {
-        compile_func(func, &global_scope)?;
+        global_entries.functions.insert(func.name.name.clone());
+        compile_func(func, &mut global_scope, &global_entries)?;
     }
     todo!()
+}
+
+struct GlobalEntries {
+    functions: IndexSet<SmolStr>,
+    values: IndexSet<u64>,
+}
+
+impl GlobalEntries {
+    pub fn function_id(&self, func_name: &str) -> Option<u32> {
+        self.functions.get_index_of(func_name).map(|x| x as u32)
+    }
+    pub fn value_id(&self, symbol_id: u64) -> Option<u32> {
+        self.values.get_index_of(&symbol_id).map(|x| x as u32)
+    }
 }
 
 // fn compile_start_func()->CompileResult<s0::FnDef>{
@@ -54,26 +79,61 @@ pub fn compile(tree: &ast::Program) -> CompileResult<s0::S0> {
 //                 .collect(),
 //         },
 //     };
-
 // }
 
-fn compile_func(func: &ast::FuncStmt, global_scope: &Scope) -> CompileResult<s0::FnDef> {
-    let mut fc = FuncCodegen::new(func, global_scope);
+macro_rules! check_type_eq {
+    ($lhs:expr, $rhs:expr, $span:expr) => {
+        if $lhs != $rhs {
+            return Err(CompileError(
+                CompileErrorKind::TypeMismatch {
+                    expected: $lhs.to_string(),
+                    got: Some($rhs.to_string()),
+                },
+                Some($span),
+            ));
+        }
+    };
+}
+
+fn compile_func(
+    func: &ast::FuncStmt,
+    global_scope: &mut Scope,
+    global_entries: &GlobalEntries,
+) -> CompileResult<s0::FnDef> {
+    let mut fc = FuncCodegen::new(func, global_scope, global_entries);
     fc.compile()
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+enum Place {
+    Arg(u32),
+    Loc(u32),
 }
 
 struct FuncCodegen<'f> {
     func: &'f ast::FuncStmt,
-    global_scope: &'f Scope<'f>,
+    global_scope: &'f mut Scope<'f>,
+    global_entries: &'f GlobalEntries,
     basic_blocks: Vec<BasicBlock>,
+    place_mapping: IndexMap<u64, Place>,
+    arg_top: u32,
+    loc_top: u32,
 }
 
 impl<'f> FuncCodegen<'f> {
-    pub fn new(func: &'f ast::FuncStmt, scope: &'f Scope<'f>) -> FuncCodegen<'f> {
+    pub fn new(
+        func: &'f ast::FuncStmt,
+        scope: &'f mut Scope<'f>,
+        global_entries: &'f GlobalEntries,
+    ) -> FuncCodegen<'f> {
         FuncCodegen {
             func,
             global_scope: scope,
+            global_entries,
             basic_blocks: vec![],
+            place_mapping: IndexMap::new(),
+            arg_top: 0,
+            loc_top: 0,
         }
     }
 
@@ -106,23 +166,44 @@ impl<'f> FuncCodegen<'f> {
     fn compile_func(&mut self) -> CompileResult<s0::FnDef> {
         let mut scope = Scope::new_with_parent(self.global_scope);
 
-        scope.insert(
-            RET_VAL_KEY.into(),
-            Symbol::new(get_ty(&self.func.ret_ty)?, false),
-        );
-
-        for param in &self.func.params {
-            scope.insert(
-                param.name.val.clone(),
-                Symbol::new(get_ty(&param.ty)?, false),
-            );
-        }
+        self.add_params(&mut scope)?;
 
         let start_bb = self.new_bb();
 
         self.compile_block(&self.func.body, start_bb, &scope)?;
 
         todo!()
+    }
+
+    fn add_params(&mut self, scope: &mut Scope) -> CompileResult<()> {
+        let ret_ty = get_ty(&self.func.ret_ty)?;
+        let ret_size = ret_ty.size_slot();
+        let ret_id = scope
+            .insert(RET_VAL_KEY.into(), Symbol::new(ret_ty, false))
+            .expect("Return value should be valid");
+        self.place_mapping.insert(ret_id, Place::Arg(self.arg_top));
+        self.arg_top += ret_size as u32;
+
+        for param in &self.func.params {
+            let param_ty = get_ty_nonvoid(&param.ty)?;
+            let param_size = param_ty.size_slot();
+
+            let param_id = scope
+                .insert(param.name.name.clone(), Symbol::new(param_ty, false))
+                .ok_or_else(|| CompileError {
+                    kind: CompileErrorKind::DuplicateSymbol(param.name.name.as_str().into()),
+                    span: Some(param.name.span),
+                })?;
+            self.place_mapping
+                .insert(param_id, Place::Arg(self.arg_top));
+            self.arg_top += param_size as u32;
+        }
+
+        Ok(())
+    }
+
+    fn get_place(&self, var_id: u64) -> Option<Place> {
+        self.place_mapping.get(&var_id).cloned()
     }
 
     fn compile_block(
@@ -243,7 +324,12 @@ impl<'f> FuncCodegen<'f> {
         bb_id: BB,
         scope: &mut Scope,
     ) -> CompileResult<BB> {
-        add_decl_scope(stmt, scope)?;
+        let val_id = add_decl_scope(stmt, scope)?;
+        // add value to stack
+        self.place_mapping.insert(val_id, Place::Loc(self.loc_top));
+        let var_size = scope.find_in_self(&stmt.name.name).unwrap().ty.size_slot();
+        self.loc_top += var_size as u32;
+
         if let Some(val) = stmt.val.clone() {
             let assign_expr = ast::AssignExpr {
                 span: Span::default(),
@@ -261,7 +347,47 @@ impl<'f> FuncCodegen<'f> {
         bb_id: BB,
         scope: &Scope,
     ) -> CompileResult<BB> {
-        todo!()
+        let func_ty = scope
+            .find(FUNC_VAL_KEY)
+            .expect("Function type")
+            .ty
+            .get_func()
+            .unwrap();
+        let ret_ty = &*func_ty.ret;
+
+        if matches!(ret_ty, Ty::Void) {
+            // void return
+            if stmt.val.is_some() {
+                return Err(CompileError {
+                    kind: CompileErrorKind::TypeMismatch {
+                        expected: "void".into(),
+                        got: None,
+                    },
+                    span: Some(stmt.span),
+                });
+            }
+        } else {
+            // non-void return
+            if stmt.val.is_none() {
+                return Err(CompileError {
+                    kind: CompileErrorKind::TypeMismatch {
+                        expected: ret_ty.to_string(),
+                        got: Some(Ty::Void.to_string()),
+                    },
+                    span: Some(stmt.span),
+                });
+            } else {
+                let ret_id = scope.find(RET_VAL_KEY).unwrap().id;
+                let offset = self.get_place(ret_id).unwrap();
+
+                self.append_code(bb_id, op_load_address(offset));
+                self.compile_expr(stmt.val.as_deref().unwrap(), bb_id, scope)?;
+                self.append_code(bb_id, Op::Store64);
+            }
+        }
+
+        self.set_jump(bb_id, JumpInst::Return);
+        Ok(self.new_bb())
     }
 
     fn compile_expr(&mut self, expr: &ast::Expr, bb_id: BB, scope: &Scope) -> CompileResult<Ty> {
@@ -276,13 +402,35 @@ impl<'f> FuncCodegen<'f> {
         }
     }
 
-    fn compile_l_value(&mut self, expr: &ast::Expr, bb_id: BB, scope: &Scope) -> CompileResult<Ty> {
+    fn get_l_value_addr(
+        &mut self,
+        expr: &ast::Expr,
+        bb_id: BB,
+        scope: &Scope,
+    ) -> CompileResult<Ty> {
         match expr {
             ast::Expr::Ident(i) => {
-                //
-                todo!()
+                let (sym, is_global) = scope.find_is_global(&i.name).ok_or_else(|| {
+                    CompileError(
+                        CompileErrorKind::NoSuchSymbol(i.name.to_string()),
+                        Some(i.span),
+                    )
+                })?;
+
+                if is_global {
+                    let global_val_id = self
+                        .global_entries
+                        .value_id(sym.id)
+                        .expect("Reference to non-existent global value");
+
+                    self.append_code(bb_id, Op::GlobA(global_val_id));
+                } else {
+                    let var_id = sym.id;
+                    self.append_code(bb_id, op_load_address(self.get_place(var_id).unwrap()));
+                }
+                Ok(sym.ty.clone())
             }
-            _ => panic!("TODO: Fail"),
+            _ => Err(CompileError(CompileErrorKind::NotLValue, Some(expr.span()))),
         }
     }
 
@@ -292,7 +440,14 @@ impl<'f> FuncCodegen<'f> {
         bb_id: BB,
         scope: &Scope,
     ) -> CompileResult<Ty> {
-        todo!()
+        let lhs_ty = self.get_l_value_addr(expr.lhs.as_ref(), bb_id, scope)?;
+        let rhs_ty = self.compile_expr(expr.rhs.as_ref(), bb_id, scope)?;
+
+        check_type_eq!(lhs_ty, rhs_ty, expr.rhs.span());
+
+        self.append_code(bb_id, store_ty(&lhs_ty));
+
+        Ok(Ty::Void)
     }
 
     fn compile_binary_expr(
@@ -301,7 +456,30 @@ impl<'f> FuncCodegen<'f> {
         bb_id: BB,
         scope: &Scope,
     ) -> CompileResult<Ty> {
-        todo!()
+        let lhs_ty = self.compile_expr(expr.lhs.as_ref(), bb_id, scope)?;
+        let rhs_ty = self.compile_expr(expr.rhs.as_ref(), bb_id, scope)?;
+
+        check_type_eq!(lhs_ty, rhs_ty, expr.rhs.span());
+
+        let code = binary_op_op(expr.op, &lhs_ty).ok_or_else(|| {
+            CompileError(
+                CompileErrorKind::InvalidCalculation(lhs_ty.to_string()),
+                Some(expr.rhs.span()),
+            )
+        })?;
+
+        for code in code {
+            self.append_code(bb_id, *code);
+        }
+
+        let result_ty = binary_op_result_ty(expr.op, &lhs_ty).ok_or_else(|| {
+            CompileError(
+                CompileErrorKind::InvalidCalculation(lhs_ty.to_string()),
+                Some(expr.rhs.span()),
+            )
+        })?;
+
+        Ok(result_ty)
     }
 
     fn compile_unary_expr(
@@ -310,7 +488,27 @@ impl<'f> FuncCodegen<'f> {
         bb_id: BB,
         scope: &Scope,
     ) -> CompileResult<Ty> {
-        todo!()
+        let lhs_ty = self.compile_expr(expr.expr.as_ref(), bb_id, scope)?;
+
+        let code = unary_op_op(expr.op, &lhs_ty).ok_or_else(|| {
+            CompileError(
+                CompileErrorKind::InvalidCalculation(lhs_ty.to_string()),
+                Some(expr.expr.span()),
+            )
+        })?;
+
+        for code in code {
+            self.append_code(bb_id, *code);
+        }
+
+        let result_ty = unary_op_result_ty(expr.op, &lhs_ty).ok_or_else(|| {
+            CompileError(
+                CompileErrorKind::InvalidCalculation(lhs_ty.to_string()),
+                Some(expr.expr.span()),
+            )
+        })?;
+
+        Ok(result_ty)
     }
 
     fn compile_as_expr(
@@ -319,7 +517,21 @@ impl<'f> FuncCodegen<'f> {
         bb_id: BB,
         scope: &Scope,
     ) -> CompileResult<Ty> {
-        todo!()
+        let lhs_ty = self.compile_expr(expr.val.as_ref(), bb_id, scope)?;
+        let rhs_ty = get_ty_nonvoid(&expr.ty)?;
+
+        let code = as_expr_op(&lhs_ty, &rhs_ty).ok_or_else(|| {
+            CompileError(
+                CompileErrorKind::InvalidCalculation(lhs_ty.to_string()),
+                Some(expr.ty.span),
+            )
+        })?;
+
+        for code in code {
+            self.append_code(bb_id, *code);
+        }
+
+        Ok(rhs_ty)
     }
 
     fn compile_literal_expr(
@@ -328,7 +540,24 @@ impl<'f> FuncCodegen<'f> {
         bb_id: BB,
         scope: &Scope,
     ) -> CompileResult<Ty> {
-        todo!()
+        match &expr.kind {
+            ast::LiteralKind::Integer(i) => {
+                self.append_code(bb_id, Op::Push(*i));
+                Ok(Ty::Int)
+            }
+            ast::LiteralKind::Float(f) => {
+                self.append_code(bb_id, Op::Push(unsafe { std::mem::transmute_copy(f) }));
+                Ok(Ty::Double)
+            }
+            ast::LiteralKind::String(s) => {
+                //
+                todo!("Strings")
+            }
+            ast::LiteralKind::Char(c) => {
+                self.append_code(bb_id, Op::Push(*c as u64));
+                Ok(Ty::Int)
+            }
+        }
     }
 
     fn compile_call_expr(
@@ -350,21 +579,20 @@ impl<'f> FuncCodegen<'f> {
     }
 }
 
-fn add_decl_scope(decl: &ast::DeclStmt, scope: &mut Scope) -> CompileResult<()> {
+fn add_decl_scope(decl: &ast::DeclStmt, scope: &mut Scope) -> CompileResult<u64> {
     let ty = get_ty(&decl.ty)?;
-    let name = decl.name.val.clone();
+    let name = decl.name.name.clone();
 
     let symbol = Symbol::new(ty, decl.is_const);
 
     let symbol = scope.insert(name, symbol);
-    if symbol.is_none() {
-        return Err(CompileError {
-            kind: CompileErrorKind::DuplicateSymbol(decl.name.val.as_str().into()),
+    match symbol {
+        Some(u) => Ok(u),
+        None => Err(CompileError {
+            kind: CompileErrorKind::DuplicateSymbol(decl.name.name.as_str().into()),
             span: Some(decl.name.span),
-        });
+        }),
     }
-
-    Ok(())
 }
 
 fn get_ty(ty: &ast::TyDef) -> CompileResult<Ty> {
@@ -375,8 +603,141 @@ fn get_ty(ty: &ast::TyDef) -> CompileResult<Ty> {
         _ => {
             return Err(CompileError {
                 kind: CompileErrorKind::UnknownType(ty.name.as_str().into()),
-                span: None,
+                span: Some(ty.span),
             })
         }
     })
+}
+
+fn get_ty_nonvoid(ty: &ast::TyDef) -> CompileResult<Ty> {
+    Ok(match ty.name.as_str() {
+        "int" => Ty::Int,
+        "double" => Ty::Double,
+        "void" => {
+            return Err(CompileError {
+                kind: CompileErrorKind::VoidTypeVariable,
+                span: Some(ty.span),
+            })
+        }
+        _ => {
+            return Err(CompileError {
+                kind: CompileErrorKind::UnknownType(ty.name.as_str().into()),
+                span: Some(ty.span),
+            })
+        }
+    })
+}
+
+fn op_load_address(place: Place) -> Op {
+    match place {
+        Place::Arg(x) => Op::ArgA(x),
+        Place::Loc(x) => Op::LocA(x),
+    }
+}
+
+fn load_ty(ty: &Ty) -> Op {
+    match ty {
+        Ty::Int => Op::Load64,
+        Ty::Double => Op::Load64,
+        Ty::Bool => Op::Load64,
+        Ty::Func(_) => panic!("Invalid type"),
+        Ty::Void => Op::Pop,
+    }
+}
+
+fn store_ty(ty: &Ty) -> Op {
+    match ty {
+        Ty::Int => Op::Store64,
+        Ty::Double => Op::Store64,
+        Ty::Bool => Op::Store64,
+        Ty::Func(_) => panic!("Invalid type"),
+        Ty::Void => Op::Pop,
+    }
+}
+
+fn binary_op_op(op: ast::BinaryOp, ty: &Ty) -> Option<&[Op]> {
+    match ty {
+        Ty::Int => Some(match op {
+            ast::BinaryOp::Add => &[Op::AddI],
+            ast::BinaryOp::Sub => &[Op::SubI],
+            ast::BinaryOp::Mul => &[Op::MulI],
+            ast::BinaryOp::Div => &[Op::DivI],
+            ast::BinaryOp::Gt => &[Op::CmpI, Op::SetGt],
+            ast::BinaryOp::Lt => &[Op::CmpI, Op::SetLt],
+            ast::BinaryOp::Ge => &[Op::CmpI, Op::SetLt, Op::Not],
+            ast::BinaryOp::Le => &[Op::CmpI, Op::SetGt, Op::Not],
+            ast::BinaryOp::Eq => &[Op::CmpI, Op::Not],
+            ast::BinaryOp::Neq => &[Op::CmpI],
+        }),
+        Ty::Double => Some(match op {
+            ast::BinaryOp::Add => &[Op::AddF],
+            ast::BinaryOp::Sub => &[Op::SubF],
+            ast::BinaryOp::Mul => &[Op::MulF],
+            ast::BinaryOp::Div => &[Op::DivF],
+            ast::BinaryOp::Gt => &[Op::CmpF, Op::SetGt],
+            ast::BinaryOp::Lt => &[Op::CmpF, Op::SetLt],
+            ast::BinaryOp::Ge => &[Op::CmpF, Op::SetLt, Op::Not],
+            ast::BinaryOp::Le => &[Op::CmpF, Op::SetGt, Op::Not],
+            ast::BinaryOp::Eq => &[Op::CmpF, Op::Not],
+            ast::BinaryOp::Neq => &[Op::CmpF],
+        }),
+        Ty::Bool | Ty::Func(_) | Ty::Void => None,
+    }
+}
+
+fn unary_op_op(op: ast::UnaryOp, ty: &Ty) -> Option<&[Op]> {
+    match ty {
+        Ty::Int => Some(match op {
+            ast::UnaryOp::Neg => &[Op::NegI],
+            ast::UnaryOp::Pos => &[],
+        }),
+        Ty::Double => Some(match op {
+            ast::UnaryOp::Neg => &[Op::NegF],
+            ast::UnaryOp::Pos => &[],
+        }),
+        Ty::Bool | Ty::Func(_) | Ty::Void => None,
+    }
+}
+
+fn as_expr_op(from_ty: &Ty, to_ty: &Ty) -> Option<&'static [Op]> {
+    match from_ty {
+        Ty::Int => match to_ty {
+            Ty::Int => Some(&[]),
+            Ty::Double => Some(&[Op::IToF]),
+            Ty::Bool => Some(&[]),
+            _ => None,
+        },
+        Ty::Double => match to_ty {
+            Ty::Int => Some(&[Op::FToI]),
+            Ty::Double => Some(&[]),
+            Ty::Bool => Some(&[]),
+            _ => None,
+        },
+        Ty::Bool | Ty::Func(_) | Ty::Void => None,
+    }
+}
+
+fn binary_op_result_ty(op: ast::BinaryOp, ty: &Ty) -> Option<Ty> {
+    match ty {
+        Ty::Int | Ty::Double => match op {
+            ast::BinaryOp::Add => Some(ty.clone()),
+            ast::BinaryOp::Sub => Some(ty.clone()),
+            ast::BinaryOp::Mul => Some(ty.clone()),
+            ast::BinaryOp::Div => Some(ty.clone()),
+            ast::BinaryOp::Gt => Some(Ty::Bool),
+            ast::BinaryOp::Lt => Some(Ty::Bool),
+            ast::BinaryOp::Ge => Some(Ty::Bool),
+            ast::BinaryOp::Le => Some(Ty::Bool),
+            ast::BinaryOp::Eq => Some(Ty::Bool),
+            ast::BinaryOp::Neq => Some(Ty::Bool),
+        },
+        Ty::Bool | Ty::Func(_) | Ty::Void => None,
+    }
+}
+
+fn unary_op_result_ty(_op: ast::UnaryOp, ty: &Ty) -> Option<Ty> {
+    match ty {
+        Ty::Int | Ty::Double => Some(ty.clone()),
+        Ty::Bool | Ty::Func(_) | Ty::Void => None,
+    }
 }

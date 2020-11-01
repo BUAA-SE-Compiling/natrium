@@ -140,13 +140,14 @@ where
         let (name, name_span) = expect!(self, Token::Ident(_))?;
         Ok(Ident {
             span: name_span,
-            val: name.get_ident_owned().unwrap(),
+            name: name.get_ident_owned().unwrap(),
         })
     }
 
     fn parse_ty(&mut self) -> Result<TyDef, ParseError> {
-        let (name, _name_span) = expect!(self, Token::Ident(_))?;
+        let (name, name_span) = expect!(self, Token::Ident(_))?;
         Ok(TyDef {
+            span: name_span,
             name: name.get_ident_owned().unwrap(),
             params: None,
         })
@@ -166,13 +167,14 @@ where
             None
         };
 
-        expect!(self, Token::Semicolon)?;
+        let (_, _end_span) = expect!(self, Token::Semicolon)?;
 
         Ok(DeclStmt {
             is_const: false,
             name: ident,
             val,
             ty,
+            span: _start_span + _end_span,
         })
     }
 
@@ -186,13 +188,14 @@ where
         expect!(self, Token::Assign)?;
         let val = P::new(self.parse_expr()?);
 
-        expect!(self, Token::Semicolon)?;
+        let (_, _end_span) = expect!(self, Token::Semicolon)?;
 
         Ok(DeclStmt {
             is_const: true,
             name: ident,
             val: Some(val),
             ty,
+            span: _start_span + _end_span,
         })
     }
 
@@ -219,7 +222,7 @@ where
             let (ident, span) = self.lexer.next().unwrap();
             let ident = Ident {
                 span,
-                val: ident.get_ident_owned().unwrap(),
+                name: ident.get_ident_owned().unwrap(),
             };
 
             if is_next!(self, Token::LParen) {
@@ -338,20 +341,26 @@ where
     }
 
     fn parse_block(&mut self) -> Result<BlockStmt, ParseError> {
-        expect!(self, Token::LBrace)?;
+        let (_, _start_span) = expect!(self, Token::LBrace)?;
         let vals = repeated!(self.parse_stmt(), is_next!(self, Token::RBrace));
-        expect!(self, Token::RBrace)?;
-        Ok(BlockStmt { stmts: vals })
+        let (_, _end_span) = expect!(self, Token::RBrace)?;
+        Ok(BlockStmt {
+            stmts: vals,
+            span: _start_span + _end_span,
+        })
     }
 
     fn parse_if_stmt(&mut self) -> Result<IfStmt, ParseError> {
-        expect!(self, Token::IfKw)?;
+        let (_, mut span) = expect!(self, Token::IfKw)?;
         let mut conds = vec![];
 
         {
             // if block
             let cond = self.parse_expr()?;
             let if_blk = self.parse_block()?;
+
+            span += if_blk.span;
+
             conds.push((P::new(cond), P::new(if_blk)));
         }
 
@@ -365,18 +374,26 @@ where
                 expect!(self, Token::IfKw)?;
                 let cond = self.parse_expr()?;
                 let if_blk = self.parse_block()?;
+
+                span += if_blk.span;
+
                 conds.push((P::new(cond), P::new(if_blk)));
                 expect!(self, Token::ElseKw)?;
             }
 
             if is_next!(self, Token::LBrace) {
-                else_block = Some(P::new(self.parse_block()?));
+                let else_blk = self.parse_block()?;
+
+                span += else_blk.span;
+
+                else_block = Some(P::new(else_blk));
             }
         }
 
         Ok(IfStmt {
             cond: conds,
             else_block,
+            span,
         })
     }
 
@@ -384,23 +401,28 @@ where
         expect!(self, Token::WhileKw)?;
         let cond = self.parse_expr()?;
         let body = self.parse_block()?;
+        let span = cond.span() + body.span;
         Ok(WhileStmt {
             cond: P::new(cond),
             body: P::new(body),
+            span,
         })
     }
 
     fn parse_return_stmt(&mut self) -> Result<ReturnStmt, ParseError> {
-        expect!(self, Token::ReturnKw)?;
+        let (_, _start_span) = expect!(self, Token::ReturnKw)?;
 
         let val = if !is_next!(self, Token::Semicolon) {
             Some(P::new(self.parse_expr()?))
         } else {
             None
         };
-        expect!(self, Token::Semicolon)?;
+        let (_, _end_span) = expect!(self, Token::Semicolon)?;
 
-        Ok(ReturnStmt { val })
+        Ok(ReturnStmt {
+            val,
+            span: _start_span + _end_span,
+        })
     }
 
     fn parse_stmt(&mut self) -> Result<Stmt, ParseError> {
@@ -447,11 +469,14 @@ where
 
         let body = self.parse_block()?;
 
+        let span = _start_span + body.span;
+
         Ok(FuncStmt {
             name: fn_name,
             params,
             ret_ty,
             body,
+            span,
         })
     }
 }

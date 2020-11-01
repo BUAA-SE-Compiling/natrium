@@ -62,6 +62,22 @@ impl<'p> Scope<'p> {
         self_res
     }
 
+    pub fn is_root_scope(&self) -> bool {
+        self.parent.is_none()
+    }
+
+    pub fn find_is_global<'s>(&'s self, ident: &str) -> Option<(&'s Symbol, bool)> {
+        let self_res = self.find_in_self(ident);
+
+        if self_res.is_none() {
+            if let Some(p) = self.parent {
+                return p.find_is_global(ident);
+            }
+        }
+
+        self_res.map(|x| (x, self.is_root_scope()))
+    }
+
     pub fn insert(&mut self, ident: SmolStr, mut symbol: Symbol) -> Option<u64> {
         let entry = self.vars.entry(ident);
         match entry {
