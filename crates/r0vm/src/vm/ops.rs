@@ -54,7 +54,7 @@ impl<'src> super::R0Vm<'src> {
 
     pub(crate) fn push(&mut self, x: u64) -> Result<()> {
         self.check_stack_overflow(1)?;
-        self.stack_push(x);
+        self.stack_push(x)?;
         Ok(())
     }
 
@@ -355,6 +355,24 @@ impl<'src> super::R0Vm<'src> {
         // logical shift
         self.push(lhs.wrapping_shr(rhs))?;
         Ok(())
+    }
+
+    pub(crate) fn set_lt(&mut self) -> Result<()> {
+        let val = self.pop()?;
+        if (val as i64) < 0 {
+            self.push(1)
+        } else {
+            self.push(0)
+        }
+    }
+
+    pub(crate) fn set_gt(&mut self) -> Result<()> {
+        let val = self.pop()?;
+        if (val as i64) > 0 {
+            self.push(1)
+        } else {
+            self.push(0)
+        }
     }
 
     pub(crate) fn br_a(&mut self, addr: u64) -> Result<()> {

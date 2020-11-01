@@ -172,7 +172,7 @@ pub fn simple_branch_test() {
             Push(0)
             Push(1)
             CmpI
-            Bz(2)
+            BrFalse(2)
             Br(2)
             Push(3)
             Br(2)
