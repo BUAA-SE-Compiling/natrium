@@ -231,7 +231,7 @@ impl<'src> R0Vm<'src> {
             FToI => self.ftoi(),
             ShrL => self.shr_l(),
             SetLt => self.set_lt(),
-            Setgt => self.set_gt(),
+            SetGt => self.set_gt(),
             BrA(addr) => self.br_a(addr),
             Br(off) => self.br(off),
             BrFalse(off) => self.bz(off),
