@@ -39,7 +39,7 @@ impl WithSpan for CompileError {
 }
 
 impl<T> WithSpan for Result<T, CompileError> {
-    fn with_span(mut self, span: Span) -> Result<T, CompileError> {
-        self.map_err(|mut e| e.with_span(span))
+    fn with_span(self, span: Span) -> Result<T, CompileError> {
+        self.map_err(|e| e.with_span(span))
     }
 }

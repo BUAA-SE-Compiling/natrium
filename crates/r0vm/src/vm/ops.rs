@@ -102,6 +102,7 @@ impl<'src> super::R0Vm<'src> {
             .wrapping_add((bp) as u64 * 8)
             .wrapping_add(a as u64 * 8)
             .wrapping_sub(total_arg as u64 * 8);
+
         self.push(addr)
     }
 
@@ -292,8 +293,12 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn not(&mut self) -> Result<()> {
-        let (lhs, rhs) = self.pop2()?;
-        self.push(lhs ^ rhs)?;
+        let lhs = self.pop()?;
+        if lhs == 0 {
+            self.push(1)?;
+        } else {
+            self.push(0)?;
+        }
         Ok(())
     }
 
@@ -380,22 +385,19 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn br(&mut self, off: i32) -> Result<()> {
-        self.ip = if off > 0 {
-            self.ip.checked_add(off as usize)
+        let off = if off > 0 {
+            self.ip.wrapping_add(off as usize)
         } else {
             let off = (-off) as usize;
-            self.ip.checked_sub(off as usize)
-        }
-        .and_then(|off| {
-            if off > self.fn_info.ins.len() {
-                None
-            } else {
-                Some(off)
-            }
-        })
-        .ok_or(Error::InvalidInstructionOffset)?;
+            self.ip.wrapping_sub(off as usize)
+        };
 
-        Ok(())
+        if off > self.fn_info.ins.len() {
+            Err(Error::InvalidInstructionOffset(off))
+        } else {
+            self.ip = off;
+            Ok(())
+        }
     }
 
     pub(crate) fn bz(&mut self, off: i32) -> Result<()> {
@@ -496,8 +498,24 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn call_by_name(&mut self, name_idx: u32) -> Result<()> {
-        // let name = self.glob_a(a)
-        todo!()
+        let global = self.get_global_by_id(name_idx)?;
+        let name = String::from_utf8_lossy(&global.bytes);
+        match name.as_ref() {
+            "putint" => self.print_i(),
+            "putdouble" => self.print_f(),
+            "putstr" => self.print_s(),
+            "putchar" => self.print_c(),
+            "getint" => self.scan_i(),
+            "getdouble" => self.scan_f(),
+            "getchar" => self.scan_c(),
+            _ => {
+                let function_id = *self
+                    .function_idx
+                    .get(name.as_ref())
+                    .ok_or_else(|| Error::UnknownFunction(name_idx))?;
+                self.call(function_id as u32)
+            }
+        }
     }
 
     pub(crate) fn scan_i(&mut self) -> Result<()> {
@@ -573,14 +591,20 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn print_s(&mut self) -> Result<()> {
-        // TODO: Should we use address + length or a simple CString?
-        let addr = self.pop()?;
-        let len = self.pop()?;
-        for i in 0..len {
-            let addr = addr + i;
-            let val = self.access_mem_get::<u8>(addr)?;
-            self.stdout.write_all(&[val])?;
+        // // TODO: Should we use address + length or a simple CString?
+        // Print the specified global value
+        let id = self.pop()?;
+        if id > u32::max_value() as u64 {
+            return Err(Error::ArithmeticErr);
         }
+        let global = self.get_global_by_id(id as u32)?;
+        self.stdout.write_all(&global.bytes)?;
+        // let len = self.pop()?;
+        // for i in 0..len {
+        //     let addr = addr + i;
+        //     let val = self.access_mem_get::<u8>(addr)?;
+        //     self.stdout.write_all(&[val])?;
+        // }
         Ok(())
     }
 

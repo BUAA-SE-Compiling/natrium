@@ -5,6 +5,7 @@ use crate::error::*;
 use crate::{opcodes::Op, s0::*};
 use mem::*;
 use ops::*;
+use smol_str::SmolStr;
 use std::{
     collections::{BTreeMap, HashMap},
     io::Write,
@@ -24,6 +25,8 @@ pub struct R0Vm<'src> {
 
     /// Global variable index
     global_idx: HashMap<u32, Addr>,
+    /// Global variable index
+    function_idx: HashMap<SmolStr, usize>,
 
     /// Memory heap
     heap: BTreeMap<Addr, ManagedMemory>,
@@ -70,10 +73,12 @@ impl<'src> R0Vm<'src> {
         let bp = 0usize;
         let sp = (start.loc_slots + 3) as usize;
         let (globals, global_idx) = Self::index_globals(&src.globals[..])?;
+        let function_idx = Self::index_functions(src)?;
         Ok(R0Vm {
             src,
             max_stack_size: MAX_STACK_SIZE,
             global_idx,
+            function_idx,
             heap: globals,
             stack,
             fn_info: start,
@@ -110,6 +115,20 @@ impl<'src> R0Vm<'src> {
             idx.insert(i as u32, mem_addr);
         }
         Ok((globals_map, idx))
+    }
+
+    fn index_functions(asm: &S0) -> Result<HashMap<SmolStr, usize>> {
+        let mut res = HashMap::new();
+        for (idx, f) in asm.functions.iter().enumerate() {
+            let name = asm
+                .globals
+                .get(f.name as usize)
+                .ok_or_else(|| Error::InvalidGlobalIndex(f.name))?;
+            let name = String::from_utf8_lossy(&name.bytes);
+            let name = SmolStr::new_inline(&name);
+            res.insert(name, idx);
+        }
+        Ok(res)
     }
 
     pub fn step(&mut self) -> Result<()> {
@@ -238,7 +257,7 @@ impl<'src> R0Vm<'src> {
             BrTrue(off) => self.bnz(off),
             Call(id) => self.call(id),
             Ret => self.ret(),
-            CallName(id) => self.call(id),
+            CallName(id) => self.call_by_name(id),
             ScanI => self.scan_i(),
             ScanC => self.scan_c(),
             ScanF => self.scan_f(),
@@ -306,11 +325,11 @@ impl<'src> R0Vm<'src> {
         ))
     }
 
-    pub fn debug_stack<'s: 'src>(&'s self) -> StackDebugger<'s> {
+    pub fn debug_stack<'s>(&'s self) -> StackDebugger<'s, 'src> {
         StackDebugger::new(self, self.sp, self.bp, self.fn_info)
     }
 
-    pub fn debug_frame<'s: 'src>(&'s self, frame: usize) -> Result<StackDebugger<'s>> {
+    pub fn debug_frame<'s>(&'s self, frame: usize) -> Result<StackDebugger<'s, 'src>> {
         let (sp, bp, fn_id) =
             (0..frame).try_fold((self.sp, self.bp, self.fn_id as u64), |(_sp, bp, _), _| {
                 let (info, nbp) = self.stack_info(bp)?;
@@ -345,9 +364,8 @@ impl std::fmt::Display for StackInfo {
     }
 }
 
-#[derive(Copy, Clone)]
-pub struct StackDebugger<'s> {
-    vm: &'s R0Vm<'s>,
+pub struct StackDebugger<'s, 'a> {
+    vm: &'s R0Vm<'a>,
     sp: usize,
     bp: usize,
     fn_info: &'s FnDef,
@@ -355,8 +373,13 @@ pub struct StackDebugger<'s> {
     bounds: bool,
 }
 
-impl<'s> StackDebugger<'s> {
-    pub fn new(vm: &'s R0Vm<'s>, sp: usize, bp: usize, fn_info: &'s FnDef) -> StackDebugger<'s> {
+impl<'s, 'a> StackDebugger<'s, 'a> {
+    pub fn new(
+        vm: &'s R0Vm<'a>,
+        sp: usize,
+        bp: usize,
+        fn_info: &'s FnDef,
+    ) -> StackDebugger<'s, 'a> {
         StackDebugger {
             vm,
             sp,
@@ -378,7 +401,7 @@ impl<'s> StackDebugger<'s> {
     }
 }
 
-impl<'s> std::fmt::Display for StackDebugger<'s> {
+impl<'s, 'a> std::fmt::Display for StackDebugger<'s, 'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let sp = self.sp;
         let bp = self.bp;
@@ -447,7 +470,7 @@ impl<'s> std::fmt::Display for StackDebugger<'s> {
     }
 }
 
-impl<'s> std::fmt::Debug for StackDebugger<'s> {
+impl<'s> std::fmt::Debug for StackDebugger<'s, '_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         (self as &dyn std::fmt::Display).fmt(f)
     }

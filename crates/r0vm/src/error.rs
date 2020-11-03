@@ -1,6 +1,8 @@
 use failure::Fail;
 use std::fmt::Display;
 
+use crate::s0::S0;
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Fail, Debug)]
@@ -32,8 +34,11 @@ pub enum Error {
     #[fail(display = "Invalid function ID {}", _0)]
     InvalidFnId(u32),
 
-    #[fail(display = "Invalid instruction offset")]
-    InvalidInstructionOffset,
+    #[fail(display = "Unknown function (name index: {})", _0)]
+    UnknownFunction(u32),
+
+    #[fail(display = "Invalid instruction offset {}", _0)]
+    InvalidInstructionOffset(usize),
 
     #[fail(display = "Dividing by zero")]
     DivZero,
@@ -70,6 +75,14 @@ pub enum Error {
 
     #[fail(display = "Halt")]
     Halt,
+}
+
+impl Error {
+    pub fn format_with_ctx(&self, f: &mut std::fmt::Formatter, s0: &S0) -> std::fmt::Result {
+        self.fmt(f)?;
+
+        todo!()
+    }
 }
 
 #[derive(Debug)]

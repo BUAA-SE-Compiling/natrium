@@ -1,5 +1,6 @@
 use r0vm::opcodes::Op;
 
+#[derive(Debug, Copy, Clone)]
 pub enum Cond {
     Eq,
     Neq,
@@ -9,6 +10,7 @@ pub enum Cond {
     Le,
 }
 
+#[derive(Debug, Copy, Clone)]
 pub enum JumpInst {
     Undefined,
     Unreachable,
@@ -17,6 +19,7 @@ pub enum JumpInst {
     JumpIf(Cond, usize, usize),
 }
 
+#[derive(Debug, Clone)]
 pub struct BasicBlock {
     pub code: Vec<Op>,
     pub jump: JumpInst,

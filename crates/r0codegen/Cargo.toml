@@ -7,6 +7,7 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+"bit-set" = "0.5.2"
 indexmap = "1.6.0"
 once_cell = "1.4.1"
 r0syntax = {path = "../syntax"}

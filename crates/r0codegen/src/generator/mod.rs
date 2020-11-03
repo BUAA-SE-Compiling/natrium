@@ -1,6 +1,5 @@
-use std::cell::RefCell;
+mod util;
 
-use crate::ty::{FuncTy, Ty};
 use crate::{
     code::BasicBlock,
     err::{CompileError, CompileErrorKind},
@@ -9,7 +8,12 @@ use crate::{
     code::{Cond, JumpInst},
     scope::{Scope, Symbol, SymbolIdGenerator},
 };
+use crate::{
+    err::WithSpan,
+    ty::{FuncTy, Ty},
+};
 use ast::FuncStmt;
+use bit_set::BitSet;
 use indexmap::{IndexMap, IndexSet};
 use r0syntax::{
     ast,
@@ -19,6 +23,8 @@ use r0syntax::{
 };
 use r0vm::{opcodes::Op, s0};
 use smol_str::SmolStr;
+use std::cell::RefCell;
+use util::BBArranger;
 
 static RET_VAL_KEY: &str = "$ret";
 static FUNC_VAL_KEY: &str = "$func";
@@ -45,7 +51,12 @@ pub fn compile(tree: &ast::Program) -> CompileResult<s0::S0> {
             .values
             .insert(var_id, vec![0u8; ty.size()]);
     }
-
+    {
+        global_entries
+            .borrow_mut()
+            .functions
+            .insert("_start".into());
+    }
     for func in &tree.funcs {
         global_entries
             .borrow_mut()
@@ -55,7 +66,8 @@ pub fn compile(tree: &ast::Program) -> CompileResult<s0::S0> {
         funcs.push(func);
     }
 
-    compile_start_func(tree, &mut global_scope, global_entries.clone())?;
+    let start = compile_start_func(tree, &mut global_scope, global_entries.clone())?;
+    funcs.insert(0, start);
 
     let mut global_entries = Mut::take_inner(global_entries).unwrap_or_else(|_| panic!());
 
@@ -89,7 +101,7 @@ fn create_lib_func(scope: &mut Scope) {
         "putstr".into(),
         Symbol::new(
             Ty::Func(FuncTy {
-                params: vec![P(Ty::Addr)],
+                params: vec![P(Ty::Int)],
                 ret: P(Ty::Void),
             }),
             true,
@@ -190,21 +202,31 @@ fn compile_start_func(
                 .iter()
                 .cloned()
                 .map(ast::Stmt::Decl)
-                .chain(std::iter::once(ast::Stmt::Expr(ast::Expr::Call(
-                    ast::CallExpr {
-                        span: Span::default(),
-                        func: ast::Ident {
+                .chain(
+                    vec![
+                        ast::Stmt::Expr(ast::Expr::Call(ast::CallExpr {
                             span: Span::default(),
-                            name: "main".into(),
-                        },
-                        params: vec![],
-                    },
-                ))))
+                            func: ast::Ident {
+                                span: Span::default(),
+                                name: "main".into(),
+                            },
+                            params: vec![],
+                        })),
+                        ast::Stmt::Return(ast::ReturnStmt {
+                            val: None,
+                            span: Span::default(),
+                        }),
+                    ]
+                    .into_iter(),
+                )
                 .collect(),
         },
         span: Span::default(),
     };
-    compile_func(&start_func, global_scope, global_entries)
+    let mut func = compile_func(&start_func, global_scope, global_entries)?;
+    // remove the last 'ret'
+    func.ins.pop();
+    Ok(func)
 }
 
 macro_rules! check_type_eq {
@@ -281,7 +303,7 @@ impl<'f> FuncCodegen<'f> {
         }
     }
 
-    pub fn compile(&mut self) -> CompileResult<s0::FnDef> {
+    pub fn compile(mut self) -> CompileResult<s0::FnDef> {
         self.compile_func()
     }
 
@@ -307,19 +329,88 @@ impl<'f> FuncCodegen<'f> {
         }
     }
 
-    fn compile_func(&mut self) -> CompileResult<s0::FnDef> {
+    fn compile_func(mut self) -> CompileResult<s0::FnDef> {
         let mut scope = Scope::new_with_parent(self.global_scope);
 
-        self.add_params(&mut scope)?;
+        let (ret_slots, param_slots) = self.add_params(&mut scope)?;
 
         let start_bb = self.new_bb();
 
         let end_bb = self.compile_block(&self.func.body, start_bb, &scope)?;
 
-        todo!("Arrange basic blocks")
+        let arrange = self.bb_arrange(start_bb)?;
+
+        let start_offset = arrange
+            .iter()
+            .map(|a| (*a, &self.basic_blocks[*a]))
+            .fold((0, IndexMap::new()), |(acc, mut map), (bb_id, bb)| {
+                map.insert(bb_id, acc);
+                let acc = acc
+                    + bb.code.len()
+                    + match bb.jump {
+                        JumpInst::Undefined => 0,
+                        JumpInst::Unreachable => 0,
+                        JumpInst::Return => 1,
+                        JumpInst::Jump(_) => 1,
+                        JumpInst::JumpIf(_, _, _) => 2,
+                    };
+                (acc, map)
+            })
+            .1;
+
+        let mut result_code = vec![];
+        for bb in arrange {
+            let bb = &mut self.basic_blocks[bb];
+            result_code.append(&mut bb.code);
+            match bb.jump {
+                JumpInst::Return => result_code.push(Op::Ret),
+                JumpInst::Jump(id) => {
+                    result_code.push(Op::Br(
+                        start_offset[&id] as i32 - result_code.len() as i32 - 1,
+                    ));
+                }
+                JumpInst::JumpIf(_, bb_true, bb_false) => {
+                    result_code.push(Op::BrTrue(
+                        start_offset[&bb_true] as i32 - result_code.len() as i32 - 1,
+                    ));
+                    result_code.push(Op::Br(
+                        start_offset[&bb_false] as i32 - result_code.len() as i32 - 1,
+                    ));
+                }
+                _ => {}
+            }
+        }
+
+        let name_global_id = {
+            let name_val_id = self.global_scope.get_new_id();
+            self.global_entries
+                .borrow_mut()
+                .insert_string_literal(&self.func.name.name, name_val_id)
+        };
+
+        Ok(s0::FnDef {
+            name: name_global_id,
+            ret_slots: ret_slots as u32,
+            param_slots: param_slots as u32,
+            loc_slots: self.loc_top,
+            ins: result_code,
+        })
     }
 
-    fn add_params(&mut self, scope: &mut Scope) -> CompileResult<()> {
+    fn bb_arrange(&self, start: BB) -> CompileResult<Vec<BB>> {
+        // dbg!(&self.basic_blocks);
+        let mut arr_state = BBArranger::new(&self.basic_blocks);
+
+        arr_state
+            .construct_arrangement(start)
+            .with_span(self.func.name.span)?;
+
+        let arrange = arr_state.arrange();
+
+        Ok(arrange)
+    }
+
+    fn add_params(&mut self, scope: &mut Scope) -> CompileResult<(usize, usize)> {
         let ret_ty = get_ty(&self.func.ret_ty)?;
         let ret_size = ret_ty.size_slot();
         let ret_id = scope
@@ -343,7 +434,7 @@ impl<'f> FuncCodegen<'f> {
             self.arg_top += param_size as u32;
         }
 
-        Ok(())
+        Ok((ret_size, self.arg_top as usize - ret_size))
     }
 
     fn get_place(&self, var_id: u64) -> Option<Place> {
@@ -426,19 +517,21 @@ impl<'f> FuncCodegen<'f> {
 
         for (cond, body) in &stmt.cond {
             let cond_bb = self.new_bb();
-            self.compile_expr(cond.as_ref(), cond_bb, scope)?;
             cond_bbs.push(cond_bb);
+            self.compile_expr(cond.as_ref(), cond_bb, scope)?;
 
             let body_bb = self.new_bb();
-            body_bbs.push(cond_bb);
+            body_bbs.push(body_bb);
             let body_end_bb = self.compile_block(body.as_ref(), body_bb, scope)?;
 
+            // body -> end
             self.set_jump(body_end_bb, JumpInst::Jump(end_bb));
         }
 
         let else_bb = if let Some(b) = &stmt.else_block {
             let else_bb = self.new_bb();
             let else_end_bb = self.compile_block(b, else_bb, scope)?;
+            // else_body -> end
             self.set_jump(else_end_bb, JumpInst::Jump(end_bb));
             else_end_bb
         } else {
@@ -456,8 +549,13 @@ impl<'f> FuncCodegen<'f> {
         );
 
         for (cond, (bb_true, bb_false)) in cond_iter {
+            // cond -> body
+            //   \---> cond
             self.set_jump(cond, JumpInst::JumpIf(Cond::Eq, bb_true, bb_false));
         }
+
+        // start -> cond
+        self.set_jump(bb_id, JumpInst::Jump(*cond_bbs.first().unwrap()));
 
         Ok(end_bb)
     }
@@ -703,8 +801,8 @@ impl<'f> FuncCodegen<'f> {
                     .global_entries
                     .borrow_mut()
                     .insert_string_literal(s, val_id);
-                self.append_code(bb_id, Op::GlobA(glob_id));
-                Ok(Ty::Addr)
+                self.append_code(bb_id, Op::Push(glob_id as u64));
+                Ok(Ty::Int)
             }
             ast::LiteralKind::Char(c) => {
                 self.append_code(bb_id, Op::Push(*c as u64));
@@ -720,11 +818,6 @@ impl<'f> FuncCodegen<'f> {
         scope: &Scope,
     ) -> CompileResult<Ty> {
         let mut expr_tys = vec![];
-
-        for sub in &expr.params {
-            let ty = self.compile_expr(sub, bb_id, scope)?;
-            expr_tys.push(ty);
-        }
 
         let func_name = &expr.func.name;
         let func_sig = self.global_scope.find(&func_name).ok_or_else(|| {
@@ -743,6 +836,13 @@ impl<'f> FuncCodegen<'f> {
                 Some(expr.func.span),
             )
         })?;
+
+        self.append_code(bb_id, Op::StackAlloc(func_ty.ret.size_slot() as u32));
+
+        for sub in &expr.params {
+            let ty = self.compile_expr(sub, bb_id, scope)?;
+            expr_tys.push(ty);
+        }
 
         if expr_tys.len() != func_ty.params.len() {
             return Err(CompileError(
