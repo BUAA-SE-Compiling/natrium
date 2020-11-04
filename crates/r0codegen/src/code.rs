@@ -1,22 +1,12 @@
 use r0vm::opcodes::Op;
 
 #[derive(Debug, Copy, Clone)]
-pub enum Cond {
-    Eq,
-    Neq,
-    Gt,
-    Lt,
-    Ge,
-    Le,
-}
-
-#[derive(Debug, Copy, Clone)]
 pub enum JumpInst {
     Undefined,
     Unreachable,
     Return,
     Jump(usize),
-    JumpIf(Cond, usize, usize),
+    JumpIf(usize, usize),
 }
 
 #[derive(Debug, Clone)]

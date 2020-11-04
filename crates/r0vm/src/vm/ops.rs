@@ -31,22 +31,22 @@ impl U64Transmutable for u64 {}
 impl<'src> super::R0Vm<'src> {
     #[inline]
     fn pop2(&mut self) -> Result<(u64, u64)> {
-        let lhs = self.pop()?;
         let rhs = self.pop()?;
+        let lhs = self.pop()?;
         Ok((lhs, rhs))
     }
 
     #[inline]
     fn pop2f(&mut self) -> Result<(f64, f64)> {
-        let lhs = reinterpret_u(self.pop()?);
         let rhs = reinterpret_u(self.pop()?);
+        let lhs = reinterpret_u(self.pop()?);
         Ok((lhs, rhs))
     }
 
     #[inline]
     fn pop2i(&mut self) -> Result<(i64, i64)> {
-        let lhs = reinterpret_u(self.pop()?);
         let rhs = reinterpret_u(self.pop()?);
+        let lhs = reinterpret_u(self.pop()?);
         Ok((lhs, rhs))
     }
 
@@ -310,7 +310,7 @@ impl<'src> super::R0Vm<'src> {
         let lhs = reinterpret_u::<T>(lhs);
         let rhs = reinterpret_u::<T>(rhs);
         if lhs < rhs {
-            self.push(reinterpret_t(-1i64))
+            self.push(-1i64 as u64)
         } else if lhs > rhs {
             self.push(1)
         } else {
@@ -505,9 +505,19 @@ impl<'src> super::R0Vm<'src> {
             "putdouble" => self.print_f(),
             "putstr" => self.print_s(),
             "putchar" => self.print_c(),
-            "getint" => self.scan_i(),
-            "getdouble" => self.scan_f(),
-            "getchar" => self.scan_c(),
+            "putln" => self.print_ln(),
+            "getint" => {
+                self.pop()?;
+                self.scan_i()
+            }
+            "getdouble" => {
+                self.pop()?;
+                self.scan_f()
+            }
+            "getchar" => {
+                self.pop()?;
+                self.scan_c()
+            }
             _ => {
                 let function_id = *self
                     .function_idx
@@ -534,7 +544,7 @@ impl<'src> super::R0Vm<'src> {
                 })
                 .flatten()
         )
-        .map_err(|_| err.map(|e| Error::IoError(e)).unwrap_or(Error::ParseError))?;
+        .map_err(|_| err.map(Error::IoError).unwrap_or(Error::ParseError))?;
         self.push(val)
     }
 
@@ -569,25 +579,22 @@ impl<'src> super::R0Vm<'src> {
 
     pub(crate) fn print_i(&mut self) -> Result<()> {
         let i = self.pop()?;
-        self.stdout
-            .write_fmt(format_args!("{}", i))
-            .map_err(|err| err.into())
+        write!(self.stdout, "{}", i)?;
+        self.stdout.flush().map_err(|err| err.into())
     }
 
     pub(crate) fn print_c(&mut self) -> Result<()> {
         let i = self.pop()?;
         let c = (i & 0xff) as u8 as char;
-        self.stdout
-            .write_fmt(format_args!("{}", c))
-            .map_err(|err| err.into())
+        write!(self.stdout, "{}", c)?;
+        self.stdout.flush().map_err(|err| err.into())
     }
 
     pub(crate) fn print_f(&mut self) -> Result<()> {
         let i = self.pop()?;
         let f = reinterpret_u::<f64>(i);
-        self.stdout
-            .write_fmt(format_args!("{:.6}", f))
-            .map_err(|err| err.into())
+        write!(self.stdout, "{}", f)?;
+        self.stdout.flush().map_err(|err| err.into())
     }
 
     pub(crate) fn print_s(&mut self) -> Result<()> {
@@ -599,6 +606,7 @@ impl<'src> super::R0Vm<'src> {
         }
         let global = self.get_global_by_id(id as u32)?;
         self.stdout.write_all(&global.bytes)?;
+        self.stdout.flush()?;
         // let len = self.pop()?;
         // for i in 0..len {
         //     let addr = addr + i;

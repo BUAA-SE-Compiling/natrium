@@ -1,15 +1,9 @@
 mod util;
 
 use crate::{
-    code::BasicBlock,
-    err::{CompileError, CompileErrorKind},
-};
-use crate::{
-    code::{Cond, JumpInst},
+    code::{BasicBlock, JumpInst},
+    err::{CompileError, CompileErrorKind, WithSpan},
     scope::{Scope, Symbol, SymbolIdGenerator},
-};
-use crate::{
-    err::WithSpan,
     ty::{FuncTy, Ty},
 };
 use ast::FuncStmt;
@@ -122,6 +116,16 @@ fn create_lib_func(scope: &mut Scope) {
         Symbol::new(
             Ty::Func(FuncTy {
                 params: vec![P(Ty::Int)],
+                ret: P(Ty::Void),
+            }),
+            true,
+        ),
+    );
+    scope.insert(
+        "putln".into(),
+        Symbol::new(
+            Ty::Func(FuncTy {
+                params: vec![],
                 ret: P(Ty::Void),
             }),
             true,
@@ -352,7 +356,7 @@ impl<'f> FuncCodegen<'f> {
                         JumpInst::Unreachable => 0,
                         JumpInst::Return => 1,
                         JumpInst::Jump(_) => 1,
-                        JumpInst::JumpIf(_, _, _) => 2,
+                        JumpInst::JumpIf(..) => 2,
                     };
                 (acc, map)
             })
@@ -369,7 +373,7 @@ impl<'f> FuncCodegen<'f> {
                         start_offset[&id] as i32 - result_code.len() as i32 - 1,
                     ));
                 }
-                JumpInst::JumpIf(_, bb_true, bb_false) => {
+                JumpInst::JumpIf(bb_true, bb_false) => {
                     result_code.push(Op::BrTrue(
                         start_offset[&bb_true] as i32 - result_code.len() as i32 - 1,
                     ));
@@ -492,7 +496,7 @@ impl<'f> FuncCodegen<'f> {
 
         self.compile_expr(stmt.cond.as_ref(), cond_bb, scope)?;
         self.set_jump(bb_id, JumpInst::Jump(cond_bb));
-        self.set_jump(cond_bb, JumpInst::JumpIf(Cond::Eq, body_bb, next_bb));
+        self.set_jump(cond_bb, JumpInst::JumpIf(body_bb, next_bb));
 
         let body_end_bb = self.compile_block(stmt.body.as_ref(), body_bb, scope)?;
         self.set_jump(body_end_bb, JumpInst::Jump(cond_bb));
@@ -551,7 +555,7 @@ impl<'f> FuncCodegen<'f> {
         for (cond, (bb_true, bb_false)) in cond_iter {
             // cond -> body
             //   \---> cond
-            self.set_jump(cond, JumpInst::JumpIf(Cond::Eq, bb_true, bb_false));
+            self.set_jump(cond, JumpInst::JumpIf(bb_true, bb_false));
         }
 
         // start -> cond

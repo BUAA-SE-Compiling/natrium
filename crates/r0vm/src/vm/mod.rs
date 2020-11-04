@@ -131,18 +131,20 @@ impl<'src> R0Vm<'src> {
         Ok(res)
     }
 
-    pub fn step(&mut self) -> Result<()> {
+    #[inline]
+    pub fn step(&mut self) -> Result<Op> {
         let op = self.get_next_instruction()?;
-        self.exec_instruction(op)
+        self.exec_instruction(op)?;
+        Ok(op)
     }
 
     /// Drive virtual machine to end, and abort when any error occurs.
     pub fn run_to_end(&mut self) -> Result<()> {
         loop {
             match self.step() {
-                Ok(()) => (),
+                Ok(_) => (),
                 Err(Error::ControlReachesEnd(0)) => break Ok(()),
-                e => return e,
+                Err(e) => break Err(e),
             }
         }
     }
@@ -156,9 +158,9 @@ impl<'src> R0Vm<'src> {
             let res = self.step();
             inspect(self);
             match res {
-                Ok(()) => (),
+                Ok(_) => (),
                 Err(Error::ControlReachesEnd(0)) => break Ok(()),
-                e => return e,
+                Err(e) => return Err(e),
             }
         }
     }

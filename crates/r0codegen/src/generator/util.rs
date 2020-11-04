@@ -50,7 +50,7 @@ impl<'st> BBArranger<'st> {
             crate::code::JumpInst::Jump(bb1) => {
                 self.vis(bb1);
             }
-            crate::code::JumpInst::JumpIf(_, bb1, bb2) => {
+            crate::code::JumpInst::JumpIf(bb1, bb2) => {
                 self.vis(bb1);
                 self.vis(bb2);
             }
@@ -78,7 +78,7 @@ impl<'st> BBArranger<'st> {
             crate::code::JumpInst::Jump(bb1) => {
                 self.arr(bb1)?;
             }
-            crate::code::JumpInst::JumpIf(_, bb1, bb2) => {
+            crate::code::JumpInst::JumpIf(bb1, bb2) => {
                 self.arr(bb1)?;
                 self.arr(bb2)?;
             }
