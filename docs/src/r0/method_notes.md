@@ -76,7 +76,7 @@ struct BinaryExpr {
 - C#: `System.Collections.Generic.IEnumerator`
 - C++: `std::iterator::iterator_traits`
 - C++20: concept `std::ranges::input_iterator`
-- Python: 实现 `next(self)` 的类型
+- Python: 实现 `__next__` 的类型
 - JavaScript: 实现 `Symbol.iterator` 的类型
 
 由于在解析时常常要回溯，使用的迭代器可以提供一些额外的方法，比如 `peek()` 用于查看下一个值但不移动迭代器，或者 `unread(value)` 用于将已经读出的值放回迭代器。
