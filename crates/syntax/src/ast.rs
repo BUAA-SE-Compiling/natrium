@@ -38,6 +38,8 @@ pub enum Stmt {
     Expr(Expr),
     Decl(DeclStmt),
     Return(ReturnStmt),
+    Break(Span),
+    Continue(Span),
 }
 
 impl Stmt {
@@ -49,6 +51,8 @@ impl Stmt {
             Stmt::Expr(i) => i.span(),
             Stmt::Decl(i) => i.span,
             Stmt::Return(i) => i.span,
+            Stmt::Break(s) => *s,
+            Stmt::Continue(s) => *s,
         }
     }
 }

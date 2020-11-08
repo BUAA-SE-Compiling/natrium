@@ -24,10 +24,14 @@ pub enum Token {
     ElseKw,
     #[token("return")]
     ReturnKw,
+    #[token("break")]
+    BreakKw,
+    #[token("continue")]
+    ContinueKw,
 
     #[regex(r"\d+", |lex| lex.slice().parse(), priority = 2)]
     UIntLiteral(u64),
-    #[regex(r"\d+(.\d+)?([eE]\d+)?", |lex| lex.slice().parse())]
+    #[regex(r"\d*\.\d+([eE]\d+)?", |lex| lex.slice().parse())]
     FloatLiteral(f64),
     #[regex(r#""([^\\"]|\\([rnt\\/"']))*""#, parse_string_literal, priority = 2)]
     StringLiteral(String),

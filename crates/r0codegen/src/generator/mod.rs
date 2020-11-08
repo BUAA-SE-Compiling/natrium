@@ -285,6 +285,7 @@ struct FuncCodegen<'f> {
     global_scope: &'f Scope<'f>,
     global_entries: Mut<GlobalEntries>,
     basic_blocks: Vec<BasicBlock>,
+    break_continue_positions: Vec<(BB, BB)>,
     place_mapping: IndexMap<u64, Place>,
     arg_top: u32,
     loc_top: u32,
@@ -301,6 +302,7 @@ impl<'f> FuncCodegen<'f> {
             global_scope: scope,
             global_entries,
             basic_blocks: vec![],
+            break_continue_positions: vec![],
             place_mapping: IndexMap::new(),
             arg_top: 0,
             loc_top: 0,
@@ -475,6 +477,8 @@ impl<'f> FuncCodegen<'f> {
             }
             ast::Stmt::Decl(stmt) => self.compile_decl(stmt, bb_id, scope),
             ast::Stmt::Return(stmt) => self.compile_return(stmt, bb_id, scope),
+            ast::Stmt::Break(span) => self.compile_break(*span, bb_id, scope),
+            ast::Stmt::Continue(span) => self.compile_continue(*span, bb_id, scope),
         }
     }
 
@@ -494,12 +498,16 @@ impl<'f> FuncCodegen<'f> {
         let body_bb = self.new_bb();
         let next_bb = self.new_bb();
 
+        self.break_continue_positions.push((body_bb, next_bb));
+
         self.compile_expr(stmt.cond.as_ref(), cond_bb, scope)?;
         self.set_jump(bb_id, JumpInst::Jump(cond_bb));
         self.set_jump(cond_bb, JumpInst::JumpIf(body_bb, next_bb));
 
         let body_end_bb = self.compile_block(stmt.body.as_ref(), body_bb, scope)?;
         self.set_jump(body_end_bb, JumpInst::Jump(cond_bb));
+
+        self.break_continue_positions.pop();
 
         Ok(next_bb)
     }
@@ -634,6 +642,26 @@ impl<'f> FuncCodegen<'f> {
         }
 
         self.set_jump(bb_id, JumpInst::Return);
+        Ok(self.new_bb())
+    }
+
+    fn compile_break(&mut self, span: Span, bb_id: BB, _scope: &Scope) -> CompileResult<BB> {
+        let (_, next) = self
+            .break_continue_positions
+            .last()
+            .ok_or_else(|| CompileError(CompileErrorKind::NoBreakContext, Some(span)))?;
+        let break_target = *next;
+        self.set_jump(bb_id, JumpInst::Jump(break_target));
+        Ok(self.new_bb())
+    }
+
+    fn compile_continue(&mut self, span: Span, bb_id: BB, _scope: &Scope) -> CompileResult<BB> {
+        let (next, _) = self
+            .break_continue_positions
+            .last()
+            .ok_or_else(|| CompileError(CompileErrorKind::NoContinueContext, Some(span)))?;
+        let continue_target = *next;
+        self.set_jump(bb_id, JumpInst::Jump(continue_target));
         Ok(self.new_bb())
     }
 

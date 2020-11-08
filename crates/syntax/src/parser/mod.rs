@@ -425,6 +425,18 @@ where
         })
     }
 
+    fn parse_break_stmt(&mut self) -> Result<Span, ParseError> {
+        let (_, span) = expect!(self, Token::BreakKw)?;
+        expect!(self, Token::Semicolon)?;
+        Ok(span)
+    }
+
+    fn parse_continue_stmt(&mut self) -> Result<Span, ParseError> {
+        let (_, span) = expect!(self, Token::ContinueKw)?;
+        expect!(self, Token::Semicolon)?;
+        Ok(span)
+    }
+
     fn parse_stmt(&mut self) -> Result<Stmt, ParseError> {
         let val = if is_next!(self, Token::ConstKw) {
             Stmt::Decl(self.parse_const_decl()?)
@@ -436,6 +448,10 @@ where
             Stmt::If(self.parse_if_stmt()?)
         } else if is_next!(self, Token::WhileKw) {
             Stmt::While(self.parse_while_stmt()?)
+        } else if is_next!(self, Token::BreakKw) {
+            Stmt::Break(self.parse_break_stmt()?)
+        } else if is_next!(self, Token::ContinueKw) {
+            Stmt::Continue(self.parse_continue_stmt()?)
         } else if is_next!(self, Token::ReturnKw) {
             Stmt::Return(self.parse_return_stmt()?)
         } else {

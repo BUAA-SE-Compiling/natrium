@@ -175,7 +175,7 @@ pub fn simple_branch_test() {
             BrFalse(2)
             Br(2)
             Push(3)
-            Br(2)
+            Br(1)
             Push(5)
         }
     );
@@ -200,10 +200,10 @@ pub fn simple_branch_test_2() {
             Push(1)
             CmpI
             SetGt
-            BrFalse(2)
+            BrFalse(3)
             Br(2)
             Push(3)
-            Br(2)
+            Br(1)
             Push(5)
         }
     );

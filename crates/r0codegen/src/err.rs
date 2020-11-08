@@ -24,6 +24,8 @@ pub enum CompileErrorKind {
     NotLValue,
     InvalidCalculation(String),
     FuncParamSizeMismatch(usize, usize),
+    NoBreakContext,
+    NoContinueContext,
     NotAllRoutesReturn,
 }
 
