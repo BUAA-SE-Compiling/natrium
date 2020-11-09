@@ -6,6 +6,10 @@ fn parse_string_literal(i: &mut Lexer<Token>) -> Option<String> {
     // Some(i.slice().into())
 }
 
+fn parse_char_literal(i: &mut Lexer<Token>) -> Option<char> {
+    unescape::unescape(&i.slice()[1..i.slice().len() - 1]).and_then(|x| x.chars().next())
+}
+
 #[derive(Debug, Clone, Logos)]
 pub enum Token {
     #[token("fn")]
@@ -29,11 +33,13 @@ pub enum Token {
     #[token("continue")]
     ContinueKw,
 
-    #[regex(r"\d+", |lex| lex.slice().parse(), priority = 2)]
+    #[regex(r"\d+", |lex| lex.slice().parse())]
     UIntLiteral(u64),
     #[regex(r"\d*\.\d+([eE]\d+)?", |lex| lex.slice().parse())]
     FloatLiteral(f64),
-    #[regex(r#""([^\\"]|\\([rnt\\/"']))*""#, parse_string_literal, priority = 2)]
+    #[regex(r#"'([^\\']|\\[rnt\\/"'])'"#, parse_char_literal)]
+    CharLiteral(char),
+    #[regex(r#""([^\\"]|\\([rnt\\/"']))*""#, parse_string_literal)]
     StringLiteral(String),
     #[regex(r"[_a-zA-Z][_a-zA-Z0-9]*", |lex| SmolStr::new(lex.slice()))]
     Ident(SmolStr),
@@ -106,6 +112,7 @@ impl Token {
     pub fn get_uint(&self) -> Option<u64> {
         match self {
             Token::UIntLiteral(i) => Some(*i),
+            Token::CharLiteral(c) => Some(*c as u64),
             _ => None,
         }
     }

@@ -231,7 +231,7 @@ where
             } else {
                 Ok(Expr::Ident(ident))
             }
-        } else if is_next!(self, Token::UIntLiteral(_)) {
+        } else if is_next!(self, Token::UIntLiteral(_)|Token::CharLiteral(_)) {
             let (num, span) = self.lexer.next().unwrap();
             Ok(Expr::Literal(LiteralExpr {
                 span,
@@ -274,7 +274,7 @@ where
         // PreUOp -> '+' | '-'
         // ProUOp -> 'as' TypeDef
         let mut prec_ops = vec![];
-        while is_next!(self, Token::Plus | Token::Minus) {
+        while is_next!(self, Token::Minus) {
             prec_ops.push(self.lexer.next().unwrap().0)
         }
 

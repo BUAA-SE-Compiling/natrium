@@ -1,6 +1,4 @@
-# 表达式与语句
-
-## 表达式
+# 表达式
 
 ```
 expr -> 
@@ -15,7 +13,7 @@ expr ->
 
 表达式是代码中运算的最小单位。在语法解析的时候，一个表达式会被展开成一棵树，称作表达式树。
 
-### 运算符表达式
+## 运算符表达式
 
 ```
 binary_operator -> '+' | '-' | '*' | '/' | '==' | '!=' | '<' | '>' | '<=' | '>='
@@ -42,7 +40,7 @@ operator_expr -> expr binary_operator expr
 | `==`   | 如果左侧等于右侧则为真     | 数值     | 布尔       | 左到右 |
 | `!=`   | 如果左侧不等于右侧则为真   | 数值     | 布尔       | 左到右 |
 
-### 取反表达式
+## 取反表达式
 
 ```
 negate_expr -> '-' expr
@@ -50,7 +48,7 @@ negate_expr -> '-' expr
 
 取反表达式是在表达式前添加负号组成的表达式。取反表达式的语义是将表达式转换成它的相反数。
 
-### 赋值表达式
+## 赋值表达式
 
 ```
 l_expr -> IDENT
@@ -63,7 +61,7 @@ assign_expr -> l_expr '=' expr
 
 赋值表达式的语义是将右侧表达式的计算结果赋给左侧表示的值。
 
-### 类型转换表达式
+## 类型转换表达式
 
 ```
 as_expr -> expr 'as' ty
@@ -73,7 +71,7 @@ as_expr -> expr 'as' ty
 
 在 c0 实验中只会涉及到整数 `int` 和浮点数 `double` 之间的互相转换。
 
-### 函数调用表达式
+## 函数调用表达式
 
 ```
 call_param_list -> expr (',' expr)*
@@ -82,7 +80,7 @@ call_expr -> IDENT '(' call_param_list? ')'
 
 函数调用表达式是由 _函数名_ 和 _调用参数列表_ 组成的表达式。函数调用表达式的语义是使用给出的参数调用函数名代表的函数。函数必须在调用前声明过（也就是说不存在先出现调用后出现声明的函数）。
 
-#### 特殊情况
+### 特殊情况
 
 在 c0 中存在 8 个不需要声明就可以调用的函数，它们的签名分别是：
 
@@ -107,40 +105,27 @@ fn putln() -> void;
 
 在实现时，这些函数既可以编译成使用虚拟机中的 `callname` 指令调用，也可以编译成相应的虚拟机指令，两者是等价的。
 
-### 字面量表达式
+## 字面量表达式
 
 ```
 literal_expr -> UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL
+
+digit -> [0-9]
+UINT_LITERAL -> digit+
+FLOAT_LITERAL -> digit* '.' digit+ ([eE] digit+)?
+
+escape_sequence -> '\' [\\"'nrt]
+string_regular_char -> [^"\\]
+STRING_LITERAL -> '"' (string_regular_char | escape_sequence)* '"'
 ```
 
-字面量表达式可以是一个无符号整数、浮点数或者字符串的字面量。整数和浮点数字面量的语义就是它的值（64 位数字）；字符串字面量只会在 `putstr` 调用中出现，语义是对应的全局常量的编号。
+字面量表达式可以是一个无符号整数、浮点数或者字符串的字面量。_整数_ 和 _浮点数字面量_ 的语义就是用对应类型表示的字面量的值（64 位）；_字符串字面量_ 只会在 `putstr` 调用中出现，语义是对应的全局常量的编号。
 
-### 标识符表达式
+## 标识符表达式
 
 ```
 ident_expr -> IDENT
 ```
 
-标识符表达式是由标识符组成的表达式。其语义是标识符对应的变量。标识符表达式的类型与标识符的类型相同。
+标识符表达式是由标识符组成的表达式。其语义是标识符对应的局部或全局变量。标识符表达式的类型与标识符的类型相同。
 
-## 语句
-
-```
-block -> "{" stmt* "}"
-
-ident_list -> ident ("," ident)*
-let_stmt -> "let" ident_list ":" type ";"
-if_stmt -> "if" expr block ("else" block)?
-while_stmt -> "while" expr block
-return_stmt -> "return" expr ";"
-
-stmt ->
-    | let_stmt
-    | if_stmt
-    | expr_stmt
-    | return_stmt
-
-var_declaration -> identifier ":" type
-fn_param_list -> var_declaration ("," var_declaration)* ","?
-function -> "fn" identifier "(" fn_param_list ")" block
-```
