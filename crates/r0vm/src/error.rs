@@ -77,13 +77,15 @@ pub enum Error {
     Halt,
 }
 
-impl Error {
-    pub fn format_with_ctx(&self, f: &mut std::fmt::Formatter, s0: &S0) -> std::fmt::Result {
-        self.fmt(f)?;
+// impl Error {
+//     pub fn format_with_ctx(&self, f: &mut std::fmt::Formatter, s0: &S0) -> std::fmt::Result {
+//         self.fmt(f)
+//     }
+// }
 
-        todo!()
-    }
-}
+// pub struct ErrorCtx<'e>{
+//     error:'e,
+// }
 
 #[derive(Debug)]
 pub struct InvalidInstructionCtx {

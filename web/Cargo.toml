@@ -4,7 +4,7 @@ authors = ["You <you@example.com>"]
 categories = ["wasm"]
 description = "My super awesome Rust, WebAssembly, and Webpack project!"
 edition = "2018"
-name = "rust-webpack-template"
+name = "natrium-web"
 readme = "README.md"
 version = "0.1.0"
 
@@ -20,13 +20,15 @@ lto = true
 default = ["wee_alloc"]
 
 [dependencies]
+bytes = "0.6"
+js-sys = "0.3.22"
 "line-span" = "0.1.2"
 "logos" = "0.11.4"
 natrium = {path = "../"}
 "r0codegen" = {path = "../crates/r0codegen"}
 "r0syntax" = {path = "../crates/syntax"}
 "r0vm" = {path = "../crates/r0vm", default-features = false}
-wasm-bindgen = "0.2.45"
+wasm-bindgen = "0.2.68"
 wee_alloc = {version = "0.4.2", optional = true}
 
 # The `web-sys` crate allows you to interact with the various browser APIs,
@@ -45,6 +47,8 @@ console_error_panic_hook = "0.1.5"
 # These crates are used for running unit tests.
 [dev-dependencies]
 futures = "0.1.27"
-js-sys = "0.3.22"
 wasm-bindgen-futures = "0.3.22"
 wasm-bindgen-test = "0.2.45"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false

@@ -1,23 +1,21 @@
 import * as React from 'react'
 import MonacoEditor from 'react-monaco-editor'
 import './index.styl'
-
-export interface Natrium {
-  compile: (string) => string
-}
+import * as Natrium from '../pkg/index'
 
 export interface AppProps {
-  natrium: Natrium
+  natrium: typeof Natrium
 }
 
 export interface AppState {
   error?: string
   code: string
   compiledCode?: string
+  output: string
 }
 
 export class App extends React.Component<AppProps, AppState> {
-  natrium: Natrium
+  natrium: typeof Natrium
 
   constructor(props: AppProps) {
     super(props)
@@ -26,6 +24,7 @@ export class App extends React.Component<AppProps, AppState> {
       error: undefined,
       code: '// code here',
       compiledCode: undefined,
+      output: '',
     }
   }
 
@@ -40,9 +39,11 @@ export class App extends React.Component<AppProps, AppState> {
           <Editor code={this.state.code} onCodeChange={(code) => this.onCodeUpdate(code)}></Editor>
         </div>
         <div className="result-space">
-          <button onClick={() => this.compile(this.state.code)}> Compile</button>
+          <button onClick={() => this.compile(this.state.code)}>Compile</button>
+          <button onClick={() => this.run(this.state.code)}>Run</button>
           {this.state.compiledCode && <pre>{this.state.compiledCode}</pre>}
           {this.state.error && <pre>{this.state.error}</pre>}
+          {this.state.output && <pre>{this.state.output}</pre>}
         </div>
       </div>
     )
@@ -51,10 +52,32 @@ export class App extends React.Component<AppProps, AppState> {
   compile(code: string) {
     try {
       let compiledCode = this.natrium.compile(code)
-      this.setState({ compiledCode: compiledCode })
+      this.setState({ compiledCode: compiledCode, output: '' })
     } catch (e) {
       this.setState({ error: e, compiledCode: undefined })
     }
+  }
+
+  run(code: string) {
+    try {
+      this.setState({ output: '', compiledCode: undefined })
+      this.natrium.run(
+        code,
+        () => '',
+        (x: Uint8Array) => this.appendCode(x)
+      )
+      console.log('finished')
+    } catch (e) {
+      this.setState({ error: e, compiledCode: undefined })
+    }
+  }
+
+  appendCode(x: Uint8Array) {
+    let s = new TextDecoder('utf8').decode(x)
+    console.log('out', s)
+    this.setState((x) => ({
+      output: x.output + s,
+    }))
   }
 }
 
@@ -79,7 +102,6 @@ class Editor extends React.Component<EditorProps> {
     return (
       <MonacoEditor
         language="javascript"
-        theme="vs-dark"
         value={this.props.code}
         onChange={(code) => this.updateCode(code)}
         options={{ automaticLayout: true }}
