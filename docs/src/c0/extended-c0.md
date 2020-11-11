@@ -44,6 +44,11 @@ expr -> .. | as_expr
 
 `表达式 as 类型` 表示将 `表达式` 的计算结果转换为 `类型` 所表示的类型的数据。`as` 表达式的左侧数据类型和右侧类型都不能是 `void`。
 
+允许的类型转换包括：
+
+- 类型 T 转换到它自己
+- 浮点数 `double` 和整数 `int` 之间互相转换
+
 ### 浮点数类型
 
 ```
@@ -73,7 +78,7 @@ TODO
 
 比如，下面的函数中变量 `x`(1)、`counter`(2)、循环内的 `x`(3) 可以被访问的区域如竖线左侧所示：
 
-```rust
+```rust,ignore
     1  |  fn fib_iter(x: int) -> int {  // (1)
     |  |      let last_val: int = 1;
     |  |      let cur_val: int = 1;
@@ -118,7 +123,7 @@ continue_stmt -> 'continue' ';'
 
 你需要对每一个函数的所有控制流进行检查，保证如果函数有返回值，那么所有可能的控制流都能导向 `return` 语句。比如，以下的函数不能通过编译：
 
-```rust
+```rust,ignore
 fn foo(i: int) -> int {
     if i == 0 {
         return 1;
@@ -131,7 +136,7 @@ fn foo(i: int) -> int {
 
 这个也不行：
 
-```rust
+```rust,ignore
 fn bar() -> int {
     let i: int;
     i = getint();
@@ -147,7 +152,7 @@ fn bar() -> int {
 
 这个可以，因为在到达函数结尾之前两个分支都返回了：
 
-```rust
+```rust,ignore
 fn baz(i: int) -> int {
     if i == 0 {
         return 1;

@@ -46,7 +46,7 @@ class BinaryExpr : Expr {
 
 或者在支持和类型的语言里：
 
-```rust
+```rust,ignore
 enum Expr {
     Literal(LiteralExpr),
     Binary(BinaryExpr),

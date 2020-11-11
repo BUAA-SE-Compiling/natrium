@@ -147,7 +147,7 @@ union Instruction {
 
 假设现有一个函数 `test`，有 1 slot 的返回值、2 slot 的参数和 2 slot 的局部变量。
 
-```rust
+```rust,ignore
 /// 可以看成是这样的一个函数
 fn test(a: int, b: int) -> int {
     let c: int = ...;

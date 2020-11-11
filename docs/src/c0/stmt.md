@@ -44,7 +44,7 @@ decl_stmt -> let_decl_stmt | const_decl_stmt
 
 以下是一些可以通过编译的变量声明的例子：
 
-```rust
+```rust,ignore
 let i: int;
 let j: int = 1;
 const k: double = 1.20;
@@ -52,7 +52,7 @@ const k: double = 1.20;
 
 以下是一些不能通过编译的变量声明的例子：
 
-```rust
+```rust,ignore
 // 没有类型
 let l = 1;
 // 没有初始化
@@ -90,7 +90,7 @@ if_stmt -> 'if' expr block_stmt ('else' (block_stmt | if_stmt))?
 
 以下是一些合法的 if 语句：
 
-```rust
+```rust,ignore
 if x > 0 {
   x = x + 1;
 }
@@ -106,7 +106,7 @@ if y < 0 {
 
 以下是一些不合法的 if 语句：
 
-```rust
+```rust,ignore
 // 必须是代码块
 if x > 0 
   x = x + 1;

@@ -34,7 +34,7 @@ Rynco 正在考虑的语法修改包括：
  
 [ref1]: #附录1：C 风格的语法在解析时的回溯问题与解决方案
  
-```rust
+```rust,ignore
 let global_var: double = -123456.789e10;
 
 fn add(a: int, b: int) -> int {
@@ -257,7 +257,7 @@ cast_expr -> expr "as" ty
 
 ### 附录2：九个六先生的例程
 
-```rust
+```rust,ignore
 let a1, a2, a3, a4, a5: int;
 
 fn me(x: int) -> int {
