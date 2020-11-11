@@ -52,7 +52,7 @@ export class App extends React.Component<AppProps, AppState> {
   compile(code: string) {
     try {
       let compiledCode = this.natrium.compile(code)
-      this.setState({ compiledCode: compiledCode, output: '' })
+      this.setState({ compiledCode: compiledCode, output: '', error: undefined })
     } catch (e) {
       this.setState({ error: e, compiledCode: undefined })
     }
@@ -60,7 +60,7 @@ export class App extends React.Component<AppProps, AppState> {
 
   run(code: string) {
     try {
-      this.setState({ output: '', compiledCode: undefined })
+      this.setState({ output: '', compiledCode: undefined, error: undefined })
       this.natrium.run(
         code,
         () => '',
@@ -111,6 +111,11 @@ class Editor extends React.Component<EditorProps> {
         placeholder="// Your code here"
         editorProps={{
           $blockScrolling: true,
+        }}
+        setOptions={{
+          wrap: true,
+          displayIndentGuides: true,
+          cursorStyle: 'smooth',
         }}
       ></AceEditor>
     )
