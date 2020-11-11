@@ -1,4 +1,4 @@
-use std::fmt::Write;
+use std::io::Write;
 
 use r0syntax::span::Span;
 
@@ -7,7 +7,7 @@ pub fn pretty_print_error(
     input: &str,
     error: &str,
     span: Span,
-) -> Result<(), std::fmt::Error> {
+) -> Result<(), std::io::Error> {
     writeln!(writer, "{}", error)?;
 
     let start = line_span::find_line_range(input, span.idx);

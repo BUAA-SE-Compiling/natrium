@@ -2,10 +2,14 @@
 pub mod io;
 
 use crate::opcodes::Op;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Display};
 
 /// S0 Assembly for use in R0VM
 #[derive(Debug, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
 pub struct S0 {
     pub globals: Vec<GlobalValue>,
     pub functions: Vec<FnDef>,
@@ -16,7 +20,7 @@ impl Display for S0 {
         for global in &self.globals {
             writeln!(f, "{}", global)?;
         }
-        writeln!(f);
+        writeln!(f)?;
         for func in &self.functions {
             writeln!(f, "{}", func)?;
         }
@@ -26,6 +30,8 @@ impl Display for S0 {
 
 /// Global variable or constant, described by bytes, addressed by ID
 #[derive(Debug, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
 pub struct GlobalValue {
     pub is_const: bool,
     pub bytes: Vec<u8>,
@@ -50,6 +56,8 @@ impl Display for GlobalValue {
 
 /// Function definition
 #[derive(Debug, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
 pub struct FnDef {
     pub name: u32,
     pub ret_slots: u32,

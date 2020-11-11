@@ -1,7 +1,7 @@
-use std::io::{Read, Write};
-
 use logos::{Lexer, Logos};
+use natrium::util::pretty_print_error;
 use r0syntax::{span::Span, token::Token};
+use std::io::{Read, Write};
 
 static INPUT: &str = r#"
 fn fib(x: int) -> int {
@@ -40,7 +40,12 @@ fn main() {
         Ok(p) => p,
         Err(e) => {
             if let Some(span) = e.span {
-                pretty_print_error(INPUT, &format!("{:?}", e.kind), span);
+                pretty_print_error(
+                    &mut std::io::stdout(),
+                    INPUT,
+                    &format!("{:?}", e.kind),
+                    span,
+                );
             } else {
                 println!("{:?}", e.kind);
             }
@@ -52,7 +57,12 @@ fn main() {
         Ok(p) => p,
         Err(e) => {
             if let Some(span) = e.span {
-                pretty_print_error(INPUT, &format!("{:?}", e.kind), span);
+                pretty_print_error(
+                    &mut std::io::stdout(),
+                    INPUT,
+                    &format!("{:?}", e.kind),
+                    span,
+                );
             } else {
                 println!("{:?}", e.kind);
             }
@@ -60,7 +70,18 @@ fn main() {
         }
     };
 
-    // println!("{}", &s0);
+    let sexpr = serde_lexpr::to_value(&s0).unwrap();
+    println!(
+        "{:}",
+        serde_lexpr::print::to_string_custom(
+            &sexpr,
+            serde_lexpr::print::Options::default()
+                .with_bool_syntax(serde_lexpr::print::BoolSyntax::Symbol)
+                .with_bytes_syntax(serde_lexpr::print::BytesSyntax::R6RS)
+                .with_keyword_syntax(serde_lexpr::parse::KeywordSyntax::ColonPostfix)
+        )
+        .unwrap()
+    );
 
     let mut stdin = std::io::stdin();
     let mut stdout = std::io::stdout();
