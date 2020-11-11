@@ -102,7 +102,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">前言</a></li><li class="chapter-item expanded "><a href="todo.html"><strong aria-hidden="true">1.</strong> 参考资料</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">1.1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">1.2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="c0/token.html"><strong aria-hidden="true">1.2.1.</strong> 单词</a></li><li class="chapter-item "><a href="c0/expr.html"><strong aria-hidden="true">1.2.2.</strong> 表达式</a></li><li class="chapter-item "><a href="c0/stmt.html"><strong aria-hidden="true">1.2.3.</strong> 语句</a></li><li class="chapter-item "><a href="c0/func.html"><strong aria-hidden="true">1.2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item "><a href="c0/notes.html"><strong aria-hidden="true">1.2.5.</strong> 设计笔记</a></li></ol></li><li class="chapter-item expanded "><a href="navm.html"><strong aria-hidden="true">1.3.</strong> navm 虚拟机说明</a></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">1.4.</strong> 编译原理评测姬说明</a></li></ol></li><li class="chapter-item expanded "><a href="reference.html">参考</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">前言</a></li><li class="chapter-item expanded "><a href="todo.html"><strong aria-hidden="true">1.</strong> 参考资料</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">1.1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">1.2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="c0/token.html"><strong aria-hidden="true">1.2.1.</strong> 单词</a></li><li class="chapter-item "><a href="c0/expr.html"><strong aria-hidden="true">1.2.2.</strong> 表达式</a></li><li class="chapter-item "><a href="c0/stmt.html"><strong aria-hidden="true">1.2.3.</strong> 语句</a></li><li class="chapter-item "><a href="c0/func.html"><strong aria-hidden="true">1.2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item "><a href="c0/extended-c0.html"><strong aria-hidden="true">1.2.5.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item "><a href="c0/method_notes.html"><strong aria-hidden="true">1.2.6.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="navm/index.html"><strong aria-hidden="true">1.3.</strong> navm 虚拟机说明</a></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">1.4.</strong> 评测说明</a></li></ol></li><li class="chapter-item expanded "><a href="reference.html">参考</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -170,14 +170,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#本文档已过时请等待编译助教重新编写文档" id="本文档已过时请等待编译助教重新编写文档">本文档已过时。请等待编译助教重新编写文档。</a></h1>
-<hr />
-<h1><a class="header" href="#编译实验指导书-前言" id="编译实验指导书-前言">编译实验指导书 前言</a></h1>
-<p>嗨。欢迎来到编译原理课。</p>
-<p>在这门课里，我们将学到计算机是如何把编程语言处理成机器指令的。这将包括文法分析、语法分析、变量分配、类型检查、代码生成等多个步骤。当然，由于课程难度原因，我们实际上在这些步骤上都有所删减，和现实中的编译器相比简化了许多部分。但是，麻雀虽小五脏俱全，通过编写这么一个 “玩具编译器”，我相信大家都能对程序的编译过程有一个实际的认识，从而更好地配合编译器写出更加高效的代码，乃至对自己将来遇到的类似的工作有所帮助。</p>
-<p>我们这次编译原理课所使用的语言是 __（待定）。</p>
-<p>我们编译的目标是一个虚拟机的指令集。这是一个栈式虚拟机——也就是一个会把运算的参数和结果存储在栈上（而不是寄存器里）的虚拟机。它相比于常见的 x86_64 或者 ARM 指令集在编程上会简单很多。如果你碰巧了解过 Java 的 JVM (Java Virtual Machine，Java 虚拟机) 或者 .NET 平台的 CLR (Common Language Runtime, 通用语言运行时) 的话，你会发现它们之间的共通之处的。</p>
-<p>编译原理是一门比较困难的课，涉及到的知识点很多，学起来会比较吃力。虽然我们会尽量把涉及到的知识点都放在相关的章节中，但是难免会有遗漏。遇到不懂或者可能有误的地方，可以在论坛和这本书所在的 GitHub 存储库的 Issues 区中提出来，我们会尽量解答。也希望大家可以用好搜索引擎和 StackOverflow。</p>
+                        <h1><a class="header" href="#前言" id="前言">前言</a></h1>
+<p>这是~~一条神奇的天路~~</p>
 <p>本指导书仍然还是 Beta 版本。如果你在书中发现了（包括但不限于）以下问题，欢迎积极联系助教，或者提 Issue/PR 修正：</p>
 <ul>
 <li>难以理解的表述</li>
@@ -713,324 +707,493 @@ function -&gt; 'fn' IDENT '(' function_param_list? ')' '-&gt;' ty block_stmt
 <p>函数体的组成单位是语句，见 <a href="c0/stmt.html">语句页面</a>。</p>
 <h2><a class="header" href="#全局变量" id="全局变量">全局变量</a></h2>
 <p>全局变量的声明与局部变量相同，都是使用 <a href="c0/stmt.html#%E5%A3%B0%E6%98%8E%E8%AF%AD%E5%8F%A5">声明语句</a> 进行声明。</p>
-<h1><a class="header" href="#设计笔记与讨论" id="设计笔记与讨论">设计笔记与讨论</a></h1>
-<blockquote>
-<p>这里存放着设计 2020 软院编译原理所使用的语言的时候所考虑的一些东西。</p>
-</blockquote>
-<blockquote>
-<p>Rynco：我认为，实验的目标应当是让学生尽可能多的了解一个真实的编译器是如何运行的。因此，我们需要尽可能消减不必要的内容，比如复杂的指令集、寄存器分配、过于繁琐的语法等等。剩下来的应该是一个只包含核心内容的现代语言。</p>
-</blockquote>
-<h2><a class="header" href="#语法" id="语法">语法</a></h2>
-<blockquote>
-<p>邵老师：最好不要自创一门新的语言或者改编自小众语言。</p>
-<p>Rynco：我个人是倾向于创建一门新的语言的。</p>
-</blockquote>
-<p>考点：词法、语法分析</p>
-<blockquote>
-<p>按照 hambaka 的意思，c0 的语法可以进一步简化，降低实现难度。</p>
-</blockquote>
-<p>Hambaka 建议的语法修改包括：</p>
+<h1><a class="header" href="#扩展-c0" id="扩展-c0">扩展 C0</a></h1>
+<p>这里列出了实现之后可以获得加分的扩展 C0 特性。</p>
+<p>加分的单位尚未确定，目前的加分数量都是相对值。</p>
+<h2><a class="header" href="#注释-1" id="注释-1">注释</a></h2>
+<p>加分：5pt</p>
+<pre><code>COMMENT -&gt; '//' regex(.*) '\n'
+</code></pre>
+<p>C0 的注释是从 <code>//</code> 开始到这行结束（遇到第一个 <code>\n</code>）为止的字符序列。注释不应当被词法分析输出。</p>
+<h2><a class="header" href="#字符字面量" id="字符字面量">字符字面量</a></h2>
+<p>加分：5pt</p>
+<pre><code>char_regular_char -&gt; [^'\\\n\r]
+CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
+literal_expr -&gt; UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL | CHAR_LITERAL
+</code></pre>
+<p>字符字面量是由单引号 <code>'</code> 包裹的单个字符或转义序列。其中单个字符可以是 ASCII 中除了单引号 <code>'</code>、反斜线 <code>\\</code>、空白符 <code>\r</code> <code>\n</code> <code>\t</code> 以外的任何字符。转义序列可以是 <code>\'</code>、<code>\\</code>、<code>\n</code>、<code>\t</code>、<code>\r</code>，含义与 C 中的对应序列相同。</p>
+<p><em>字符字面量</em> 的语义是被包裹的字符的 ASCII 编码无符号扩展到 64 位的整数值，类型是 <code>int</code>。</p>
+<h2><a class="header" href="#类型转换--浮点数类型" id="类型转换--浮点数类型">类型转换 &amp; 浮点数类型</a></h2>
+<p>加分：25pt</p>
+<h3><a class="header" href="#类型转换" id="类型转换">类型转换</a></h3>
+<pre><code>AS_KW -&gt; 'as'
+as_expr -&gt; expr 'as' ty
+expr -&gt; .. | as_expr
+</code></pre>
+<p>显式类型转换通过 <code>as</code> 表达式实现。语言中没有隐式类型转换。</p>
+<p><code>表达式 as 类型</code> 表示将 <code>表达式</code> 的计算结果转换为 <code>类型</code> 所表示的类型的数据。<code>as</code> 表达式的左侧数据类型和右侧类型都不能是 <code>void</code>。</p>
+<h3><a class="header" href="#浮点数类型" id="浮点数类型">浮点数类型</a></h3>
+<pre><code>FLOAT_LITERAL -&gt; digit* '.' digit+ ([eE] digit+)?
+</code></pre>
+<p>浮点数类型 <code>double</code> 是遵循 IEEE 754 标准的 64 位浮点数（在其它语言中经常称作 <code>double</code>、<code>float64</code> 或 <code>f64</code>）。</p>
+<p>浮点数和整数之间不能进行运算。浮点数之间进行四则运算的结果仍为浮点数。</p>
+<h2><a class="header" href="#布尔运算" id="布尔运算">布尔运算</a></h2>
+<p>TODO</p>
+<h2><a class="header" href="#作用域嵌套" id="作用域嵌套">作用域嵌套</a></h2>
+<p>加分：10pt</p>
+<p>简而言之，在任何一个代码块中都可以声明变量。</p>
+<p>要求：</p>
 <ul>
-<li>去除隐式类型转换，所有类型转换必须显式声明</li>
-<li>只保留 while 和/或 for 作为唯一/二可用的循环</li>
-<li>去除 switch 语句</li>
+<li>每个代码块（<code>block_stmt</code>）都是一级作用域。</li>
+<li>每级作用域内部的变量声明不能重复。</li>
+<li>作用域内声明的变量可以覆盖上一级作用域中的变量。</li>
+<li>每个作用域内定义的变量在作用域结束后即失效</li>
 </ul>
-<p>Rynco 正在考虑的语法修改包括：</p>
+<p>比如，下面的函数中变量 <code>x</code>(1)、<code>counter</code>(2)、循环内的 <code>x</code>(3) 可以被访问的区域如竖线左侧所示：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    1  |  fn fib_iter(x: int) -&gt; int {  // (1)
+    |  |      let last_val: int = 1;
+    |  |      let cur_val: int = 1;
+  2 |  |      let counter: int = x - 2; // (2)
+  | |  |      while counter &gt; 0 {
+3 |    |          let x: int = cur_val + last_val; // (3)
+| |    |          last_val = cur_val;
+| |    |          cur_val = x;
+- |    |      }
+  | |  |      return cur_val;
+  - -  |  }
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#变量声明增强" id="变量声明增强">变量声明增强</a></h2>
+<p>加分：5pt</p>
+<p>在每一级作用域中，你不仅可以在作用域顶端声明变量，也能在作用域中间声明变量。在作用域中间声明的变量同样遵循上一条的生命周期。</p>
+<h2><a class="header" href="#break-和-continue" id="break-和-continue"><code>break</code> 和 <code>continue</code></a></h2>
+<p>加分：10pt</p>
+<pre><code>BREAK_KW  -&gt; 'break'
+CONTINUE_KW -&gt; 'continue'
+
+break_stmt -&gt; 'break' ';'
+
+continue_stmt -&gt; 'continue' ';'
+</code></pre>
 <ul>
-<li>类型后置</li>
-<li>规范 bool 类型</li>
+<li><code>break</code> 和 <code>continue</code> 必须在循环体内使用，在其他地方使用是编译错误。</li>
+<li><code>break</code> 代表跳出循环体，控制转移到循环外的下一条语句。</li>
+<li><code>continue</code> 代表跳过本次循环体的代码，控制转移到循环体的最后一条语句。</li>
 </ul>
 <blockquote>
-<p>Rynco: </p>
-<p>我计划的是一个长得有点 Rust（只借鉴了关键字和部分语法，因为解析器写起来容易）的 C，不知道其他人怎么看</p>
-<p>我希望这么做的原因是：如果使用类型后置的话，就可以把类型关键字解析完全放在语义解析里面做了。从而不需要在 parse 的时候维护一个符号表来确定哪些标识符是类型、哪些是变量，或者在解析到类型转换时回溯了（见 [附录1][ref1] ）。</p>
+<p>提示：进入循环之前记录一下跳转的目标位置</p>
 </blockquote>
-<p>[ref1]: #附录1：C 风格的语法在解析时的回溯问题与解决方案</p>
-<pre><pre class="playground"><code class="language-rust">let global_var: double = -123456.789e10;
-
-fn add(a: int, b: int) -&gt; int {
-    return a + b;
-}
-
-fn main() -&gt; void {
-    let a: int = 3;
-    let b: int = 4;
-    let c: double = add(a, b) as double;
-    if global_var &gt; 0 {
-        print(&quot;Hello&quot;);
+<h2><a class="header" href="#函数返回路径检查" id="函数返回路径检查">函数返回路径检查</a></h2>
+<p>加分：10pt</p>
+<p>你需要对每一个函数的所有控制流进行检查，保证如果函数有返回值，那么所有可能的控制流都能导向 <code>return</code> 语句。比如，以下的函数不能通过编译：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn foo(i: int) -&gt; int {
+    if i == 0 {
+        return 1;
     } else {
-        print(c);
+        putint(0);
     }
+    // 这个分支没有返回
 }
-</code></pre></pre>
+<span class="boring">}
+</span></code></pre></pre>
+<p>这个也不行：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn bar() -&gt; int {
+    let i: int;
+    i = getint();
+    while i &gt; 0 {
+        i = i - 1;
+        if i &lt;= 0 {
+            return i;
+        }
+    }
+    // 这个分支没有返回
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>这个可以，因为在到达函数结尾之前两个分支都返回了：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn baz(i: int) -&gt; int {
+    if i == 0 {
+        return 1;
+    } else {
+        return 0;
+    }
+    // 没有分支可以到达这里
+}
+<span class="boring">}
+</span></code></pre></pre>
 <blockquote>
-<p>Rynco: 自动类型推断应该不会有了……吧？有人要当进阶内容做我不反对。</p>
+<p>提示：用基本块表示函数就能看得一清二楚了。</p>
 </blockquote>
-<h3><a class="header" href="#暂定的语法内容" id="暂定的语法内容">暂定的语法内容</a></h3>
 <blockquote>
-<p>Rynco: 这里决定的内容会在实现示例编译器的时候再次确认，保证实现编译器的工作量不会过大。如果实现示例编译器的时候发现什么地方难度偏大的话还会再砍。</p>
+<p>UB: 我们不会考察对于无限循环的控制流检查。你可以选择报错，也可以选择无视。</p>
 </blockquote>
-<h4><a class="header" href="#字面量-1" id="字面量-1">字面量</a></h4>
-<p>字面量包括以下内容：</p>
+<h1><a class="header" href="#实现方法指导" id="实现方法指导">实现方法指导</a></h1>
+<p>实现一个 parser 有很多种方法，这里会提供一些关于代码实现（而不是理论）的方法指导。</p>
+<p>对于没有讲到的内容，可以参考去年的指导书：https://github.com/BUAA-SE-Compiling/c0-handbook#33-%E5%AE%9E%E7%8E%B0%E6%8C%87%E5%BC%95</p>
+<h2><a class="header" href="#一些通用的部分" id="一些通用的部分">一些通用的部分</a></h2>
+<h3><a class="header" href="#类型" id="类型">类型</a></h3>
+<p>对于词法、语法分析时产生的类型，因为类型确定且已知，可以使用继承实现。在支持和类型 (sum type) 的语言里也可以用和类型实现。这样做可以显著降低判断 token 或者语法树节点类型时的工作量，因为可以直接判断变量本身的类型，甚至直接进行模式匹配。比如：</p>
+<pre><code class="language-csharp">/* 词法分析器 */
+
+class Token {}
+
+class NumberToken : Token {
+    public double value;
+}
+
+// ...
+
+/* 语法分析器 */
+
+class Expr {}
+
+class Literal : Expr {}
+
+class IntegerLiteral : Literal {
+    public long value;
+}
+
+class StringLiteral : Literal {
+    public string value;
+}
+
+class BinaryExpr : Expr {
+    public Operator op;
+    public Expr lhs;
+    public Expr rhs;
+}
+
+// ...
+</code></pre>
+<p>或者在支持和类型的语言里：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>enum Expr {
+    Literal(LiteralExpr),
+    Binary(BinaryExpr),
+    // ...
+}
+
+enum LiteralExpr {
+    Integer(i64),
+    String(String),
+    // ...
+}
+
+struct BinaryExpr {
+    pub op: Operator,
+    pub lhs: Ptr&lt;Expr&gt;,
+    pub rhs: Ptr&lt;Expr&gt;,
+}
+
+// ...
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#迭代器" id="迭代器">迭代器</a></h3>
+<p>迭代器（Iterator）是对一系列值的抽象，比如说一列输入的字符或者解析完的 token。使用迭代器可以有效地将输入数据和对数据的获取操作解耦，方便在不同时候使用不同方式输入数据，以及进行测试。常见高级语言都有对于迭代器的抽象，包括：</p>
 <ul>
-<li>整数</li>
-<li>浮点数</li>
-<li>字符</li>
-<li>字符串</li>
-<li>布尔值</li>
+<li>Java: <code>java.util.Iterator</code></li>
+<li>C#: <code>System.Collections.Generic.IEnumerator</code></li>
+<li>C++: <code>std::iterator::iterator_traits</code></li>
+<li>C++20: concept <code>std::ranges::input_iterator</code></li>
+<li>Python: 实现 <code>__next__</code> 的类型</li>
+<li>JavaScript: 实现 <code>Symbol.iterator</code> 的类型</li>
 </ul>
-<h4><a class="header" href="#运算" id="运算">运算</a></h4>
-<p>算术运算：</p>
-<ul>
-<li>相反数</li>
-<li>加</li>
-<li>减</li>
-<li>乘</li>
-<li>除</li>
-</ul>
-<p>比较运算：</p>
-<ul>
-<li>大于</li>
-<li>小于</li>
-<li>大于等于</li>
-<li>小于等于</li>
-<li>等于</li>
-<li>不等于</li>
-</ul>
-<p>赋值运算：</p>
-<ul>
-<li>赋值</li>
-</ul>
-<p>进阶版本可以支持以下运算（虚拟机已支持）：</p>
-<ul>
-<li>布尔非</li>
-<li>布尔与</li>
-<li>布尔或</li>
-<li>按位与</li>
-<li>按位或</li>
-<li>按位异或</li>
-<li>左移</li>
-<li>算术右移</li>
-<li>逻辑右移</li>
-</ul>
-<h4><a class="header" href="#变量声明与赋值" id="变量声明与赋值">变量声明与赋值</a></h4>
-<p>变量声明使用 <code>let</code> 或 <code>const</code> 关键字声明，语法见 附录1。</p>
-<p>赋值表达式使用等号 <code>=</code> 作为运算符，运算结果类型为空值（<code>void</code>）。</p>
+<p>由于在解析时常常要回溯，使用的迭代器可以提供一些额外的方法，比如 <code>peek()</code> 用于查看下一个值但不移动迭代器，或者 <code>unread(value)</code> 用于将已经读出的值放回迭代器。</p>
+<h2><a class="header" href="#词法分析" id="词法分析">词法分析</a></h2>
+<p>词法分析这个主题比较简单，基本上就是对于每个 token 使用自动机（或者退化成普通的逻辑分支）进行解析。token 的组成一般比较简单，可以在分析时参考正则表达式的状态。</p>
+<p>比如我们要分析一个数字（整数或浮点数），我们可以写出它的正则表达式：<code>\d*\.\d*(e[+-]?\d+)?|0x[0-9a-fA-F]+|\d+</code></p>
 <blockquote>
-<p>比如 <code>(a = b) == c</code> 是合法的表达式，但是类型检查会出错。赋值作为表达式而不是语句的原因是赋值语句和表达式的 FIRST 集会相交。</p>
+<p>不要学助教<a href="https://github.com/01010101lzy/chigusa/blob/0a08176f4318542c1bb96114ac3f0df56ac9510d/src/c0/lexer.rs#L392-L511">用逻辑分支模拟自动机</a>（逃</p>
 </blockquote>
-<p>要求实现变量作用域。</p>
-<h4><a class="header" href="#条件表达式和循环" id="条件表达式和循环">条件表达式和循环</a></h4>
-<p>一种条件表达式：<code>if-elseif-else</code> 表达式。</p>
-<p>一种循环：<code>while</code> 循环。</p>
-<h4><a class="header" href="#函数-1" id="函数-1">函数</a></h4>
-<p>函数使用 <code>fn</code> 关键字声明，语法见 附录1。</p>
-<p>不要求实现前向引用。</p>
-<h2><a class="header" href="#类型系统" id="类型系统">类型系统</a></h2>
-<p>考点：类型转换</p>
-<p>虚拟机的设计默认使用 64 位整数和浮点数。</p>
-<p>会有整数和浮点数（没法用同一种类型假装能转换的）</p>
-<p>虚拟机的设计支持数组、结构体和堆内存分配，这三者可以作为进阶内容选做。</p>
-<h3><a class="header" href="#暂定的类型系统" id="暂定的类型系统">暂定的类型系统</a></h3>
-<p>必做</p>
-<ul>
-<li><code>int</code> (<code>i64</code>)</li>
-<li><code>double</code> (<code>f64</code>)</li>
-<li><code>void</code> (<code>unit</code> / <code>()</code>)</li>
-</ul>
-<p>进阶（待砍刀）</p>
-<ul>
-<li><code>bool</code>
-(存储上等同于 <code>u8</code>，<code>false == 0u8</code>, <code>true == 255u8</code>)</li>
-<li><code>u8</code>/<code>u16</code>/<code>u32</code>/<code>u64</code></li>
-<li><code>i8</code>/<code>i16</code>/<code>i32</code>/<code>i64</code></li>
-<li>struct</li>
-<li>array (<code>[T; N]</code>)</li>
-<li>pointer (<code>&amp;T</code>)</li>
-<li>自动类型推断（省去 <code>let variable</code> 后面的类型）</li>
-</ul>
-<h2><a class="header" href="#虚拟机" id="虚拟机">虚拟机</a></h2>
-<p>考点：代码生成</p>
-<p>编译目标是 r0vm 虚拟机，是栈式虚拟机。编译到 JVM / Dotnet CLR / x86 等目标如果想做的话可以选做，需要提前跟助教声明。</p>
-<p>虚拟机设计已经基本确定，见相关文档。</p>
-<h2><a class="header" href="#附录" id="附录">附录</a></h2>
-<h3><a class="header" href="#附录1c-风格的语法在解析时的回溯问题与解决方案" id="附录1c-风格的语法在解析时的回溯问题与解决方案">附录1：C 风格的语法在解析时的回溯问题与解决方案</a></h3>
-<p>考虑以下 C 风格的变量声明语句的语法规则（<code>int</code>、<code>double</code> 等类型名称不是关键字）：</p>
-<pre><code># 标识符
-ident -&gt; &quot;int&quot; | &quot;x&quot;
-# 运算符
-op -&gt; &quot;+&quot; | &quot;-&quot;
-
-# 类型，在词法分析时被分析为标识符
-ty -&gt; ident
-# 表达式
-expr -&gt; &quot;0&quot; | &quot;1&quot; | ident | expr op expr
-
-# 变量声明语句
-decl_stmt -&gt; ty ident &quot;=&quot; expr &quot;;&quot;
-# 表达式语句
-expr_stmt -&gt; expr &quot;;&quot;
-
-# 语句
-stmt -&gt; decl_stmt | expr_stmt
-</code></pre>
-<p>显然，FIRST(<code>decl_stmt</code>) ∩ FIRST(<code>expr_stmt</code>) == { <code>ident</code> }。鉴于大部分同学在实现的时候都会考虑采用递归下降分析法（这门课的大作业里不会真的有人去手写/生成 LL/LR 吧？），这个 FIRST 集的重合会造成大量的回溯。</p>
-<p>类似的还有显式类型转换：</p>
-<pre><code>ident -&gt; &quot;int&quot; | &quot;x&quot;
-ty -&gt; ident
-
-# 括号表达式
-paren_expr -&gt; &quot;(&quot; expr &quot;)&quot;
-# C 风格的显式类型转换
-cast_expr -&gt; &quot;(&quot; ty &quot;)&quot; expr
-
-expr -&gt; ident | cast_expr | paren_expr
-</code></pre>
-<p>如果没有在语法分析的时候就建立符号表，在分析代码 <code>(int)(x)</code> 时甚至在读完 <code>(int)</code> 这三个 token 之后都不能确定解析的表达式到底是类型转换还是括号。为了解决这个问题，要么需要预读不确定数量的 token （在类型声明可能大于 1 个 token 时），要么遇到括号就要准备回溯，两者在代码上实现难度都偏大。</p>
-<p>因此，我建议在设计语法的时候就考虑这类问题，避免大量的 FIRST 集重合现象，降低递归下降语法分析器的实现难度。具体方案如下：</p>
+<h2><a class="header" href="#语法分析" id="语法分析">语法分析</a></h2>
+<h3><a class="header" href="#普通的递归下降分析法" id="普通的递归下降分析法">普通的递归下降分析法</a></h3>
+<p>递归下降是一个很简单、很直观的分析法，也是大多数人实现语法分析的首选方法。在实现递归下降分析器的时候，有一些可以降低编码难度的方法。</p>
+<p>TODO: 展示一个一般的递归下降分析的过程，使用 C++ 或者类似语言</p>
+<h4><a class="header" href="#使用迭代器" id="使用迭代器">使用迭代器</a></h4>
+<p>TODO: 迭代器是个好东西。展示使用迭代器解耦的方法</p>
+<h4><a class="header" href="#解析器结合子-parser-combinator" id="解析器结合子-parser-combinator">解析器结合子 (Parser Combinator)</a></h4>
+<p>TODO: 展示使用 Parser Combinator 的库，比如 nom，以及其使用方法</p>
+<h3><a class="header" href="#使用-lllr-解析器生成器" id="使用-lllr-解析器生成器">使用 LL/LR 解析器生成器</a></h3>
+<p>唔……这个咱似乎帮不上什么忙。记得选一个好用的，比如 <a href="https://www.antlr.org">ANTLR</a>。</p>
+<h1><a class="header" href="#navm-虚拟机标准" id="navm-虚拟机标准">navm 虚拟机标准</a></h1>
+<p>本次大作业的编译目标是 Natrium 虚拟机 (navm) 的汇编 (s0)。其设计参考了 JVM、DotNet CLR 和上学期的 c0 虚拟机。</p>
+<h2><a class="header" href="#虚拟机简介" id="虚拟机简介">虚拟机简介</a></h2>
+<p>navm 是一个 <a href="https://en.wikipedia.org/wiki/Stack_machine">栈式虚拟机</a> —— 简单来说就是，它的寄存器是一个栈。除了少数内存访问指令以外，navm 的大部分指令都只操作位于栈顶的数据。堆栈式计算机的指令与 <a href="https://en.wikipedia.org/wiki/Reverse_Polish_notation">逆波兰表示法（后缀表示法</a> 表示的表达式（或者说后序遍历的表达式树）有简单的对应关系。</p>
+<p>navm 有 64 位有符号整数、无符号整数、浮点数三种数据类型。详见 <a href="navm/index.html#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B">数据类型</a> 节。</p>
+<p>navm 使用 64 位的地址空间，详见 <a href="navm/index.html#%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4">地址空间</a> 节。</p>
+<p>navm 使用自制的指令集，共有 50+ 个指令，详见 <a href="navm/index.html#%E6%8C%87%E4%BB%A4%E9%9B%86">指令集</a> 节。</p>
+<h2><a class="header" href="#内存空间" id="内存空间">内存空间</a></h2>
+<p>navm 的内存空间以 8 位（1 字节）为单位寻址。8、16、32、64 位的数据类型分别以其大小为单位在内存中对齐。当读取或写入操作未对齐时，会产生 <code>UnalignedAccess</code> 错误。</p>
+<p>navm 的栈空间以 8 字节为一个 slot，压栈、弹栈以及各种运算操作均以 slot 为单位进行。默认情况下，栈的大小是 1 MiB (1048576 字节)，即 131072 个 slot。栈空时弹栈和栈满时压栈分别会产生 <code>StackUnderflow</code> 和 <code>StackOverflow</code> 错误。</p>
+<h2><a class="header" href="#数据类型" id="数据类型">数据类型</a></h2>
+<p>navm 在运算中支持三种基本数据类型，分别是 64 位无符号整数 <code>u64</code>、64 位有符号整数 <code>i64</code>、64 位浮点数 <code>f64</code>。长度更短的整数可以使用 <code>u64</code> 和 <code>i64</code> 模拟。</p>
+<p><code>u64</code> 和 <code>i64</code> 都是 64 位整数，使用<a href="https://en.wikipedia.org/wiki/Two%27s_complement">二进制补码</a>形式表示。两种类型在多数整数运算中不做区分，仅在 <code>cmp.T</code>（比较指令，见下）等两种运算结果有差别的地方有所区分。在运算溢出时，两种类型均采用环绕 (wrap-around) 方式处理结果。<code>u64</code> 同时也可以表示虚拟机中的内存地址。</p>
+<p><code>f64</code> 是符合 <a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE 754</a> 规定的<a href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format">双精度浮点数</a>。</p>
+<h2><a class="header" href="#二进制格式" id="二进制格式">二进制格式</a></h2>
 <blockquote>
-<p>在以下的语法规则中，<code>ty</code> 代表类型，<code>ident</code> 代表标识符，<code>expr</code> 代表表达式，<code>block</code> 代表语法块。</p>
+<p>TODO: 格式还没确定</p>
 </blockquote>
-<p>一，将变量和函数声明中的类型后置，使用关键字开始此类语句，避免与 <code>expr</code> 的 FIRST 集重叠。此语法与多种现代语言（如 TypeScript、Kotlin、Go、Rust）相类似。</p>
+<p>s0 是 navm 所使用的汇编文件格式，其作用和内容类似 Java 的 <code>.class</code> 文件或者 DotNet 的 <code>.dll</code> 文件。</p>
+<p>下面的结构体表示了 s0 的二进制文件结构。其中，<code>uXX</code> 表示 XX 位无符号整数 。</p>
+<pre><code>/// 整个 S0 二进制文件
+struct S0 {
+    /// 魔数
+    magic: u32 = 0x72303b3e,
+    /// 版本号，定为 1
+    version: u32 = 0x00000001,
+    /// 标志位，内容未确定
+    flags: u32,
+    /// 全局变量表
+    globals: Array&lt;GlobalDef&gt;,
+    /// 函数列表
+    functions: Array&lt;FunctionDef&gt;,
+}
+
+/// 数组
+struct Array&lt;T&gt; {
+    count: u32,
+    items: T[],
+}
+
+/// 单个全局变量
+struct GlobalDef {
+    /// 是否为常量？非零值视为真（待确定）
+    is_const: u8,
+    /// 值
+    value: Array&lt;u8&gt;,
+}
+
+/// 函数
+struct FunctionDef {
+    /// 函数名称在全局变量中的位置
+    name: u16,
+    /// 返回值占据的 slot 数
+    return_slots: u16,
+    /// 参数占据的 slot 数
+    param_slots: u16,
+    /// 局部变量占据的 slot 数
+    loc_slots: u16,
+    /// 函数体
+    body: Array&lt;Instruction&gt;,
+}
+
+/// 指令
+union Instruction {
+    /// 无参数的指令
+    variant NoParam {
+        opcode: u8
+    },
+    /// 有 4 字节参数的指令
+    variant u32Param {
+        opcode: u8,
+        param: u32,
+    }
+    /// 有 8 字节参数的指令
+    variant u64Param {
+        opcode: u8,
+        param: u64
+    }
+}
+</code></pre>
+<h2><a class="header" href="#栈帧结构" id="栈帧结构">栈帧结构</a></h2>
 <blockquote>
-<p>九个六：<code>const</code> 可以考虑砍掉（待定）</p>
+<p>这里描述的是 <strong>这个</strong> navm 实现中使用的栈帧结构。其他实现可能与本实现具有不同的栈帧结构，和/或使用不同的方式传递参数、储存局部变量等。</p>
 </blockquote>
-<pre><code># 修改前:
-
-decl_stmt -&gt; &quot;const&quot;? ty ident (&quot;=&quot; expr)? &quot;;&quot;
-# int myVariable = 123 + 456;
-
-function_param -&gt; ty ident (&quot;,&quot; ty ident)*
-function -&gt; ty ident &quot;(&quot; function_param? &quot;)&quot; block
-# int add(int a, int b) { ... }
-
-# 修改后:
-
-decl_stmt -&gt; (&quot;let&quot; | &quot;const&quot;) ident &quot;:&quot; ty (&quot;=&quot; expr)? &quot;;&quot;
-# let myVariable: int = 123 + 456;
-
-function_param -&gt; ident &quot;:&quot; ty (&quot;,&quot; ident &quot;:&quot; ty)*
-function -&gt; &quot;fn&quot; ident &quot;(&quot; function_param? &quot;)&quot; &quot;-&gt;&quot; ty block
-# fn add(a: int, b: int) -&gt; int { ... }
+<pre><code>| ...          |
+|              | &lt;- 栈顶 %sp
+| 表达式栈 ... |
+| 表达式栈     |
+| 局部变量 ... |
+| 局部变量     |
+| 虚拟机参数...| 
+| 虚拟机参数   | &lt;- 被调用者栈底 %bp
+|--------------| ===
+| 调用参数 ... | v
+| 调用参数     | |
+| 返回值       | |
+| 中间结果     | 调用者栈
+| ...          | ^
+|--------------| ===
 </code></pre>
-<p>二，将显式类型转换的语法从括号变为使用 <code>as</code> 做运算符的二元表达式。此语法与多种现代语言（如 TypeScript、Kotlin、Rust、C#）相类似。</p>
-<pre><code># 修改前：
-
-cast_expr -&gt; &quot;(&quot; ty &quot;)&quot; expr
-# (int)42.0
-# (double)(a + b)
-
-# 修改后：
-
-cast_expr -&gt; expr &quot;as&quot; ty
-# 42.0 as int
-# (a + b) as double
+<p>其中，调用参数和返回值由调用者压栈，调用参数在函数返回后由被调用者清理。</p>
+<h3><a class="header" href="#虚拟机参数" id="虚拟机参数">虚拟机参数</a></h3>
+<p>虚拟机会在调用参数和局部变量之间插入一系列的虚拟机参数以辅助虚拟机运行，目前本虚拟机存储的参数格式为（从栈顶到栈底）：</p>
+<pre><code>| ...           |
+| 局部变量      | 
+|---------------|
+| 调用者函数 ID | 
+| 调用者 %ip    | 
+| 调用者 %bp    | 
+|---------------|
+| 参数          | 
+| ...           |
 </code></pre>
-<h3><a class="header" href="#附录2九个六先生的例程" id="附录2九个六先生的例程">附录2：九个六先生的例程</a></h3>
-<pre><pre class="playground"><code class="language-rust">let a1, a2, a3, a4, a5: int;
-
-fn me(x: int) -&gt; int {
- return x;
+<h3><a class="header" href="#函数调用时栈帧变化示例" id="函数调用时栈帧变化示例">函数调用时栈帧变化示例</a></h3>
+<p>假设现有一个函数 <code>test</code>，有 1 slot 的返回值、2 slot 的参数和 2 slot 的局部变量。</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// 可以看成是这样的一个函数
+fn test(a: int, b: int) -&gt; int {
+    let c: int = ...;
+    let d: int = ...;
+    ...
+    return ...;
 }
-
-fn add(x: double, y: double) -&gt; int {
-    let xx: int = x as int;
-    let yy: int = y as int;
-    return xx + yy
-}
-
-fn give(idx: int) -&gt; int {
-    if idx == 1 {
-        return a1;
-    }
-    else if idx == 2 {
-        return a2;
-    }
-    else if idx == 3 {
-        return a3;
-    }
-    else if idx == 4 {
-        return a4;
-    }
-    else if idx == 5 {
-        return a5;
-    }
-    else {
-        return 114514.0 as int
-    }
-}
-
-fn set(idx: int, val: int) -&gt; void {
-    if idx == 1 {
-        a1 = val;
-    }
-    else if idx == 2 {
-        a2 = val;
-    }
-    else if idx == 3 {
-        a3 = val;
-    }
-    else if idx == 4 {
-        a4 = val;
-    }
-    else if idx == 5 {
-        a5 = val;
-    }
-}
-
-fn main() -&gt; void {
-    let a, b, c, t: int;
-    let five: int = 5;
-    a = getint();
-    b = getint();
-    set(1, a);
-    set(2, b);
-    t = 3;
-    while t &lt;= five {
-        c = add(a as double, b as double);
-        b = a;
-        a = c;
-        set(t, c);
-        t = t + 1;
-    }
-    print(give(me(five)));
-</code></pre></pre>
-<h1><a class="header" href="#navm-虚拟机说明" id="navm-虚拟机说明">navm 虚拟机说明</a></h1>
-<h1><a class="header" href="#编译原理评测姬说明" id="编译原理评测姬说明">编译原理评测姬说明</a></h1>
-<p>如果时间足够&amp;&amp;安排得开的话，编译原理课程将使用自动评测。以下为评测方案草案：</p>
-<h2><a class="header" href="#自建-gitlab-存储库" id="自建-gitlab-存储库">自建 Gitlab 存储库</a></h2>
-<p>此处未定。可能会在校内自建一个 Gitlab 的站点用于实验作业的存储与自动评测。</p>
-<h2><a class="header" href="#judgetoml-与自动评测" id="judgetoml-与自动评测"><code>judge.toml</code> 与自动评测</a></h2>
-<p>为了简化评测步骤，我们将要求所有上交的作业都包含一个名为 <code>judge.toml</code> 的文件，作为评测机的配置文件。这个文件所在的目录将被视作自动评测时的根目录。</p>
-<p><code>judge.toml</code> 的文件内容如下所示：</p>
-<pre><code class="language-toml"># 你的学号
-id = &quot;17370000&quot;
-
-# 评测部分
-[judge]
-
-# 编译和评测你的程序时使用的 docker 环境镜像，不改变可以不填（默认是 `lazymio/compilers-env`）
-image = {
-    # 来源
-    source = &quot;hub&quot;,
-    # 镜像名称
-    image = &quot;rustlang/rust:nightly&quot;
-}
-
-# 编译编译器所需要依次执行的命令
-# 所有命令执行的根目录都是 `judge.toml` 所在的目录
-# 请将用到的每一个命令部分作为单独的字符串填入数组
-build = [
-    [&quot;cargo&quot;, &quot;fetch&quot;],
-    [&quot;cargo&quot;, &quot;build&quot;, &quot;--release&quot;]
-]
-
-# 在编译完成之后，运行编译器所需要的命令
-# 运行环境是 linux
-lex = [&quot;./target/release/natrium&quot;, &quot;lex&quot;, &quot;$file&quot;]
-parse = [&quot;./target/release/natrium&quot;, &quot;parse&quot;, &quot;$file&quot;]
-compile = [&quot;./target/release/natrium&quot;, &quot;compile&quot;, &quot;$file&quot;, &quot;--out&quot;, &quot;$output&quot;]
+<span class="boring">}
+</span></code></pre></pre>
+<p>现在，它被编号为 1 的函数 <code>main</code> 调用，则执行 <code>call</code> 指令前的栈如下（不规定参数压栈顺序）：</p>
+<pre><code>| -          |
+|------------| &lt;- 栈顶
+| b          | ↑
+| a          | 参数
+| _ret       | 返回值
+| ...        | ...表达式栈
 </code></pre>
+<p>在执行 <code>call</code> 指令后，栈如下：</p>
+<pre><code>| -          | &lt;- 栈顶（表达式栈）
+| d          | ↑
+| c          | 局部变量
+|------------|
+| 1          | ↑
+| %ip        | |
+| %bp        | 虚拟机数据
+|------------|
+| b          | ↑
+| a          | 参数
+| _ret       | 返回值
+| ...        |
+</code></pre>
+<p>在函数调用返回后，栈如下：</p>
+<pre><code>| -          | 
+| // d       |  
+| // c       |
+| // 1       | 
+| // %ip     | 
+| // %bp     |  ↑
+| // b       |  |
+| // a       | 以上内容被弹栈
+
+|------------| &lt;- 栈顶
+| _ret       | 返回值
+| ...        |
+</code></pre>
+<h2><a class="header" href="#程序入口" id="程序入口">程序入口</a></h2>
+<p>navm 总是会最先运行函数列表里编号为 0 的（也就是整个列表中第一个）函数，按照惯例这个函数的名称为 <code>_start</code>。<code>_start</code> 函数没有任何参数，也不返回任何值，这两项的参数会被忽略。<code>_start</code> 函数不能有返回指令。</p>
+<p>一般来说，程序会在 <code>_start</code> 中设置全局变量的值，以及进行其他的准备工作。在准备工作完成之后，<code>_start</code> 函数应当调用 <code>main</code> 函数开始正式的程序运行。如果需要，<code>_start</code> 函数也可以在 <code>main</code> 函数返回之后进行清理工作。<code>_start</code> 函数不需要返回。</p>
+<p>一个示例的 <code>_start</code> 函数如下：</p>
+<pre><code>fn _start 0 0 -&gt; 0 {
+    // global(1) = 1 + 1;
+    globa 1
+    push 1
+    push 1
+    add.i
+    store.64
+    // main();
+    call 4
+    // cleanup: global(1) = 0;
+    globa 1
+    push 0
+    store.64
+    // no return
+}
+</code></pre>
+<h2><a class="header" href="#指令集" id="指令集">指令集</a></h2>
+<p>navm 的指令使用 8 位无符号整数标识，后面跟随可变长度的操作数。</p>
+<p>下表展示了 navm 的所有指令。其中弹栈和压栈的格式为：<code>栈变化范围[:变量]</code>，数字按照栈底到栈顶编号。</p>
+<table><thead><tr><th>指令</th><th>指令名</th><th>操作数</th><th>弹栈</th><th>压栈</th><th>介绍</th></tr></thead><tbody>
+<tr><td>0x00</td><td><code>nop</code></td><td>-</td><td>-</td><td>-</td><td>空指令</td></tr>
+<tr><td>0x01</td><td><code>push</code></td><td>num:u64</td><td>-</td><td>1:num</td><td>将 num 压栈</td></tr>
+<tr><td>0x02</td><td><code>pop</code></td><td>-</td><td>1</td><td></td><td>弹栈 1 个 slot</td></tr>
+<tr><td>0x03</td><td><code>popn</code></td><td>num:u32</td><td>1-num</td><td>-</td><td>弹栈 num 个 slot</td></tr>
+<tr><td>0x04</td><td><code>dup</code></td><td>-</td><td>1:num</td><td>1:num, 2:num</td><td>复制栈顶 slot</td></tr>
+<tr><td>0x08</td><td><code>loca</code></td><td>off:u32</td><td>-</td><td>1:addr</td><td>加载 off 偏移量处局部变量的地址</td></tr>
+<tr><td>0x08</td><td><code>arga</code></td><td>off:u32</td><td>-</td><td>1:addr</td><td>加载 off 偏移量处参数的地址</td></tr>
+<tr><td>0x09</td><td><code>globa</code></td><td>n:u32</td><td>-</td><td>1:addr</td><td>加载第 n 个全局变量/常量的地址</td></tr>
+<tr><td>0x10</td><td><code>load.8</code></td><td>-</td><td>1:addr</td><td>1:val</td><td>从 addr 加载 8 位 value 压栈</td></tr>
+<tr><td>0x11</td><td><code>load.16</code></td><td>-</td><td>1:addr</td><td>1:val</td><td>从 addr 加载 16 位 value 压栈</td></tr>
+<tr><td>0x12</td><td><code>load.32</code></td><td>-</td><td>1:addr</td><td>1:val</td><td>从 addr 加载 32 位 value 压栈</td></tr>
+<tr><td>0x13</td><td><code>load.64</code></td><td>-</td><td>1:addr</td><td>1:val</td><td>从 addr 加载 64 位 value 压栈</td></tr>
+<tr><td>0x14</td><td><code>store.8</code></td><td>-</td><td>1:val, 2:addr</td><td>-</td><td>把 val 截断到 8 位存入 addr</td></tr>
+<tr><td>0x15</td><td><code>store.16</code></td><td>-</td><td>1:val, 2:addr</td><td>-</td><td>把 val 截断到 16 位存入 addr</td></tr>
+<tr><td>0x16</td><td><code>store.32</code></td><td>-</td><td>1:val, 2:addr</td><td>-</td><td>把 val 截断到 32 位存入 addr</td></tr>
+<tr><td>0x17</td><td><code>store.64</code></td><td>-</td><td>1:val, 2:addr</td><td>-</td><td>把 val 存入 addr</td></tr>
+<tr><td>0x18</td><td><code>alloc</code></td><td>-</td><td>1:size</td><td>1:addr</td><td>在堆上分配 size 字节的内存</td></tr>
+<tr><td>0x19</td><td><code>free</code></td><td>-</td><td>1:addr</td><td>-</td><td>释放 addr 指向的内存块</td></tr>
+<tr><td>0x1a</td><td><code>stackalloc</code></td><td>size:u32</td><td>-</td><td>-</td><td>在当前栈顶分配 size 个 slot，初始化为 0</td></tr>
+<tr><td>0x20</td><td><code>add.i</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs + rhs，参数为整数</td></tr>
+<tr><td>0x21</td><td><code>sub.i</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs - rhs，参数为整数</td></tr>
+<tr><td>0x22</td><td><code>mul.i</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs * rhs，参数为整数</td></tr>
+<tr><td>0x23</td><td><code>div.i</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs / rhs，参数为有符号整数</td></tr>
+<tr><td>0x24</td><td><code>add.f</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs + rhs，参数为浮点数</td></tr>
+<tr><td>0x25</td><td><code>sub.f</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs - rhs，参数为浮点数</td></tr>
+<tr><td>0x26</td><td><code>mul.f</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs * rhs，参数为浮点数</td></tr>
+<tr><td>0x27</td><td><code>div.f</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs / rhs，参数为浮点数</td></tr>
+<tr><td>0x28</td><td><code>div.u</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs / rhs，参数为无符号整数</td></tr>
+<tr><td>0x29</td><td><code>shl</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs &lt;&lt; rhs</td></tr>
+<tr><td>0x2a</td><td><code>shr</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs &gt;&gt; rhs （算术右移）</td></tr>
+<tr><td>0x2b</td><td><code>and</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs &amp; rhs</td></tr>
+<tr><td>0x2c</td><td><code>or</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs | rhs</td></tr>
+<tr><td>0x2d</td><td><code>xor</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs ^ rhs</td></tr>
+<tr><td>0x2d</td><td><code>not</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>计算 res = !lhs</td></tr>
+<tr><td>0x2e</td><td><code>inv</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>计算 res = ~lhs（按位反转）</td></tr>
+<tr><td>0x30</td><td><code>cmp.i</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>比较有符号整数 lhs 和 rhs 大小</td></tr>
+<tr><td>0x31</td><td><code>cmp.f</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>比较浮点数 lhs 和 rhs 大小</td></tr>
+<tr><td>0x32</td><td><code>cmp.u</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>比较无符号整数 lhs 和 rhs 大小</td></tr>
+<tr><td>0x34</td><td><code>neg.i</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>对 lhs 取反</td></tr>
+<tr><td>0x35</td><td><code>neg.f</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>对 lhs 取反</td></tr>
+<tr><td>0x36</td><td><code>itof</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>把 lhs 从整数转换成浮点数</td></tr>
+<tr><td>0x37</td><td><code>ftoi</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>把 lhs 从浮点数转换成整数</td></tr>
+<tr><td>0x38</td><td><code>shrl</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs &gt;&gt;&gt; rhs （逻辑右移）</td></tr>
+<tr><td>0x39</td><td><code>set.lt</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>如果 lhs &lt; 0 则推入 1，否则 0</td></tr>
+<tr><td>0x3a</td><td><code>set.gt</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>如果 lhs &gt; 0 则推入 1，否则 0</td></tr>
+<tr><td>0x41</td><td><code>br</code></td><td>off:i32</td><td></td><td></td><td>无条件跳转偏移 <code>off</code></td></tr>
+<tr><td>0x42</td><td><code>br.false</code></td><td>off:i32</td><td></td><td>1:test</td><td>如果 <code>test</code> 是 0 则跳转偏移 <code>off</code></td></tr>
+<tr><td>0x43</td><td><code>br.true</code></td><td>off:i32</td><td></td><td>1:test</td><td>如果 <code>test</code> 非 0 则跳转偏移 <code>off</code></td></tr>
+<tr><td>0x48</td><td><code>call</code></td><td>id:u32</td><td>见栈帧介绍</td><td>-</td><td>调用编号为 id 的函数</td></tr>
+<tr><td>0x49</td><td><code>ret</code></td><td>-</td><td>-</td><td>见栈帧介绍</td><td>从当前函数返回</td></tr>
+<tr><td>0x50</td><td><code>scan.i</code></td><td>-</td><td>-</td><td>1:n</td><td>从标准输入读入一个整数 n</td></tr>
+<tr><td>0x51</td><td><code>scan.c</code></td><td>-</td><td>-</td><td>1:c</td><td>从标准输入读入一个字符 c</td></tr>
+<tr><td>0x52</td><td><code>scan.f</code></td><td>-</td><td>-</td><td>1:f</td><td>从标准输入读入一个浮点数 f</td></tr>
+<tr><td>0x54</td><td><code>print.i</code></td><td>-</td><td>1:x</td><td>-</td><td>向标准输出写入一个有符号整数 x</td></tr>
+<tr><td>0x55</td><td><code>print.c</code></td><td>-</td><td>1:c</td><td>-</td><td>向标准输出写入字符 c</td></tr>
+<tr><td>0x56</td><td><code>print.f</code></td><td>-</td><td>1:f</td><td>-</td><td>向标准输出写入浮点数 f</td></tr>
+<tr><td>0x57</td><td><code>print.s</code></td><td>-</td><td>1:addr, 2:l</td><td>-</td><td>向标准输出写入地址 addr 的 l 长度字符串</td></tr>
+<tr><td>0x58</td><td><code>println</code></td><td>-</td><td>-</td><td>-</td><td>向标准输出写入一个换行</td></tr>
+<tr><td>0xfe</td><td><code>panic</code></td><td></td><td></td><td></td><td>恐慌（强行退出）</td></tr>
+</tbody></table>
+<!-- | 0x40 | `bra`        | -        | 1:addr        |              | 无条件跳转到地址 `addr`                 | -->
+<h3><a class="header" href="#cmpt-指令" id="cmpt-指令"><code>cmp.T</code> 指令</a></h3>
+<p>指令会在 <code>lhs &lt; rhs</code> 时压入 <code>-1</code>, <code>lhs &gt; rhs</code> 时压入 <code>1</code>, <code>lhs == rhs</code> 时压入 <code>0</code>。浮点数无法比较时压入 <code>0</code>。</p>
+<p>如果需要实现条件跳转，请使用以下指令的组合：</p>
+<ul>
+<li>等于：<code>cmp.T</code>, <code>br.false</code></li>
+<li>不等于：<code>cmp.T</code>, <code>br.true</code></li>
+<li>大于：<code>cmp.T</code>, <code>set.gt</code>, <code>br.true</code></li>
+<li>小于：<code>cmp.T</code>, <code>set.lt</code>, <code>br.true</code></li>
+<li>大于等于：<code>cmp.T</code>, <code>set.lt</code>, <code>br.false</code></li>
+<li>小于等于：<code>cmp.T</code>, <code>set.gt</code>, <code>br.false</code></li>
+</ul>
+<h3><a class="header" href="#load8163264-指令" id="load8163264-指令"><code>load.8/16/32/64</code> 指令</a></h3>
+<p>指令会从 <code>addr</code> 处取 <code>T</code> 长度的数据压入栈中。如果 <code>addr</code> 不是 <code>T</code> 的倍数，将会产生 <code>UnalignedAccess</code> 错误。如果 <code>T</code> 小于 64，多余的数位将会被补成 0。</p>
+<h3><a class="header" href="#store8163264-指令" id="store8163264-指令"><code>store.8/16/32/64</code> 指令</a></h3>
+<p>指令会将 <code>T</code> 长度的数据弹栈并存入 <code>addr</code> 地址处。如果 <code>addr</code> 不是 <code>T</code> 的倍数，将会产生 <code>UnalignedAccess</code> 错误。如果 <code>T</code> 小于 64，数据将被截断至 <code>T</code> 长度。</p>
+<h1><a class="header" href="#提交与评测说明" id="提交与评测说明">提交与评测说明</a></h1>
+<p>C0 大作业的提交方式是自动评测，评测的方式之后会写在这里。</p>
 <h1><a class="header" href="#参考" id="参考">参考</a></h1>
 <h2><a class="header" href="#二进制补码" id="二进制补码">二进制补码</a></h2>
 

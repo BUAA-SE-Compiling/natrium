@@ -100,7 +100,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">前言</a></li><li class="chapter-item expanded "><a href="todo.html"><strong aria-hidden="true">1.</strong> 参考资料</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">1.1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">1.2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="c0/token.html"><strong aria-hidden="true">1.2.1.</strong> 单词</a></li><li class="chapter-item "><a href="c0/expr.html"><strong aria-hidden="true">1.2.2.</strong> 表达式</a></li><li class="chapter-item "><a href="c0/stmt.html"><strong aria-hidden="true">1.2.3.</strong> 语句</a></li><li class="chapter-item "><a href="c0/func.html"><strong aria-hidden="true">1.2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item "><a href="c0/notes.html"><strong aria-hidden="true">1.2.5.</strong> 设计笔记</a></li></ol></li><li class="chapter-item expanded "><a href="navm.html"><strong aria-hidden="true">1.3.</strong> navm 虚拟机说明</a></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">1.4.</strong> 编译原理评测姬说明</a></li></ol></li><li class="chapter-item expanded "><a href="reference.html">参考</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">前言</a></li><li class="chapter-item expanded "><a href="todo.html"><strong aria-hidden="true">1.</strong> 参考资料</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">1.1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">1.2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="c0/token.html"><strong aria-hidden="true">1.2.1.</strong> 单词</a></li><li class="chapter-item "><a href="c0/expr.html"><strong aria-hidden="true">1.2.2.</strong> 表达式</a></li><li class="chapter-item "><a href="c0/stmt.html"><strong aria-hidden="true">1.2.3.</strong> 语句</a></li><li class="chapter-item "><a href="c0/func.html"><strong aria-hidden="true">1.2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item "><a href="c0/extended-c0.html"><strong aria-hidden="true">1.2.5.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item "><a href="c0/method_notes.html"><strong aria-hidden="true">1.2.6.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="navm/index.html"><strong aria-hidden="true">1.3.</strong> navm 虚拟机说明</a></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">1.4.</strong> 评测说明</a></li></ol></li><li class="chapter-item expanded "><a href="reference.html">参考</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -168,14 +168,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#本文档已过时请等待编译助教重新编写文档" id="本文档已过时请等待编译助教重新编写文档">本文档已过时。请等待编译助教重新编写文档。</a></h1>
-<hr />
-<h1><a class="header" href="#编译实验指导书-前言" id="编译实验指导书-前言">编译实验指导书 前言</a></h1>
-<p>嗨。欢迎来到编译原理课。</p>
-<p>在这门课里，我们将学到计算机是如何把编程语言处理成机器指令的。这将包括文法分析、语法分析、变量分配、类型检查、代码生成等多个步骤。当然，由于课程难度原因，我们实际上在这些步骤上都有所删减，和现实中的编译器相比简化了许多部分。但是，麻雀虽小五脏俱全，通过编写这么一个 “玩具编译器”，我相信大家都能对程序的编译过程有一个实际的认识，从而更好地配合编译器写出更加高效的代码，乃至对自己将来遇到的类似的工作有所帮助。</p>
-<p>我们这次编译原理课所使用的语言是 __（待定）。</p>
-<p>我们编译的目标是一个虚拟机的指令集。这是一个栈式虚拟机——也就是一个会把运算的参数和结果存储在栈上（而不是寄存器里）的虚拟机。它相比于常见的 x86_64 或者 ARM 指令集在编程上会简单很多。如果你碰巧了解过 Java 的 JVM (Java Virtual Machine，Java 虚拟机) 或者 .NET 平台的 CLR (Common Language Runtime, 通用语言运行时) 的话，你会发现它们之间的共通之处的。</p>
-<p>编译原理是一门比较困难的课，涉及到的知识点很多，学起来会比较吃力。虽然我们会尽量把涉及到的知识点都放在相关的章节中，但是难免会有遗漏。遇到不懂或者可能有误的地方，可以在论坛和这本书所在的 GitHub 存储库的 Issues 区中提出来，我们会尽量解答。也希望大家可以用好搜索引擎和 StackOverflow。</p>
+                        <h1><a class="header" href="#前言" id="前言">前言</a></h1>
+<p>这是~~一条神奇的天路~~</p>
 <p>本指导书仍然还是 Beta 版本。如果你在书中发现了（包括但不限于）以下问题，欢迎积极联系助教，或者提 Issue/PR 修正：</p>
 <ul>
 <li>难以理解的表述</li>

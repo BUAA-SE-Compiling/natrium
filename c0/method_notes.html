@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>语句 - C0 指导书</title>
+        <title>实现指导 - C0 指导书</title>
         
         
 
@@ -100,7 +100,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../todo.html"><strong aria-hidden="true">1.</strong> 参考资料</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">1.1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">1.2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../c0/token.html"><strong aria-hidden="true">1.2.1.</strong> 单词</a></li><li class="chapter-item "><a href="../c0/expr.html"><strong aria-hidden="true">1.2.2.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="../c0/stmt.html" class="active"><strong aria-hidden="true">1.2.3.</strong> 语句</a></li><li class="chapter-item "><a href="../c0/func.html"><strong aria-hidden="true">1.2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item "><a href="../c0/extended-c0.html"><strong aria-hidden="true">1.2.5.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item "><a href="../c0/method_notes.html"><strong aria-hidden="true">1.2.6.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">1.3.</strong> navm 虚拟机说明</a></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">1.4.</strong> 评测说明</a></li></ol></li><li class="chapter-item expanded "><a href="../reference.html">参考</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../todo.html"><strong aria-hidden="true">1.</strong> 参考资料</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">1.1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">1.2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../c0/token.html"><strong aria-hidden="true">1.2.1.</strong> 单词</a></li><li class="chapter-item "><a href="../c0/expr.html"><strong aria-hidden="true">1.2.2.</strong> 表达式</a></li><li class="chapter-item "><a href="../c0/stmt.html"><strong aria-hidden="true">1.2.3.</strong> 语句</a></li><li class="chapter-item "><a href="../c0/func.html"><strong aria-hidden="true">1.2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item "><a href="../c0/extended-c0.html"><strong aria-hidden="true">1.2.5.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="../c0/method_notes.html" class="active"><strong aria-hidden="true">1.2.6.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">1.3.</strong> navm 虚拟机说明</a></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">1.4.</strong> 评测说明</a></li></ol></li><li class="chapter-item expanded "><a href="../reference.html">参考</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -168,162 +168,109 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#语句" id="语句">语句</a></h1>
-<pre><code>stmt -&gt;
-      expr_stmt
-    | decl_stmt
-    | if_stmt
-    | while_stmt
-    | return_stmt
-    | block_stmt
-    | empty_stmt
-</code></pre>
-<p>语句是函数的最小组成部分。</p>
-<h2><a class="header" href="#表达式语句" id="表达式语句">表达式语句</a></h2>
-<pre><code>expr_stmt -&gt; expr ';'
-</code></pre>
-<p>表达式语句由 <em>表达式</em> 后接分号组成。表达式如果有值，值将会被丢弃。</p>
-<h2><a class="header" href="#声明语句" id="声明语句">声明语句</a></h2>
-<pre><code>let_decl_stmt -&gt; 'let' IDENT ':' ty ('=' expr)? ';'
-const_decl_stmt -&gt; 'const' IDENT ':' ty '=' expr ';'
-decl_stmt -&gt; let_decl_stmt | const_decl_stmt
-</code></pre>
-<p>声明语句由 <code>let</code>（声明变量）或 <code>const</code>（声明常量）接 <em>标识符</em>、<em>类型</em> 和可选的 <em>初始化表达式</em> 组成。其中，常量声明语句必须有初始化表达式，而变量声明语句可以没有。</p>
-<p>一个声明语句会在当前作用域中创建一个给定类型和标识符的变量或常量。声明语句有以下语义约束：</p>
-<ul>
-<li>在同一作用域内，一个标识符只能由一个变量或常量使用。</li>
-<li>变量或常量的类型不能为 <code>void</code>。</li>
-<li>如果存在初始化表达式，其类型应当与变量声明时的类型相同。</li>
-<li>常量只能被读取，不能被修改。</li>
-</ul>
-<p>出现违反约束的声明语句是编译期错误。</p>
-<blockquote>
-<p>UB: 没有初始化的变量的值未定义。我们不规定对于使用未初始化变量的行为的处理方式，你可以选择忽略、提供默认值或者报错。</p>
-</blockquote>
-<p>以下是一些可以通过编译的变量声明的例子：</p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>let i: int;
-let j: int = 1;
-const k: double = 1.20;
-<span class="boring">}
-</span></code></pre></pre>
-<p>以下是一些不能通过编译的变量声明的例子：</p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>// 没有类型
-let l = 1;
-// 没有初始化
-const m: int;
-// 类型不匹配
-let n: double = 3;
-// 常量不能被修改
-let p: double = 3.0;
-p = 3.1415;
-<span class="boring">}
-</span></code></pre></pre>
-<h2><a class="header" href="#控制流语句" id="控制流语句">控制流语句</a></h2>
-<p>基础 C0 中有三种控制流语句，分别是 <code>if</code>、<code>while</code> 和 <code>return</code> 语句。</p>
-<h3><a class="header" href="#if-语句" id="if-语句"><code>if</code> 语句</a></h3>
-<pre><code>if_stmt -&gt; 'if' expr block_stmt ('else' (block_stmt | if_stmt))?
-//              ^~~~ ^~~~~~~~~~         ^~~~~~~~~~~~~~~~~~~~~~
-//              |     if_block           else_block
-//              condition
-</code></pre>
-<p><code>if</code> 语句代表一组可选执行的语句。</p>
-<p><code>if</code> 语句的执行流程是：</p>
-<ul>
-<li>求 <code>condition</code> 的值
-<ul>
-<li>如果值为 <code>true</code>，则执行 <code>if_block</code></li>
-<li>否则，如果存在 <code>else_block</code>，执行 <code>else_block</code></li>
-<li>否则，执行下一条语句</li>
-</ul>
-</li>
-</ul>
-<p>请注意，<strong>if 语句的条件表达式可以没有括号</strong>，且 <strong>条件执行的语句都必须是代码块</strong>。</p>
-<p>以下是一些合法的 if 语句：</p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>if x &gt; 0 {
-  x = x + 1;
+                        <h1><a class="header" href="#实现方法指导" id="实现方法指导">实现方法指导</a></h1>
+<p>实现一个 parser 有很多种方法，这里会提供一些关于代码实现（而不是理论）的方法指导。</p>
+<p>对于没有讲到的内容，可以参考去年的指导书：https://github.com/BUAA-SE-Compiling/c0-handbook#33-%E5%AE%9E%E7%8E%B0%E6%8C%87%E5%BC%95</p>
+<h2><a class="header" href="#一些通用的部分" id="一些通用的部分">一些通用的部分</a></h2>
+<h3><a class="header" href="#类型" id="类型">类型</a></h3>
+<p>对于词法、语法分析时产生的类型，因为类型确定且已知，可以使用继承实现。在支持和类型 (sum type) 的语言里也可以用和类型实现。这样做可以显著降低判断 token 或者语法树节点类型时的工作量，因为可以直接判断变量本身的类型，甚至直接进行模式匹配。比如：</p>
+<pre><code class="language-csharp">/* 词法分析器 */
+
+class Token {}
+
+class NumberToken : Token {
+    public double value;
 }
 
-if y &lt; 0 {
-  z = -1;
-} else if y &gt; 0 {
-  z = 1;
-} else {
-  z = 0
+// ...
+
+/* 语法分析器 */
+
+class Expr {}
+
+class Literal : Expr {}
+
+class IntegerLiteral : Literal {
+    public long value;
 }
-<span class="boring">}
-</span></code></pre></pre>
-<p>以下是一些不合法的 if 语句：</p>
+
+class StringLiteral : Literal {
+    public string value;
+}
+
+class BinaryExpr : Expr {
+    public Operator op;
+    public Expr lhs;
+    public Expr rhs;
+}
+
+// ...
+</code></pre>
+<p>或者在支持和类型的语言里：</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>// 必须是代码块
-if x &gt; 0 
-  x = x + 1;
+</span>enum Expr {
+    Literal(LiteralExpr),
+    Binary(BinaryExpr),
+    // ...
+}
+
+enum LiteralExpr {
+    Integer(i64),
+    String(String),
+    // ...
+}
+
+struct BinaryExpr {
+    pub op: Operator,
+    pub lhs: Ptr&lt;Expr&gt;,
+    pub rhs: Ptr&lt;Expr&gt;,
+}
+
+// ...
 <span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#while-语句" id="while-语句"><code>while</code> 语句</a></h3>
-<pre><code>while_stmt -&gt; 'while' expr block_stmt
-//                    ^~~~ ^~~~~~~~~~while_block
-//                     condition
-</code></pre>
-<p>while 语句代表一组可以重复执行的语句。</p>
-<p>while 语句的执行流程是：</p>
+<h3><a class="header" href="#迭代器" id="迭代器">迭代器</a></h3>
+<p>迭代器（Iterator）是对一系列值的抽象，比如说一列输入的字符或者解析完的 token。使用迭代器可以有效地将输入数据和对数据的获取操作解耦，方便在不同时候使用不同方式输入数据，以及进行测试。常见高级语言都有对于迭代器的抽象，包括：</p>
 <ul>
-<li>求值 <code>condition</code>
-<ul>
-<li>如果为 <code>true</code>
-<ul>
-<li>执行 <code>while_block</code></li>
-<li>回到开头重新求值</li>
+<li>Java: <code>java.util.Iterator</code></li>
+<li>C#: <code>System.Collections.Generic.IEnumerator</code></li>
+<li>C++: <code>std::iterator::iterator_traits</code></li>
+<li>C++20: concept <code>std::ranges::input_iterator</code></li>
+<li>Python: 实现 <code>__next__</code> 的类型</li>
+<li>JavaScript: 实现 <code>Symbol.iterator</code> 的类型</li>
 </ul>
-</li>
-<li>如果为 <code>false</code> 则执行之后的代码</li>
-</ul>
-</li>
-</ul>
-<h3><a class="header" href="#return-语句" id="return-语句"><code>return</code> 语句</a></h3>
-<pre><code>return_stmt -&gt; 'return' expr? ';'
-</code></pre>
-<p>使用 <code>return</code> 语句从一个函数中返回。return 语句可以携带一个表达式作为返回值。</p>
-<p>return 语句有以下的语义约束：</p>
-<ul>
-<li>如果函数声明的返回值是 <code>void</code>，return 语句不能携带返回值；否则，return 语句必须携带返回值</li>
-<li>返回值表达式的类型必须与函数声明的返回值类型相同</li>
-<li>当执行到返回值类型是 <code>void</code> 的函数的末尾时，应视作存在一个 return 语句进行返回</li>
-</ul>
+<p>由于在解析时常常要回溯，使用的迭代器可以提供一些额外的方法，比如 <code>peek()</code> 用于查看下一个值但不移动迭代器，或者 <code>unread(value)</code> 用于将已经读出的值放回迭代器。</p>
+<h2><a class="header" href="#词法分析" id="词法分析">词法分析</a></h2>
+<p>词法分析这个主题比较简单，基本上就是对于每个 token 使用自动机（或者退化成普通的逻辑分支）进行解析。token 的组成一般比较简单，可以在分析时参考正则表达式的状态。</p>
+<p>比如我们要分析一个数字（整数或浮点数），我们可以写出它的正则表达式：<code>\d*\.\d*(e[+-]?\d+)?|0x[0-9a-fA-F]+|\d+</code></p>
 <blockquote>
-<p>UB: 在基础 C0 中不会出现部分分支没有返回值的情况，所以没有返回语句的分支的返回值是未定义的。在扩展 C0 中你必须检查每个分支都能够正常返回。</p>
+<p>不要学助教<a href="https://github.com/01010101lzy/chigusa/blob/0a08176f4318542c1bb96114ac3f0df56ac9510d/src/c0/lexer.rs#L392-L511">用逻辑分支模拟自动机</a>（逃</p>
 </blockquote>
-<h2><a class="header" href="#代码块" id="代码块">代码块</a></h2>
-<pre><code>block_stmt -&gt; '{' stmt* '}'
-</code></pre>
-<p>一个代码块可以包含一条或多条语句。执行代码块的效果是顺序执行这些语句。</p>
-<h2><a class="header" href="#空语句" id="空语句">空语句</a></h2>
-<pre><code>empty_stmt -&gt; ';'
-</code></pre>
-<p>空语句没有任何作用，只是一个分号而已。</p>
+<h2><a class="header" href="#语法分析" id="语法分析">语法分析</a></h2>
+<h3><a class="header" href="#普通的递归下降分析法" id="普通的递归下降分析法">普通的递归下降分析法</a></h3>
+<p>递归下降是一个很简单、很直观的分析法，也是大多数人实现语法分析的首选方法。在实现递归下降分析器的时候，有一些可以降低编码难度的方法。</p>
+<p>TODO: 展示一个一般的递归下降分析的过程，使用 C++ 或者类似语言</p>
+<h4><a class="header" href="#使用迭代器" id="使用迭代器">使用迭代器</a></h4>
+<p>TODO: 迭代器是个好东西。展示使用迭代器解耦的方法</p>
+<h4><a class="header" href="#解析器结合子-parser-combinator" id="解析器结合子-parser-combinator">解析器结合子 (Parser Combinator)</a></h4>
+<p>TODO: 展示使用 Parser Combinator 的库，比如 nom，以及其使用方法</p>
+<h3><a class="header" href="#使用-lllr-解析器生成器" id="使用-lllr-解析器生成器">使用 LL/LR 解析器生成器</a></h3>
+<p>唔……这个咱似乎帮不上什么忙。记得选一个好用的，比如 <a href="https://www.antlr.org">ANTLR</a>。</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="../c0/expr.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../c0/extended-c0.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
                         
-                            <a rel="next" href="../c0/func.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../navm/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -335,13 +282,13 @@ if x &gt; 0
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a rel="prev" href="../c0/expr.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../c0/extended-c0.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a rel="next" href="../c0/func.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../navm/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

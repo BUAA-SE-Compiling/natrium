@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>语句 - C0 指导书</title>
+        <title>扩展 C0（加分项） - C0 指导书</title>
         
         
 
@@ -100,7 +100,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../todo.html"><strong aria-hidden="true">1.</strong> 参考资料</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">1.1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">1.2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../c0/token.html"><strong aria-hidden="true">1.2.1.</strong> 单词</a></li><li class="chapter-item "><a href="../c0/expr.html"><strong aria-hidden="true">1.2.2.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="../c0/stmt.html" class="active"><strong aria-hidden="true">1.2.3.</strong> 语句</a></li><li class="chapter-item "><a href="../c0/func.html"><strong aria-hidden="true">1.2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item "><a href="../c0/extended-c0.html"><strong aria-hidden="true">1.2.5.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item "><a href="../c0/method_notes.html"><strong aria-hidden="true">1.2.6.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">1.3.</strong> navm 虚拟机说明</a></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">1.4.</strong> 评测说明</a></li></ol></li><li class="chapter-item expanded "><a href="../reference.html">参考</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../todo.html"><strong aria-hidden="true">1.</strong> 参考资料</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">1.1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">1.2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../c0/token.html"><strong aria-hidden="true">1.2.1.</strong> 单词</a></li><li class="chapter-item "><a href="../c0/expr.html"><strong aria-hidden="true">1.2.2.</strong> 表达式</a></li><li class="chapter-item "><a href="../c0/stmt.html"><strong aria-hidden="true">1.2.3.</strong> 语句</a></li><li class="chapter-item "><a href="../c0/func.html"><strong aria-hidden="true">1.2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="../c0/extended-c0.html" class="active"><strong aria-hidden="true">1.2.5.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item "><a href="../c0/method_notes.html"><strong aria-hidden="true">1.2.6.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">1.3.</strong> navm 虚拟机说明</a></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">1.4.</strong> 评测说明</a></li></ol></li><li class="chapter-item expanded "><a href="../reference.html">参考</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -168,162 +168,151 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#语句" id="语句">语句</a></h1>
-<pre><code>stmt -&gt;
-      expr_stmt
-    | decl_stmt
-    | if_stmt
-    | while_stmt
-    | return_stmt
-    | block_stmt
-    | empty_stmt
+                        <h1><a class="header" href="#扩展-c0" id="扩展-c0">扩展 C0</a></h1>
+<p>这里列出了实现之后可以获得加分的扩展 C0 特性。</p>
+<p>加分的单位尚未确定，目前的加分数量都是相对值。</p>
+<h2><a class="header" href="#注释" id="注释">注释</a></h2>
+<p>加分：5pt</p>
+<pre><code>COMMENT -&gt; '//' regex(.*) '\n'
 </code></pre>
-<p>语句是函数的最小组成部分。</p>
-<h2><a class="header" href="#表达式语句" id="表达式语句">表达式语句</a></h2>
-<pre><code>expr_stmt -&gt; expr ';'
+<p>C0 的注释是从 <code>//</code> 开始到这行结束（遇到第一个 <code>\n</code>）为止的字符序列。注释不应当被词法分析输出。</p>
+<h2><a class="header" href="#字符字面量" id="字符字面量">字符字面量</a></h2>
+<p>加分：5pt</p>
+<pre><code>char_regular_char -&gt; [^'\\\n\r]
+CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
+literal_expr -&gt; UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL | CHAR_LITERAL
 </code></pre>
-<p>表达式语句由 <em>表达式</em> 后接分号组成。表达式如果有值，值将会被丢弃。</p>
-<h2><a class="header" href="#声明语句" id="声明语句">声明语句</a></h2>
-<pre><code>let_decl_stmt -&gt; 'let' IDENT ':' ty ('=' expr)? ';'
-const_decl_stmt -&gt; 'const' IDENT ':' ty '=' expr ';'
-decl_stmt -&gt; let_decl_stmt | const_decl_stmt
+<p>字符字面量是由单引号 <code>'</code> 包裹的单个字符或转义序列。其中单个字符可以是 ASCII 中除了单引号 <code>'</code>、反斜线 <code>\\</code>、空白符 <code>\r</code> <code>\n</code> <code>\t</code> 以外的任何字符。转义序列可以是 <code>\'</code>、<code>\\</code>、<code>\n</code>、<code>\t</code>、<code>\r</code>，含义与 C 中的对应序列相同。</p>
+<p><em>字符字面量</em> 的语义是被包裹的字符的 ASCII 编码无符号扩展到 64 位的整数值，类型是 <code>int</code>。</p>
+<h2><a class="header" href="#类型转换--浮点数类型" id="类型转换--浮点数类型">类型转换 &amp; 浮点数类型</a></h2>
+<p>加分：25pt</p>
+<h3><a class="header" href="#类型转换" id="类型转换">类型转换</a></h3>
+<pre><code>AS_KW -&gt; 'as'
+as_expr -&gt; expr 'as' ty
+expr -&gt; .. | as_expr
 </code></pre>
-<p>声明语句由 <code>let</code>（声明变量）或 <code>const</code>（声明常量）接 <em>标识符</em>、<em>类型</em> 和可选的 <em>初始化表达式</em> 组成。其中，常量声明语句必须有初始化表达式，而变量声明语句可以没有。</p>
-<p>一个声明语句会在当前作用域中创建一个给定类型和标识符的变量或常量。声明语句有以下语义约束：</p>
+<p>显式类型转换通过 <code>as</code> 表达式实现。语言中没有隐式类型转换。</p>
+<p><code>表达式 as 类型</code> 表示将 <code>表达式</code> 的计算结果转换为 <code>类型</code> 所表示的类型的数据。<code>as</code> 表达式的左侧数据类型和右侧类型都不能是 <code>void</code>。</p>
+<h3><a class="header" href="#浮点数类型" id="浮点数类型">浮点数类型</a></h3>
+<pre><code>FLOAT_LITERAL -&gt; digit* '.' digit+ ([eE] digit+)?
+</code></pre>
+<p>浮点数类型 <code>double</code> 是遵循 IEEE 754 标准的 64 位浮点数（在其它语言中经常称作 <code>double</code>、<code>float64</code> 或 <code>f64</code>）。</p>
+<p>浮点数和整数之间不能进行运算。浮点数之间进行四则运算的结果仍为浮点数。</p>
+<h2><a class="header" href="#布尔运算" id="布尔运算">布尔运算</a></h2>
+<p>TODO</p>
+<h2><a class="header" href="#作用域嵌套" id="作用域嵌套">作用域嵌套</a></h2>
+<p>加分：10pt</p>
+<p>简而言之，在任何一个代码块中都可以声明变量。</p>
+<p>要求：</p>
 <ul>
-<li>在同一作用域内，一个标识符只能由一个变量或常量使用。</li>
-<li>变量或常量的类型不能为 <code>void</code>。</li>
-<li>如果存在初始化表达式，其类型应当与变量声明时的类型相同。</li>
-<li>常量只能被读取，不能被修改。</li>
+<li>每个代码块（<code>block_stmt</code>）都是一级作用域。</li>
+<li>每级作用域内部的变量声明不能重复。</li>
+<li>作用域内声明的变量可以覆盖上一级作用域中的变量。</li>
+<li>每个作用域内定义的变量在作用域结束后即失效</li>
 </ul>
-<p>出现违反约束的声明语句是编译期错误。</p>
-<blockquote>
-<p>UB: 没有初始化的变量的值未定义。我们不规定对于使用未初始化变量的行为的处理方式，你可以选择忽略、提供默认值或者报错。</p>
-</blockquote>
-<p>以下是一些可以通过编译的变量声明的例子：</p>
+<p>比如，下面的函数中变量 <code>x</code>(1)、<code>counter</code>(2)、循环内的 <code>x</code>(3) 可以被访问的区域如竖线左侧所示：</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>let i: int;
-let j: int = 1;
-const k: double = 1.20;
+</span>    1  |  fn fib_iter(x: int) -&gt; int {  // (1)
+    |  |      let last_val: int = 1;
+    |  |      let cur_val: int = 1;
+  2 |  |      let counter: int = x - 2; // (2)
+  | |  |      while counter &gt; 0 {
+3 |    |          let x: int = cur_val + last_val; // (3)
+| |    |          last_val = cur_val;
+| |    |          cur_val = x;
+- |    |      }
+  | |  |      return cur_val;
+  - -  |  }
 <span class="boring">}
 </span></code></pre></pre>
-<p>以下是一些不能通过编译的变量声明的例子：</p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>// 没有类型
-let l = 1;
-// 没有初始化
-const m: int;
-// 类型不匹配
-let n: double = 3;
-// 常量不能被修改
-let p: double = 3.0;
-p = 3.1415;
-<span class="boring">}
-</span></code></pre></pre>
-<h2><a class="header" href="#控制流语句" id="控制流语句">控制流语句</a></h2>
-<p>基础 C0 中有三种控制流语句，分别是 <code>if</code>、<code>while</code> 和 <code>return</code> 语句。</p>
-<h3><a class="header" href="#if-语句" id="if-语句"><code>if</code> 语句</a></h3>
-<pre><code>if_stmt -&gt; 'if' expr block_stmt ('else' (block_stmt | if_stmt))?
-//              ^~~~ ^~~~~~~~~~         ^~~~~~~~~~~~~~~~~~~~~~
-//              |     if_block           else_block
-//              condition
-</code></pre>
-<p><code>if</code> 语句代表一组可选执行的语句。</p>
-<p><code>if</code> 语句的执行流程是：</p>
-<ul>
-<li>求 <code>condition</code> 的值
-<ul>
-<li>如果值为 <code>true</code>，则执行 <code>if_block</code></li>
-<li>否则，如果存在 <code>else_block</code>，执行 <code>else_block</code></li>
-<li>否则，执行下一条语句</li>
-</ul>
-</li>
-</ul>
-<p>请注意，<strong>if 语句的条件表达式可以没有括号</strong>，且 <strong>条件执行的语句都必须是代码块</strong>。</p>
-<p>以下是一些合法的 if 语句：</p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>if x &gt; 0 {
-  x = x + 1;
-}
+<h2><a class="header" href="#变量声明增强" id="变量声明增强">变量声明增强</a></h2>
+<p>加分：5pt</p>
+<p>在每一级作用域中，你不仅可以在作用域顶端声明变量，也能在作用域中间声明变量。在作用域中间声明的变量同样遵循上一条的生命周期。</p>
+<h2><a class="header" href="#break-和-continue" id="break-和-continue"><code>break</code> 和 <code>continue</code></a></h2>
+<p>加分：10pt</p>
+<pre><code>BREAK_KW  -&gt; 'break'
+CONTINUE_KW -&gt; 'continue'
 
-if y &lt; 0 {
-  z = -1;
-} else if y &gt; 0 {
-  z = 1;
-} else {
-  z = 0
-}
-<span class="boring">}
-</span></code></pre></pre>
-<p>以下是一些不合法的 if 语句：</p>
+break_stmt -&gt; 'break' ';'
+
+continue_stmt -&gt; 'continue' ';'
+</code></pre>
+<ul>
+<li><code>break</code> 和 <code>continue</code> 必须在循环体内使用，在其他地方使用是编译错误。</li>
+<li><code>break</code> 代表跳出循环体，控制转移到循环外的下一条语句。</li>
+<li><code>continue</code> 代表跳过本次循环体的代码，控制转移到循环体的最后一条语句。</li>
+</ul>
+<blockquote>
+<p>提示：进入循环之前记录一下跳转的目标位置</p>
+</blockquote>
+<h2><a class="header" href="#函数返回路径检查" id="函数返回路径检查">函数返回路径检查</a></h2>
+<p>加分：10pt</p>
+<p>你需要对每一个函数的所有控制流进行检查，保证如果函数有返回值，那么所有可能的控制流都能导向 <code>return</code> 语句。比如，以下的函数不能通过编译：</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>// 必须是代码块
-if x &gt; 0 
-  x = x + 1;
+</span>fn foo(i: int) -&gt; int {
+    if i == 0 {
+        return 1;
+    } else {
+        putint(0);
+    }
+    // 这个分支没有返回
+}
 <span class="boring">}
 </span></code></pre></pre>
-<h3><a class="header" href="#while-语句" id="while-语句"><code>while</code> 语句</a></h3>
-<pre><code>while_stmt -&gt; 'while' expr block_stmt
-//                    ^~~~ ^~~~~~~~~~while_block
-//                     condition
-</code></pre>
-<p>while 语句代表一组可以重复执行的语句。</p>
-<p>while 语句的执行流程是：</p>
-<ul>
-<li>求值 <code>condition</code>
-<ul>
-<li>如果为 <code>true</code>
-<ul>
-<li>执行 <code>while_block</code></li>
-<li>回到开头重新求值</li>
-</ul>
-</li>
-<li>如果为 <code>false</code> 则执行之后的代码</li>
-</ul>
-</li>
-</ul>
-<h3><a class="header" href="#return-语句" id="return-语句"><code>return</code> 语句</a></h3>
-<pre><code>return_stmt -&gt; 'return' expr? ';'
-</code></pre>
-<p>使用 <code>return</code> 语句从一个函数中返回。return 语句可以携带一个表达式作为返回值。</p>
-<p>return 语句有以下的语义约束：</p>
-<ul>
-<li>如果函数声明的返回值是 <code>void</code>，return 语句不能携带返回值；否则，return 语句必须携带返回值</li>
-<li>返回值表达式的类型必须与函数声明的返回值类型相同</li>
-<li>当执行到返回值类型是 <code>void</code> 的函数的末尾时，应视作存在一个 return 语句进行返回</li>
-</ul>
+<p>这个也不行：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn bar() -&gt; int {
+    let i: int;
+    i = getint();
+    while i &gt; 0 {
+        i = i - 1;
+        if i &lt;= 0 {
+            return i;
+        }
+    }
+    // 这个分支没有返回
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>这个可以，因为在到达函数结尾之前两个分支都返回了：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn baz(i: int) -&gt; int {
+    if i == 0 {
+        return 1;
+    } else {
+        return 0;
+    }
+    // 没有分支可以到达这里
+}
+<span class="boring">}
+</span></code></pre></pre>
 <blockquote>
-<p>UB: 在基础 C0 中不会出现部分分支没有返回值的情况，所以没有返回语句的分支的返回值是未定义的。在扩展 C0 中你必须检查每个分支都能够正常返回。</p>
+<p>提示：用基本块表示函数就能看得一清二楚了。</p>
 </blockquote>
-<h2><a class="header" href="#代码块" id="代码块">代码块</a></h2>
-<pre><code>block_stmt -&gt; '{' stmt* '}'
-</code></pre>
-<p>一个代码块可以包含一条或多条语句。执行代码块的效果是顺序执行这些语句。</p>
-<h2><a class="header" href="#空语句" id="空语句">空语句</a></h2>
-<pre><code>empty_stmt -&gt; ';'
-</code></pre>
-<p>空语句没有任何作用，只是一个分号而已。</p>
+<blockquote>
+<p>UB: 我们不会考察对于无限循环的控制流检查。你可以选择报错，也可以选择无视。</p>
+</blockquote>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="../c0/expr.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../c0/func.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
                         
-                            <a rel="next" href="../c0/func.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../c0/method_notes.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -335,13 +324,13 @@ if x &gt; 0
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a rel="prev" href="../c0/expr.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../c0/func.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a rel="next" href="../c0/func.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../c0/method_notes.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
