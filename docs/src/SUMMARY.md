@@ -9,8 +9,10 @@
     - [表达式](./c0/expr.md)
     - [语句](./c0/stmt.md)
     - [函数、全局变量与程序](./c0/func.md)
-    - [设计笔记](./c0/notes.md)
-  - [navm 虚拟机说明](./navm.md)
-  - [编译原理评测姬说明](./judge.md)
+    - [扩展 C0（加分项）](./c0/extended-c0.md)
+    - [实现指导](./c0/method_notes.md)
+    <!-- - [设计笔记](./c0/notes.md) -->
+  - [navm 虚拟机说明](./navm/readme.md)
+  - [评测说明](./judge.md)
 
 [参考](./reference.md)
