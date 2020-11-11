@@ -3,9 +3,12 @@
 //! For the pointer type, see `crate::util::{P, Mut}`
 
 use crate::{span::Span, util::P};
+#[cfg(feature = "serde_impl")]
+use serde::{Deserialize, Serialize};
 use smol_str::SmolStr;
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct Program {
     pub decls: Vec<DeclStmt>,
     pub funcs: Vec<FuncStmt>,
@@ -16,6 +19,7 @@ pub trait AstNode {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct FuncStmt {
     pub span: Span,
     pub name: Ident,
@@ -25,6 +29,7 @@ pub struct FuncStmt {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct FuncParam {
     pub is_const: bool,
     pub name: Ident,
@@ -32,6 +37,7 @@ pub struct FuncParam {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub enum Stmt {
     Block(BlockStmt),
     While(WhileStmt),
@@ -59,6 +65,7 @@ impl Stmt {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct DeclStmt {
     pub is_const: bool,
     pub name: Ident,
@@ -68,12 +75,14 @@ pub struct DeclStmt {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct ReturnStmt {
     pub val: Option<P<Expr>>,
     pub span: Span,
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct TyDef {
     pub span: Span,
     pub name: SmolStr,
@@ -81,12 +90,14 @@ pub struct TyDef {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct BlockStmt {
     pub span: Span,
     pub stmts: Vec<Stmt>,
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct WhileStmt {
     pub span: Span,
     pub cond: P<Expr>,
@@ -94,6 +105,7 @@ pub struct WhileStmt {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct IfStmt {
     pub span: Span,
     pub cond: Vec<(P<Expr>, P<BlockStmt>)>,
@@ -101,6 +113,7 @@ pub struct IfStmt {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub enum Expr {
     Ident(Ident),
     Assign(AssignExpr),
@@ -126,12 +139,14 @@ impl Expr {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct LiteralExpr {
     pub span: Span,
     pub kind: LiteralKind,
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub enum LiteralKind {
     Integer(u64),
     Float(f64),
@@ -140,6 +155,7 @@ pub enum LiteralKind {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct UnaryExpr {
     pub span: Span,
     pub op: UnaryOp,
@@ -147,6 +163,7 @@ pub struct UnaryExpr {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct AssignExpr {
     pub span: Span,
     pub lhs: P<Expr>,
@@ -154,6 +171,7 @@ pub struct AssignExpr {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct AsExpr {
     pub span: Span,
     pub val: P<Expr>,
@@ -161,6 +179,7 @@ pub struct AsExpr {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct BinaryExpr {
     pub span: Span,
     pub op: BinaryOp,
@@ -169,6 +188,7 @@ pub struct BinaryExpr {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct CallExpr {
     pub span: Span,
     pub func: Ident,
@@ -176,12 +196,14 @@ pub struct CallExpr {
 }
 
 #[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub enum UnaryOp {
     Neg,
     Pos,
 }
 
 #[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub enum BinaryOp {
     Add,
     Sub,
@@ -196,6 +218,7 @@ pub enum BinaryOp {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct Ident {
     pub span: Span,
     pub name: SmolStr,

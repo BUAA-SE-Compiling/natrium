@@ -4,6 +4,7 @@ use std::{fmt::Debug, ops::Index};
 ///
 /// `Span`s are only meaningful when indexing the file it is originated from.
 #[derive(Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Span {
     /// The start index (in bytes or other meaningful item index)
     /// in the file of this span

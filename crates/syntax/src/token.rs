@@ -11,6 +11,7 @@ fn parse_char_literal(i: &mut Lexer<Token>) -> Option<char> {
 }
 
 #[derive(Debug, Clone, Logos)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Token {
     #[token("fn")]
     FnKw,

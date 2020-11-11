@@ -8,5 +8,9 @@ version = "0.1.0"
 [dependencies]
 indexmap = "1.6.0"
 logos = "0.11.4"
+serde = {version = "1.0", optional = true, features = ["derive", "rc"]}
 smol_str = "0.1.17"
 unescape = "0.1.0"
+
+[features]
+serde_impl = ["serde", "smol_str/serde"]
