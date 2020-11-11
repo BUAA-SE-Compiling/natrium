@@ -8,7 +8,7 @@ version = "0.1.0"
 crate-type = ["cdylib", "rlib"]
 
 [[bin]]
-name = "r0vm"
+name = "navm"
 path = "src/bin/r0vm.rs"
 required-features = ["cli"]
 
