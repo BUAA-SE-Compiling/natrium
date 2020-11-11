@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js ayu">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -43,19 +43,14 @@
 
         <!-- Custom theme stylesheets -->
         
-        <link rel="stylesheet" href=".././theme/css/additional.css">
-        
 
-        
-        <!-- MathJax -->
-        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
         
     </head>
     <body>
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "../";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "ayu";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -81,7 +76,7 @@
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
             html.classList.remove('no-js')
-            html.classList.remove('ayu')
+            html.classList.remove('light')
             html.classList.add(theme);
             html.classList.add('js');
         </script>
@@ -100,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../c0/token.html"><strong aria-hidden="true">2.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="../c0/expr.html"><strong aria-hidden="true">2.2.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="../c0/stmt.html"><strong aria-hidden="true">2.3.</strong> 语句</a></li><li class="chapter-item expanded "><a href="../c0/func.html"><strong aria-hidden="true">2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="../c0/extended-c0.html" class="active"><strong aria-hidden="true">2.5.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="../c0/method_notes.html"><strong aria-hidden="true">2.6.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">3.</strong> navm 虚拟机说明</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../navm/instruction.html"><strong aria-hidden="true">3.1.</strong> navm 虚拟机指令集</a></li></ol></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">4.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="../ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="../reference.html">参考资料</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">2.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../c0/token.html"><strong aria-hidden="true">2.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="../c0/expr.html"><strong aria-hidden="true">2.2.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="../c0/stmt.html"><strong aria-hidden="true">2.3.</strong> 语句</a></li><li class="chapter-item expanded "><a href="../c0/func.html"><strong aria-hidden="true">2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="../c0/stdlib.html"><strong aria-hidden="true">2.5.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="../c0/extended-c0.html" class="active"><strong aria-hidden="true">2.6.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="../c0/method_notes.html"><strong aria-hidden="true">2.7.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">3.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../navm/instruction.html"><strong aria-hidden="true">3.1.</strong> navm 虚拟机指令集</a></li></ol></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">4.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="../ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="../reference.html">参考资料</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -119,11 +114,11 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
                         
                         <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
@@ -193,6 +188,11 @@ expr -&gt; .. | as_expr
 </code></pre>
 <p>显式类型转换通过 <code>as</code> 表达式实现。语言中没有隐式类型转换。</p>
 <p><code>表达式 as 类型</code> 表示将 <code>表达式</code> 的计算结果转换为 <code>类型</code> 所表示的类型的数据。<code>as</code> 表达式的左侧数据类型和右侧类型都不能是 <code>void</code>。</p>
+<p>允许的类型转换包括：</p>
+<ul>
+<li>类型 T 转换到它自己</li>
+<li>浮点数 <code>double</code> 和整数 <code>int</code> 之间互相转换</li>
+</ul>
 <h3><a class="header" href="#浮点数类型" id="浮点数类型">浮点数类型</a></h3>
 <pre><code>FLOAT_LITERAL -&gt; digit* '.' digit+ ([eE] digit+)?
 </code></pre>
@@ -211,10 +211,7 @@ expr -&gt; .. | as_expr
 <li>每个作用域内定义的变量在作用域结束后即失效</li>
 </ul>
 <p>比如，下面的函数中变量 <code>x</code>(1)、<code>counter</code>(2)、循环内的 <code>x</code>(3) 可以被访问的区域如竖线左侧所示：</p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>    1  |  fn fib_iter(x: int) -&gt; int {  // (1)
+<pre><code class="language-rust ignore">    1  |  fn fib_iter(x: int) -&gt; int {  // (1)
     |  |      let last_val: int = 1;
     |  |      let cur_val: int = 1;
   2 |  |      let counter: int = x - 2; // (2)
@@ -225,8 +222,7 @@ expr -&gt; .. | as_expr
 - |    |      }
   | |  |      return cur_val;
   - -  |  }
-<span class="boring">}
-</span></code></pre></pre>
+</code></pre>
 <h2><a class="header" href="#变量声明增强" id="变量声明增强">变量声明增强</a></h2>
 <p>加分：5pt</p>
 <p>在每一级作用域中，你不仅可以在作用域顶端声明变量，也能在作用域中间声明变量。在作用域中间声明的变量同样遵循上一条的生命周期。</p>
@@ -250,10 +246,7 @@ continue_stmt -&gt; 'continue' ';'
 <h2><a class="header" href="#函数返回路径检查" id="函数返回路径检查">函数返回路径检查</a></h2>
 <p>加分：10pt</p>
 <p>你需要对每一个函数的所有控制流进行检查，保证如果函数有返回值，那么所有可能的控制流都能导向 <code>return</code> 语句。比如，以下的函数不能通过编译：</p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>fn foo(i: int) -&gt; int {
+<pre><code class="language-rust ignore">fn foo(i: int) -&gt; int {
     if i == 0 {
         return 1;
     } else {
@@ -261,13 +254,9 @@ continue_stmt -&gt; 'continue' ';'
     }
     // 这个分支没有返回
 }
-<span class="boring">}
-</span></code></pre></pre>
+</code></pre>
 <p>这个也不行：</p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>fn bar() -&gt; int {
+<pre><code class="language-rust ignore">fn bar() -&gt; int {
     let i: int;
     i = getint();
     while i &gt; 0 {
@@ -278,13 +267,9 @@ continue_stmt -&gt; 'continue' ';'
     }
     // 这个分支没有返回
 }
-<span class="boring">}
-</span></code></pre></pre>
+</code></pre>
 <p>这个可以，因为在到达函数结尾之前两个分支都返回了：</p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>fn baz(i: int) -&gt; int {
+<pre><code class="language-rust ignore">fn baz(i: int) -&gt; int {
     if i == 0 {
         return 1;
     } else {
@@ -292,8 +277,7 @@ continue_stmt -&gt; 'continue' ';'
     }
     // 没有分支可以到达这里
 }
-<span class="boring">}
-</span></code></pre></pre>
+</code></pre>
 <blockquote>
 <p>提示：用基本块表示函数就能看得一清二楚了。</p>
 </blockquote>
@@ -306,7 +290,7 @@ continue_stmt -&gt; 'continue' ';'
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="../c0/func.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../c0/stdlib.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
@@ -324,7 +308,7 @@ continue_stmt -&gt; 'continue' ';'
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a rel="prev" href="../c0/func.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../c0/stdlib.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
