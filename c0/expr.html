@@ -100,7 +100,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../todo.html"><strong aria-hidden="true">1.</strong> 参考资料</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">1.1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">1.2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../c0/token.html"><strong aria-hidden="true">1.2.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="../c0/expr.html" class="active"><strong aria-hidden="true">1.2.2.</strong> 表达式</a></li><li class="chapter-item "><a href="../c0/stmt.html"><strong aria-hidden="true">1.2.3.</strong> 语句</a></li><li class="chapter-item "><a href="../c0/func.html"><strong aria-hidden="true">1.2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item "><a href="../c0/extended-c0.html"><strong aria-hidden="true">1.2.5.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item "><a href="../c0/method_notes.html"><strong aria-hidden="true">1.2.6.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">1.3.</strong> navm 虚拟机说明</a></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">1.4.</strong> 评测说明</a></li></ol></li><li class="chapter-item expanded "><a href="../reference.html">参考</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../c0/token.html"><strong aria-hidden="true">2.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="../c0/expr.html" class="active"><strong aria-hidden="true">2.2.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="../c0/stmt.html"><strong aria-hidden="true">2.3.</strong> 语句</a></li><li class="chapter-item expanded "><a href="../c0/func.html"><strong aria-hidden="true">2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="../c0/extended-c0.html"><strong aria-hidden="true">2.5.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="../c0/method_notes.html"><strong aria-hidden="true">2.6.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">3.</strong> navm 虚拟机说明</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../navm/instruction.html"><strong aria-hidden="true">3.1.</strong> navm 虚拟机指令集</a></li></ol></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">4.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="../ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="../reference.html">参考资料</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -223,29 +223,7 @@ call_expr -&gt; IDENT '(' call_param_list? ')'
 </code></pre>
 <p>函数调用表达式是由 <em>函数名</em> 和 <em>调用参数列表</em> 组成的表达式。函数调用表达式的语义是使用给出的参数调用函数名代表的函数。函数必须在调用前声明过（也就是说不存在先出现调用后出现声明的函数）。</p>
 <h3><a class="header" href="#特殊情况" id="特殊情况">特殊情况</a></h3>
-<p>在 c0 中存在 8 个不需要声明就可以调用的函数，它们的签名分别是：</p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// 读入一个整数
-fn getint() -&gt; int;
-/// 读入一个浮点数
-fn getdouble() -&gt; double;
-/// 读入一个字符
-fn getchar() -&gt; int;
-/// 输出一个整数
-fn putint(int) -&gt; void;
-/// 输出一个浮点数
-fn putdouble(double) -&gt; void;
-/// 输出一个字符
-fn putchar(int) -&gt; void;
-/// 输出整数代表的全局常量字符串
-fn putstr(int) -&gt; void;
-/// 输出一个换行
-fn putln() -&gt; void;
-<span class="boring">}
-</span></code></pre></pre>
-<p>在实现时，这些函数既可以编译成使用虚拟机中的 <code>callname</code> 指令调用，也可以编译成相应的虚拟机指令，两者是等价的。</p>
+<p>标准库中的函数在调用前不需要声明，见 <a href="stdlib.html">标准库文档</a>。</p>
 <h2><a class="header" href="#字面量表达式" id="字面量表达式">字面量表达式</a></h2>
 <pre><code>literal_expr -&gt; UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL
 
