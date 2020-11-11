@@ -1,7 +1,7 @@
 import * as React from 'react'
-import MonacoEditor from 'react-monaco-editor'
 import './index.styl'
 import * as Natrium from '../pkg/index'
+import AceEditor from 'react-ace'
 
 export interface AppProps {
   natrium: typeof Natrium
@@ -100,12 +100,14 @@ class Editor extends React.Component<EditorProps> {
 
   render() {
     return (
-      <MonacoEditor
-        language="javascript"
+      <AceEditor
+        mode="rust"
         value={this.props.code}
         onChange={(code) => this.updateCode(code)}
-        options={{ automaticLayout: true }}
-      ></MonacoEditor>
+        editorProps={{
+          $blockScrolling: true,
+        }}
+      ></AceEditor>
     )
   }
 }

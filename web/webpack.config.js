@@ -2,7 +2,7 @@ const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin')
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
-
+const TerserPlugin = require('terser-webpack-plugin')
 const APP_DIR = path.resolve(__dirname, './src')
 const MONACO_DIR = path.resolve(__dirname, './node_modules/monaco-editor')
 
@@ -44,9 +44,12 @@ module.exports = {
     new WasmPackPlugin({
       crateDirectory: __dirname,
     }),
-    new MonacoWebpackPlugin({
-      // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
-      languages: ['json'],
-    }),
   ],
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+  },
+  experiments: {
+    asyncWebAssembly: true,
+  },
 }
