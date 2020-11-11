@@ -1,0 +1,404 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js ayu">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>c0 语言标准与指导书 - C0 指导书</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="../favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="../favicon.png">
+        
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+        <link rel="stylesheet" href=".././theme/css/additional.css">
+        
+
+        
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "ayu";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('ayu')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../todo.html"><strong aria-hidden="true">1.</strong> 参考资料</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">1.1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html" class="active"><strong aria-hidden="true">1.2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../c0/token.html"><strong aria-hidden="true">1.2.1.</strong> 单词</a></li><li class="chapter-item "><a href="../c0/expr.html"><strong aria-hidden="true">1.2.2.</strong> 表达式</a></li><li class="chapter-item "><a href="../c0/stmt.html"><strong aria-hidden="true">1.2.3.</strong> 语句</a></li><li class="chapter-item "><a href="../c0/func.html"><strong aria-hidden="true">1.2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item "><a href="../c0/notes.html"><strong aria-hidden="true">1.2.5.</strong> 设计笔记</a></li></ol></li><li class="chapter-item expanded "><a href="../navm.html"><strong aria-hidden="true">1.3.</strong> navm 虚拟机说明</a></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">1.4.</strong> 编译原理评测姬说明</a></li></ol></li><li class="chapter-item expanded "><a href="../reference.html">参考</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu (default)</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">C0 指导书</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#c0-语法说明" id="c0-语法说明">c0 语法说明</a></h1>
+<p>c0 是一个用于编译原理课程的微型语言。c0 提供的功能类似于 C，但是为了减少编译器实现的压力（减少前瞻和/或回溯），在语言风格上大量参考了 Rust 的设计。请注意，这个语言<strong>并不是</strong>对 Rust 语言的简化。</p>
+<h2><a class="header" href="#语法定义" id="语法定义">语法定义</a></h2>
+<p>以下是 c0 语言的全部语法定义，包括所有扩展语法。</p>
+<pre><code>// # 单词
+ 
+// ## 关键字
+FN_KW     -&gt; 'fn'
+LET_KW    -&gt; 'let'
+CONST_KW  -&gt; 'const'
+AS_KW     -&gt; 'as'
+WHILE_KW  -&gt; 'while'
+IF_KW     -&gt; 'if'
+ELSE_KW   -&gt; 'else'
+RETURN_KW -&gt; 'return'
+BREAK_KW  -&gt; 'break'
+CONTINUE_KW -&gt; 'continue'
+
+// ## 字面量
+digit -&gt; [0-9]
+UINT_LITERAL -&gt; digit+
+FLOAT_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
+
+escape_sequence -&gt; '\' [\\&quot;'nrt]
+string_regular_char -&gt; [^&quot;\\]
+STRING_LITERAL -&gt; '&quot;' (string_regular_char | escape_sequence)* '&quot;'
+
+char_regular_char -&gt; [^'\\]
+CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
+
+// ## 标识符
+IDENT -&gt; [_a-zA-Z] [_a-zA-Z0-9]*
+
+// ## 符号
+PLUS      -&gt; '+'
+MINUS     -&gt; '-'
+MUL       -&gt; '*'
+DIV       -&gt; '/'
+ASSIGN    -&gt; '='
+EQ        -&gt; '=='
+NEQ       -&gt; '!='
+LT        -&gt; '&lt;'
+GT        -&gt; '&gt;'
+LE        -&gt; '&lt;='
+GE        -&gt; '&gt;='
+L_PAREN   -&gt; '('
+R_PAREN   -&gt; ')'
+L_BRACE   -&gt; '{'
+R_BRACE   -&gt; '}'
+ARROW     -&gt; '-&gt;'
+COMMA     -&gt; ','
+COLON     -&gt; ':'
+SEMICOLON -&gt; ';'
+
+// ## 注释
+COMMENT -&gt; '//' regex(.*) '\n'
+
+// # 表达式
+expr -&gt; 
+      operator_expr
+    | negate_expr
+    | assign_expr
+    | as_expr
+    | call_expr
+    | literal_expr
+    | ident_expr
+
+binary_operator -&gt; '+' | '-' | '*' | '/' | '==' | '!=' | '&lt;' | '&gt;' | '&lt;=' | '&gt;='
+operator_expr -&gt; expr binary_operator expr
+
+negate_expr -&gt; '-' expr
+
+assign_expr -&gt; l_expr '=' expr
+
+as_expr -&gt; expr 'as' ty
+
+call_param_list -&gt; expr (',' expr)*
+call_expr -&gt; IDENT '(' call_param_list? ')'
+
+literal_expr -&gt; UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL | CHAR_LITERAL
+
+ident_expr -&gt; IDENT
+
+// ## 左值表达式
+l_expr -&gt; IDENT
+
+// ## 类型
+ty -&gt; IDENT
+
+// # 语句
+stmt -&gt;
+      expr_stmt
+    | decl_stmt
+    | if_stmt
+    | while_stmt
+    | break_stmt
+    | continue_stmt
+    | return_stmt
+    | block_stmt
+    | empty_stmt
+
+expr_stmt -&gt; expr ';'
+
+let_decl_stmt -&gt; 'let' IDENT ':' ty ('=' expr)? ';'
+const_decl_stmt -&gt; 'const' IDENT ':' ty '=' expr ';'
+decl_stmt -&gt; let_decl_stmt | const_decl_stmt
+
+if_stmt -&gt; 'if' expr block_stmt ('else' 'if' expr block_stmt)* ('else' block_stmt)?
+
+while_stmt -&gt; 'while' expr block_stmt
+
+break_stmt -&gt; 'break' ';'
+
+continue_stmt -&gt; 'continue' ';'
+
+return_stmt -&gt; 'return' expr? ';'
+
+block_stmt -&gt; '{' stmt* '}'
+
+empty_stmt -&gt; ';'
+
+// # 函数
+function_param -&gt; IDENT ':' ty
+function_param_list -&gt; function_param (',' function_param)*
+function -&gt; 'fn' IDENT '(' function_param_list? ')' '-&gt;' ty block_stmt
+
+// # 程序
+item -&gt; function | decl_stmt
+program -&gt; item*
+</code></pre>
+<p>其中，表达式中运算符的优先级从高到低为：</p>
+<table><thead><tr><th>运算符</th><th>结合性</th></tr></thead><tbody>
+<tr><td>函数调用</td><td>-</td></tr>
+<tr><td>前置 <code>-</code></td><td>-</td></tr>
+<tr><td><code>as</code></td><td>-</td></tr>
+<tr><td><code>*</code> <code>/</code></td><td>左到右</td></tr>
+<tr><td><code>+</code> <code>-</code></td><td>左到右</td></tr>
+<tr><td><code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code> <code>==</code> <code>!=</code></td><td>左到右</td></tr>
+<tr><td><code>=</code></td><td>右到左</td></tr>
+</tbody></table>
+<h2><a class="header" href="#语法参考" id="语法参考">语法参考</a></h2>
+<p>以下是一些符合语法规范的程序。</p>
+<pre><pre class="playground"><code class="language-rust">fn fib(x: int) -&gt; int {
+    if x&lt;=1 {
+        return 1;
+    }
+    let result: int = fib(x - 1);
+    result = result + fib(x - 2);
+    return result;
+}
+
+fn main() -&gt; int {
+    let i: int = 0;
+    let j: int;
+    j = getint();
+    while i &lt; j {
+        putint(i);
+        putchar(32);
+        putint(fib(i));
+        putln();
+        i = i + 1;
+    }
+    return 0;
+}
+</code></pre></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../ebnf.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../c0/token.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../ebnf.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../c0/token.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

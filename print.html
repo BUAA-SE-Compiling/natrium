@@ -1,0 +1,1098 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js ayu">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>C0 指导书</title>
+        
+        <meta name="robots" content="noindex" />
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+        <link rel="stylesheet" href="./theme/css/additional.css">
+        
+
+        
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "ayu";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('ayu')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">前言</a></li><li class="chapter-item expanded "><a href="todo.html"><strong aria-hidden="true">1.</strong> 参考资料</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">1.1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">1.2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="c0/token.html"><strong aria-hidden="true">1.2.1.</strong> 单词</a></li><li class="chapter-item "><a href="c0/expr.html"><strong aria-hidden="true">1.2.2.</strong> 表达式</a></li><li class="chapter-item "><a href="c0/stmt.html"><strong aria-hidden="true">1.2.3.</strong> 语句</a></li><li class="chapter-item "><a href="c0/func.html"><strong aria-hidden="true">1.2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item "><a href="c0/notes.html"><strong aria-hidden="true">1.2.5.</strong> 设计笔记</a></li></ol></li><li class="chapter-item expanded "><a href="navm.html"><strong aria-hidden="true">1.3.</strong> navm 虚拟机说明</a></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">1.4.</strong> 编译原理评测姬说明</a></li></ol></li><li class="chapter-item expanded "><a href="reference.html">参考</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu (default)</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">C0 指导书</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#本文档已过时请等待编译助教重新编写文档" id="本文档已过时请等待编译助教重新编写文档">本文档已过时。请等待编译助教重新编写文档。</a></h1>
+<hr />
+<h1><a class="header" href="#编译实验指导书-前言" id="编译实验指导书-前言">编译实验指导书 前言</a></h1>
+<p>嗨。欢迎来到编译原理课。</p>
+<p>在这门课里，我们将学到计算机是如何把编程语言处理成机器指令的。这将包括文法分析、语法分析、变量分配、类型检查、代码生成等多个步骤。当然，由于课程难度原因，我们实际上在这些步骤上都有所删减，和现实中的编译器相比简化了许多部分。但是，麻雀虽小五脏俱全，通过编写这么一个 “玩具编译器”，我相信大家都能对程序的编译过程有一个实际的认识，从而更好地配合编译器写出更加高效的代码，乃至对自己将来遇到的类似的工作有所帮助。</p>
+<p>我们这次编译原理课所使用的语言是 __（待定）。</p>
+<p>我们编译的目标是一个虚拟机的指令集。这是一个栈式虚拟机——也就是一个会把运算的参数和结果存储在栈上（而不是寄存器里）的虚拟机。它相比于常见的 x86_64 或者 ARM 指令集在编程上会简单很多。如果你碰巧了解过 Java 的 JVM (Java Virtual Machine，Java 虚拟机) 或者 .NET 平台的 CLR (Common Language Runtime, 通用语言运行时) 的话，你会发现它们之间的共通之处的。</p>
+<p>编译原理是一门比较困难的课，涉及到的知识点很多，学起来会比较吃力。虽然我们会尽量把涉及到的知识点都放在相关的章节中，但是难免会有遗漏。遇到不懂或者可能有误的地方，可以在论坛和这本书所在的 GitHub 存储库的 Issues 区中提出来，我们会尽量解答。也希望大家可以用好搜索引擎和 StackOverflow。</p>
+<p>本指导书仍然还是 Beta 版本。如果你在书中发现了（包括但不限于）以下问题，欢迎积极联系助教，或者提 Issue/PR 修正：</p>
+<ul>
+<li>难以理解的表述</li>
+<li>逻辑/知识错误</li>
+<li>代码错误</li>
+<li>前后矛盾</li>
+<li>代码不对应/过时</li>
+<li>任何可以优化的部分</li>
+</ul>
+<p>对实验过程提出改进意见的同学会有加分。</p>
+<p>以上，祝各位同学编译愉快！</p>
+<p>—— 你们的魔鬼助教（笑）</p>
+<h1><a class="header" href="#todo" id="todo">TODO</a></h1>
+<p>还没写完。</p>
+<h1><a class="header" href="#语法表示说明" id="语法表示说明">语法表示说明</a></h1>
+<p>本文介绍的是一种 EBNF 的变体，用于描述字符写成的编程语言语法。这个变体将每一个非终结符的产生式都表示成了一个正则表达式，以此来使得语言定义写起来更加精炼。</p>
+<p>本变体的格式大量参考了 <a href="https://doc.rust-lang.org/reference/notation.html">Rust 的语法描述语言</a>。</p>
+<h2><a class="header" href="#非终结符" id="非终结符">非终结符</a></h2>
+<p>非终结符由一段由字母、数字或下划线组成的字符串表示，例如 <code>expr</code>, <code>if_stmt</code>。其中，字母全大写的字符串，如 <code>IDENT</code>，表示这个非终结符是一个单词（token）。</p>
+<h2><a class="header" href="#终结符" id="终结符">终结符</a></h2>
+<p>终结符包括字符串、字符范围和正则表达式。其中：</p>
+<ul>
+<li>
+<p>字符串由双引号 <code>&quot;</code> 或单引号 <code>'</code> 包括，表示等同于内容的字符序列，如 <code>&quot;while&quot;</code>、<code>&quot;y&quot;</code>、<code>&quot;+=&quot;</code>。</p>
+</li>
+<li>
+<p>字符范围由方括号包括，内部填写包括的字符或字符范围，表示符合要求的任一字符。其中，用短横线 <code>-</code> 连接的两个字符表示字符编码中介于两个字符值之间（含端点）的字符。如 <code>[abcde]</code>（等同于 <code>[a-e]</code>）、<code>[_0-9a-zA-Z]</code>。</p>
+<p>以 <code>^</code> 开头的字符范围表示不在范围内的任一字符，如 <code>[^abc]</code>、<code>[^A-Z]</code>。</p>
+</li>
+<li>
+<p>正则表达式由 <code>regex(</code> <code>)</code> 包括，内部是正则表达式，如 <code>regex(\w+)</code>、<code>regex(\w+://(\w+\.)+\.com)</code></p>
+</li>
+</ul>
+<p>字符范围和字符串遵循 C 风格的转义序列，即使用反斜线 <code>\\</code> 后跟随字符组成。如果某个转义序列没有含义，则表示反斜线后的字符本身。</p>
+<h2><a class="header" href="#产生式" id="产生式">产生式</a></h2>
+<p>产生式左侧是非终结符，右侧是一个由终结符和非终结符组成的正则表达式，中间以箭头 <code>-&gt;</code> 连接。一个产生式占一行和之后缩进的所有行，如：</p>
+<pre><code>sign -&gt; [+-]
+fractional_part -&gt; &quot;.&quot; dec_number
+my_expression -&gt;
+    this_is_a_very_long_keyword this_is_a_very_long_expression &quot;;&quot;
+</code></pre>
+<p>当一个非终结符有多个产生式时，右侧的不同产生式用竖线 <code>|</code> 分隔，表示“或”的关系。当产生式过长时，也可另起一行缩进书写。如：</p>
+<pre><code>my_keyword -&gt; &quot;fn&quot; | &quot;class&quot;
+binary_operator -&gt;
+      &quot;+&quot; | &quot;-&quot; | &quot;*&quot; | &quot;/&quot; 
+    | &quot;=&quot; | &quot;&gt;&quot; | &quot;&lt;&quot; | &quot;&gt;=&quot; | &quot;&lt;=&quot; | &quot;==&quot; | &quot;!=&quot;
+</code></pre>
+<p>和正则表达式相同，可以省略的表达式用问号 <code>?</code> 修饰，如 <code>&quot;public&quot;? &quot;class&quot; identifier</code>；</p>
+<p>可以重复一次或多次的表达式用加号 <code>+</code> 修饰，如 <code>[0-9a-f]+</code>；</p>
+<p>可以重复零次或多次的表达式用星号 <code>*</code> 修饰，如 <code>[1-9] [0-9]*</code>；</p>
+<p>可以重复指定次数次的表达式后面用大括号括起来数字修饰，其中：</p>
+<ul>
+<li><code>{m}</code> 表示指定重复 <code>m</code> 次；</li>
+<li><code>{m,n}</code> 表示重复 <code>m</code> 到 <code>n</code> 次；</li>
+<li><code>{m,}</code> 表示重复 <code>m</code> 次及以上；</li>
+<li><code>{,n}</code> 表示重复 0 到 <code>n</code> 次；</li>
+</ul>
+<p>将一系列符号用小括号 <code>(</code> <code>)</code> 包括起来表示分组，分组内的符号作为一个整体看待，如 <code>(item &quot;,&quot;)+</code>。</p>
+<h1><a class="header" href="#c0-语法说明" id="c0-语法说明">c0 语法说明</a></h1>
+<p>c0 是一个用于编译原理课程的微型语言。c0 提供的功能类似于 C，但是为了减少编译器实现的压力（减少前瞻和/或回溯），在语言风格上大量参考了 Rust 的设计。请注意，这个语言<strong>并不是</strong>对 Rust 语言的简化。</p>
+<h2><a class="header" href="#语法定义" id="语法定义">语法定义</a></h2>
+<p>以下是 c0 语言的全部语法定义，包括所有扩展语法。</p>
+<pre><code>// # 单词
+ 
+// ## 关键字
+FN_KW     -&gt; 'fn'
+LET_KW    -&gt; 'let'
+CONST_KW  -&gt; 'const'
+AS_KW     -&gt; 'as'
+WHILE_KW  -&gt; 'while'
+IF_KW     -&gt; 'if'
+ELSE_KW   -&gt; 'else'
+RETURN_KW -&gt; 'return'
+BREAK_KW  -&gt; 'break'
+CONTINUE_KW -&gt; 'continue'
+
+// ## 字面量
+digit -&gt; [0-9]
+UINT_LITERAL -&gt; digit+
+FLOAT_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
+
+escape_sequence -&gt; '\' [\\&quot;'nrt]
+string_regular_char -&gt; [^&quot;\\]
+STRING_LITERAL -&gt; '&quot;' (string_regular_char | escape_sequence)* '&quot;'
+
+char_regular_char -&gt; [^'\\]
+CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
+
+// ## 标识符
+IDENT -&gt; [_a-zA-Z] [_a-zA-Z0-9]*
+
+// ## 符号
+PLUS      -&gt; '+'
+MINUS     -&gt; '-'
+MUL       -&gt; '*'
+DIV       -&gt; '/'
+ASSIGN    -&gt; '='
+EQ        -&gt; '=='
+NEQ       -&gt; '!='
+LT        -&gt; '&lt;'
+GT        -&gt; '&gt;'
+LE        -&gt; '&lt;='
+GE        -&gt; '&gt;='
+L_PAREN   -&gt; '('
+R_PAREN   -&gt; ')'
+L_BRACE   -&gt; '{'
+R_BRACE   -&gt; '}'
+ARROW     -&gt; '-&gt;'
+COMMA     -&gt; ','
+COLON     -&gt; ':'
+SEMICOLON -&gt; ';'
+
+// ## 注释
+COMMENT -&gt; '//' regex(.*) '\n'
+
+// # 表达式
+expr -&gt; 
+      operator_expr
+    | negate_expr
+    | assign_expr
+    | as_expr
+    | call_expr
+    | literal_expr
+    | ident_expr
+
+binary_operator -&gt; '+' | '-' | '*' | '/' | '==' | '!=' | '&lt;' | '&gt;' | '&lt;=' | '&gt;='
+operator_expr -&gt; expr binary_operator expr
+
+negate_expr -&gt; '-' expr
+
+assign_expr -&gt; l_expr '=' expr
+
+as_expr -&gt; expr 'as' ty
+
+call_param_list -&gt; expr (',' expr)*
+call_expr -&gt; IDENT '(' call_param_list? ')'
+
+literal_expr -&gt; UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL | CHAR_LITERAL
+
+ident_expr -&gt; IDENT
+
+// ## 左值表达式
+l_expr -&gt; IDENT
+
+// ## 类型
+ty -&gt; IDENT
+
+// # 语句
+stmt -&gt;
+      expr_stmt
+    | decl_stmt
+    | if_stmt
+    | while_stmt
+    | break_stmt
+    | continue_stmt
+    | return_stmt
+    | block_stmt
+    | empty_stmt
+
+expr_stmt -&gt; expr ';'
+
+let_decl_stmt -&gt; 'let' IDENT ':' ty ('=' expr)? ';'
+const_decl_stmt -&gt; 'const' IDENT ':' ty '=' expr ';'
+decl_stmt -&gt; let_decl_stmt | const_decl_stmt
+
+if_stmt -&gt; 'if' expr block_stmt ('else' 'if' expr block_stmt)* ('else' block_stmt)?
+
+while_stmt -&gt; 'while' expr block_stmt
+
+break_stmt -&gt; 'break' ';'
+
+continue_stmt -&gt; 'continue' ';'
+
+return_stmt -&gt; 'return' expr? ';'
+
+block_stmt -&gt; '{' stmt* '}'
+
+empty_stmt -&gt; ';'
+
+// # 函数
+function_param -&gt; IDENT ':' ty
+function_param_list -&gt; function_param (',' function_param)*
+function -&gt; 'fn' IDENT '(' function_param_list? ')' '-&gt;' ty block_stmt
+
+// # 程序
+item -&gt; function | decl_stmt
+program -&gt; item*
+</code></pre>
+<p>其中，表达式中运算符的优先级从高到低为：</p>
+<table><thead><tr><th>运算符</th><th>结合性</th></tr></thead><tbody>
+<tr><td>函数调用</td><td>-</td></tr>
+<tr><td>前置 <code>-</code></td><td>-</td></tr>
+<tr><td><code>as</code></td><td>-</td></tr>
+<tr><td><code>*</code> <code>/</code></td><td>左到右</td></tr>
+<tr><td><code>+</code> <code>-</code></td><td>左到右</td></tr>
+<tr><td><code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code> <code>==</code> <code>!=</code></td><td>左到右</td></tr>
+<tr><td><code>=</code></td><td>右到左</td></tr>
+</tbody></table>
+<h2><a class="header" href="#语法参考" id="语法参考">语法参考</a></h2>
+<p>以下是一些符合语法规范的程序。</p>
+<pre><pre class="playground"><code class="language-rust">fn fib(x: int) -&gt; int {
+    if x&lt;=1 {
+        return 1;
+    }
+    let result: int = fib(x - 1);
+    result = result + fib(x - 2);
+    return result;
+}
+
+fn main() -&gt; int {
+    let i: int = 0;
+    let j: int;
+    j = getint();
+    while i &lt; j {
+        putint(i);
+        putchar(32);
+        putint(fib(i));
+        putln();
+        i = i + 1;
+    }
+    return 0;
+}
+</code></pre></pre>
+<h1><a class="header" href="#单词-token" id="单词-token">单词 (Token)</a></h1>
+<p>单词是词法分析的结果。</p>
+<h2><a class="header" href="#关键字" id="关键字">关键字</a></h2>
+<pre><code>FN_KW     -&gt; 'fn'
+LET_KW    -&gt; 'let'
+CONST_KW  -&gt; 'const'
+AS_KW     -&gt; 'as'
+WHILE_KW  -&gt; 'while'
+IF_KW     -&gt; 'if'
+ELSE_KW   -&gt; 'else'
+RETURN_KW -&gt; 'return'
+
+// 这两个是扩展 c0 的
+BREAK_KW  -&gt; 'break'
+CONTINUE_KW -&gt; 'continue'
+</code></pre>
+<p>c0 有 8 个关键字。扩展 c0 增加了 2 个关键字。</p>
+<h1><a class="header" href="#字面量" id="字面量">字面量</a></h1>
+<pre><code>digit -&gt; [0-9]
+UINT_LITERAL -&gt; digit+
+FLOAT_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
+
+escape_sequence -&gt; '\' [\\&quot;'nrt]
+string_regular_char -&gt; [^&quot;\\]
+STRING_LITERAL -&gt; '&quot;' (string_regular_char | escape_sequence)* '&quot;'
+
+// 扩展 c0 的字符常量
+char_regular_char -&gt; [^'\\]
+CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
+</code></pre>
+<p>c0 有三种字面量，分别是 <em>无符号整数</em>、<em>浮点数</em> 和 <em>字符串常量</em>。</p>
+<h2><a class="header" href="#标识符" id="标识符">标识符</a></h2>
+<pre><code>IDENT -&gt; [_a-zA-Z] [_a-zA-Z0-9]*
+</code></pre>
+<p>c0 的标识符由下划线或字母开头，后面可以接零或多个下划线、字母或数字。标识符不能和关键字重复。</p>
+<h2><a class="header" href="#运算符" id="运算符">运算符</a></h2>
+<pre><code>PLUS      -&gt; '+'
+MINUS     -&gt; '-'
+MUL       -&gt; '*'
+DIV       -&gt; '/'
+ASSIGN    -&gt; '='
+EQ        -&gt; '=='
+NEQ       -&gt; '!='
+LT        -&gt; '&lt;'
+GT        -&gt; '&gt;'
+LE        -&gt; '&lt;='
+GE        -&gt; '&gt;='
+L_PAREN   -&gt; '('
+R_PAREN   -&gt; ')'
+L_BRACE   -&gt; '{'
+R_BRACE   -&gt; '}'
+ARROW     -&gt; '-&gt;'
+COMMA     -&gt; ','
+COLON     -&gt; ':'
+SEMICOLON -&gt; ';'
+</code></pre>
+<h2><a class="header" href="#注释" id="注释">注释</a></h2>
+<p>注释是扩展 c0 内容，见 <a href="c0/extended-c0.html#%E6%B3%A8%E9%87%8A">扩展 c0</a></p>
+<pre><code>COMMENT -&gt; '//' regex(.*) '\n'
+</code></pre>
+<h1><a class="header" href="#表达式" id="表达式">表达式</a></h1>
+<pre><code>expr -&gt; 
+      operator_expr
+    | negate_expr
+    | assign_expr
+    | as_expr
+    | call_expr
+    | literal_expr
+    | ident_expr
+</code></pre>
+<p>表达式是代码中运算的最小单位。在语法解析的时候，一个表达式会被展开成一棵树，称作表达式树。</p>
+<h2><a class="header" href="#运算符表达式" id="运算符表达式">运算符表达式</a></h2>
+<pre><code>binary_operator -&gt; '+' | '-' | '*' | '/' | '==' | '!=' | '&lt;' | '&gt;' | '&lt;=' | '&gt;='
+operator_expr -&gt; expr binary_operator expr
+</code></pre>
+<p>运算符表达式是中间由一个运算符分隔、两边是子表达式的表达式。r0 一共有 10 种双目运算符。它们分别是：</p>
+<ul>
+<li>算数运算符 <code>+</code> <code>-</code> <code>*</code> <code>/</code></li>
+<li>比较运算符 <code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code> <code>==</code> <code>!=</code></li>
+</ul>
+<p>每个运算符的两侧必须是相同类型的数据。各运算符含义如下：</p>
+<table><thead><tr><th>运算符</th><th>含义</th><th>参数类型</th><th>结果类型</th><th>结合性</th></tr></thead><tbody>
+<tr><td><code>+</code></td><td>将左右两侧相加</td><td>数值</td><td>与参数相同</td><td>左到右</td></tr>
+<tr><td><code>-</code></td><td>将左右两侧相减</td><td>数值</td><td>与参数相同</td><td>左到右</td></tr>
+<tr><td><code>*</code></td><td>将左右两侧相乘</td><td>数值</td><td>与参数相同</td><td>左到右</td></tr>
+<tr><td><code>/</code></td><td>将左右两侧相除</td><td>数值</td><td>与参数相同</td><td>左到右</td></tr>
+<tr><td><code>&gt;</code></td><td>如果左侧大于右侧则为真</td><td>数值</td><td>布尔</td><td>左到右</td></tr>
+<tr><td><code>&lt;</code></td><td>如果左侧小于右侧则为真</td><td>数值</td><td>布尔</td><td>左到右</td></tr>
+<tr><td><code>&gt;=</code></td><td>如果左侧大于等于右侧则为真</td><td>数值</td><td>布尔</td><td>左到右</td></tr>
+<tr><td><code>&lt;=</code></td><td>如果左侧小于等于右侧则为真</td><td>数值</td><td>布尔</td><td>左到右</td></tr>
+<tr><td><code>==</code></td><td>如果左侧等于右侧则为真</td><td>数值</td><td>布尔</td><td>左到右</td></tr>
+<tr><td><code>!=</code></td><td>如果左侧不等于右侧则为真</td><td>数值</td><td>布尔</td><td>左到右</td></tr>
+</tbody></table>
+<h2><a class="header" href="#取反表达式" id="取反表达式">取反表达式</a></h2>
+<pre><code>negate_expr -&gt; '-' expr
+</code></pre>
+<p>取反表达式是在表达式前添加负号组成的表达式。取反表达式的语义是将表达式转换成它的相反数。</p>
+<h2><a class="header" href="#赋值表达式" id="赋值表达式">赋值表达式</a></h2>
+<pre><code>l_expr -&gt; IDENT
+assign_expr -&gt; l_expr '=' expr
+</code></pre>
+<p>赋值表达式是由 <em>左值表达式</em>、<em>等号 <code>=</code></em>、<em>表达式</em> 组成的表达式。赋值表达式的值类型永远是 <code>void</code>（即不能被使用）。</p>
+<p>左值表达式是一个局部或全局的变量名。</p>
+<p>赋值表达式的语义是将右侧表达式的计算结果赋给左侧表示的值。</p>
+<h2><a class="header" href="#类型转换表达式" id="类型转换表达式">类型转换表达式</a></h2>
+<pre><code>as_expr -&gt; expr 'as' ty
+</code></pre>
+<p>类型转换表达式是由 <em>表达式</em>、<em>关键字 <code>as</code></em>、<em>类型</em> 组成的表达式。类型转换表达式的语义是将左侧表达式表示的值转换成右侧类型表示的值。</p>
+<p>在 c0 实验中只会涉及到整数 <code>int</code> 和浮点数 <code>double</code> 之间的互相转换。</p>
+<h2><a class="header" href="#函数调用表达式" id="函数调用表达式">函数调用表达式</a></h2>
+<pre><code>call_param_list -&gt; expr (',' expr)*
+call_expr -&gt; IDENT '(' call_param_list? ')'
+</code></pre>
+<p>函数调用表达式是由 <em>函数名</em> 和 <em>调用参数列表</em> 组成的表达式。函数调用表达式的语义是使用给出的参数调用函数名代表的函数。函数必须在调用前声明过（也就是说不存在先出现调用后出现声明的函数）。</p>
+<h3><a class="header" href="#特殊情况" id="特殊情况">特殊情况</a></h3>
+<p>在 c0 中存在 8 个不需要声明就可以调用的函数，它们的签名分别是：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// 读入一个整数
+fn getint() -&gt; int;
+/// 读入一个浮点数
+fn getdouble() -&gt; double;
+/// 读入一个字符
+fn getchar() -&gt; int;
+/// 输出一个整数
+fn putint(int) -&gt; void;
+/// 输出一个浮点数
+fn putdouble(double) -&gt; void;
+/// 输出一个字符
+fn putchar(int) -&gt; void;
+/// 输出整数代表的全局常量字符串
+fn putstr(int) -&gt; void;
+/// 输出一个换行
+fn putln() -&gt; void;
+<span class="boring">}
+</span></code></pre></pre>
+<p>在实现时，这些函数既可以编译成使用虚拟机中的 <code>callname</code> 指令调用，也可以编译成相应的虚拟机指令，两者是等价的。</p>
+<h2><a class="header" href="#字面量表达式" id="字面量表达式">字面量表达式</a></h2>
+<pre><code>literal_expr -&gt; UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL
+
+digit -&gt; [0-9]
+UINT_LITERAL -&gt; digit+
+FLOAT_LITERAL -&gt; digit* '.' digit+ ([eE] digit+)?
+
+escape_sequence -&gt; '\' [\\&quot;'nrt]
+string_regular_char -&gt; [^&quot;\\]
+STRING_LITERAL -&gt; '&quot;' (string_regular_char | escape_sequence)* '&quot;'
+</code></pre>
+<p>字面量表达式可以是一个无符号整数、浮点数或者字符串的字面量。<em>整数</em> 和 <em>浮点数字面量</em> 的语义就是用对应类型表示的字面量的值（64 位）；<em>字符串字面量</em> 只会在 <code>putstr</code> 调用中出现，语义是对应的全局常量的编号。</p>
+<h2><a class="header" href="#标识符表达式" id="标识符表达式">标识符表达式</a></h2>
+<pre><code>ident_expr -&gt; IDENT
+</code></pre>
+<p>标识符表达式是由标识符组成的表达式。其语义是标识符对应的局部或全局变量。标识符表达式的类型与标识符的类型相同。</p>
+<h1><a class="header" href="#语句" id="语句">语句</a></h1>
+<pre><code>stmt -&gt;
+      expr_stmt
+    | decl_stmt
+    | if_stmt
+    | while_stmt
+    | return_stmt
+    | block_stmt
+    | empty_stmt
+</code></pre>
+<p>语句是函数的最小组成部分。</p>
+<h2><a class="header" href="#表达式语句" id="表达式语句">表达式语句</a></h2>
+<pre><code>expr_stmt -&gt; expr ';'
+</code></pre>
+<p>表达式语句由 <em>表达式</em> 后接分号组成。表达式如果有值，值将会被丢弃。</p>
+<h2><a class="header" href="#声明语句" id="声明语句">声明语句</a></h2>
+<pre><code>let_decl_stmt -&gt; 'let' IDENT ':' ty ('=' expr)? ';'
+const_decl_stmt -&gt; 'const' IDENT ':' ty '=' expr ';'
+decl_stmt -&gt; let_decl_stmt | const_decl_stmt
+</code></pre>
+<p>声明语句由 <code>let</code>（声明变量）或 <code>const</code>（声明常量）接 <em>标识符</em>、<em>类型</em> 和可选的 <em>初始化表达式</em> 组成。其中，常量声明语句必须有初始化表达式，而变量声明语句可以没有。</p>
+<p>一个声明语句会在当前作用域中创建一个给定类型和标识符的变量或常量。声明语句有以下语义约束：</p>
+<ul>
+<li>在同一作用域内，一个标识符只能由一个变量或常量使用。</li>
+<li>变量或常量的类型不能为 <code>void</code>。</li>
+<li>如果存在初始化表达式，其类型应当与变量声明时的类型相同。</li>
+<li>常量只能被读取，不能被修改。</li>
+</ul>
+<p>出现违反约束的声明语句是编译期错误。</p>
+<blockquote>
+<p>UB: 没有初始化的变量的值未定义。我们不规定对于使用未初始化变量的行为的处理方式，你可以选择忽略、提供默认值或者报错。</p>
+</blockquote>
+<p>以下是一些可以通过编译的变量声明的例子：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let i: int;
+let j: int = 1;
+const k: double = 1.20;
+<span class="boring">}
+</span></code></pre></pre>
+<p>以下是一些不能通过编译的变量声明的例子：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// 没有类型
+let l = 1;
+// 没有初始化
+const m: int;
+// 类型不匹配
+let n: double = 3;
+// 常量不能被修改
+let p: double = 3.0;
+p = 3.1415;
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#控制流语句" id="控制流语句">控制流语句</a></h2>
+<p>基础 C0 中有三种控制流语句，分别是 <code>if</code>、<code>while</code> 和 <code>return</code> 语句。</p>
+<h3><a class="header" href="#if-语句" id="if-语句"><code>if</code> 语句</a></h3>
+<pre><code>if_stmt -&gt; 'if' expr block_stmt ('else' (block_stmt | if_stmt))?
+//              ^~~~ ^~~~~~~~~~         ^~~~~~~~~~~~~~~~~~~~~~
+//              |     if_block           else_block
+//              condition
+</code></pre>
+<p><code>if</code> 语句代表一组可选执行的语句。</p>
+<p><code>if</code> 语句的执行流程是：</p>
+<ul>
+<li>求 <code>condition</code> 的值
+<ul>
+<li>如果值为 <code>true</code>，则执行 <code>if_block</code></li>
+<li>否则，如果存在 <code>else_block</code>，执行 <code>else_block</code></li>
+<li>否则，执行下一条语句</li>
+</ul>
+</li>
+</ul>
+<p>请注意，<strong>if 语句的条件表达式可以没有括号</strong>，且 <strong>条件执行的语句都必须是代码块</strong>。</p>
+<p>以下是一些合法的 if 语句：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>if x &gt; 0 {
+  x = x + 1;
+}
+
+if y &lt; 0 {
+  z = -1;
+} else if y &gt; 0 {
+  z = 1;
+} else {
+  z = 0
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>以下是一些不合法的 if 语句：</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// 必须是代码块
+if x &gt; 0 
+  x = x + 1;
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#while-语句" id="while-语句"><code>while</code> 语句</a></h3>
+<pre><code>while_stmt -&gt; 'while' expr block_stmt
+//                    ^~~~ ^~~~~~~~~~while_block
+//                     condition
+</code></pre>
+<p>while 语句代表一组可以重复执行的语句。</p>
+<p>while 语句的执行流程是：</p>
+<ul>
+<li>求值 <code>condition</code>
+<ul>
+<li>如果为 <code>true</code>
+<ul>
+<li>执行 <code>while_block</code></li>
+<li>回到开头重新求值</li>
+</ul>
+</li>
+<li>如果为 <code>false</code> 则执行之后的代码</li>
+</ul>
+</li>
+</ul>
+<h3><a class="header" href="#return-语句" id="return-语句"><code>return</code> 语句</a></h3>
+<pre><code>return_stmt -&gt; 'return' expr? ';'
+</code></pre>
+<p>使用 <code>return</code> 语句从一个函数中返回。return 语句可以携带一个表达式作为返回值。</p>
+<p>return 语句有以下的语义约束：</p>
+<ul>
+<li>如果函数声明的返回值是 <code>void</code>，return 语句不能携带返回值；否则，return 语句必须携带返回值</li>
+<li>返回值表达式的类型必须与函数声明的返回值类型相同</li>
+<li>当执行到返回值类型是 <code>void</code> 的函数的末尾时，应视作存在一个 return 语句进行返回</li>
+</ul>
+<blockquote>
+<p>UB: 在基础 C0 中不会出现部分分支没有返回值的情况，所以没有返回语句的分支的返回值是未定义的。在扩展 C0 中你必须检查每个分支都能够正常返回。</p>
+</blockquote>
+<h2><a class="header" href="#代码块" id="代码块">代码块</a></h2>
+<pre><code>block_stmt -&gt; '{' stmt* '}'
+</code></pre>
+<p>一个代码块可以包含一条或多条语句。执行代码块的效果是顺序执行这些语句。</p>
+<h2><a class="header" href="#空语句" id="空语句">空语句</a></h2>
+<pre><code>empty_stmt -&gt; ';'
+</code></pre>
+<p>空语句没有任何作用，只是一个分号而已。</p>
+<h1><a class="header" href="#函数和全局变量" id="函数和全局变量">函数和全局变量</a></h1>
+<h2><a class="header" href="#函数" id="函数">函数</a></h2>
+<pre><code>function_param -&gt; 'const'? IDENT ':' ty
+function_param_list -&gt; function_param (',' function_param)*
+function -&gt; 'fn' IDENT '(' function_param_list? ')' '-&gt;' ty block_stmt
+//               ^~~~      ^~~~~~~~~~~~~~~~~~~~          ^~ ^~~~~~~~~~
+//               |              |                        |  |
+//               function_name  param_list     return_type  function_body
+</code></pre>
+<p>与 miniplc0 不同，c0 中存在函数。</p>
+<p>c0 中一个函数的定义由 <em>函数名</em>、<em>参数列表</em>、<em>返回值</em> 和 <em>函数体</em> 组成。</p>
+<p>函数的参数声明和变量声明类似，等价于在函数体内进行变量声明，只不过会保证已经初始化过。</p>
+<p>函数体的组成单位是语句，见 <a href="c0/stmt.html">语句页面</a>。</p>
+<h2><a class="header" href="#全局变量" id="全局变量">全局变量</a></h2>
+<p>全局变量的声明与局部变量相同，都是使用 <a href="c0/stmt.html#%E5%A3%B0%E6%98%8E%E8%AF%AD%E5%8F%A5">声明语句</a> 进行声明。</p>
+<h1><a class="header" href="#设计笔记与讨论" id="设计笔记与讨论">设计笔记与讨论</a></h1>
+<blockquote>
+<p>这里存放着设计 2020 软院编译原理所使用的语言的时候所考虑的一些东西。</p>
+</blockquote>
+<blockquote>
+<p>Rynco：我认为，实验的目标应当是让学生尽可能多的了解一个真实的编译器是如何运行的。因此，我们需要尽可能消减不必要的内容，比如复杂的指令集、寄存器分配、过于繁琐的语法等等。剩下来的应该是一个只包含核心内容的现代语言。</p>
+</blockquote>
+<h2><a class="header" href="#语法" id="语法">语法</a></h2>
+<blockquote>
+<p>邵老师：最好不要自创一门新的语言或者改编自小众语言。</p>
+<p>Rynco：我个人是倾向于创建一门新的语言的。</p>
+</blockquote>
+<p>考点：词法、语法分析</p>
+<blockquote>
+<p>按照 hambaka 的意思，c0 的语法可以进一步简化，降低实现难度。</p>
+</blockquote>
+<p>Hambaka 建议的语法修改包括：</p>
+<ul>
+<li>去除隐式类型转换，所有类型转换必须显式声明</li>
+<li>只保留 while 和/或 for 作为唯一/二可用的循环</li>
+<li>去除 switch 语句</li>
+</ul>
+<p>Rynco 正在考虑的语法修改包括：</p>
+<ul>
+<li>类型后置</li>
+<li>规范 bool 类型</li>
+</ul>
+<blockquote>
+<p>Rynco: </p>
+<p>我计划的是一个长得有点 Rust（只借鉴了关键字和部分语法，因为解析器写起来容易）的 C，不知道其他人怎么看</p>
+<p>我希望这么做的原因是：如果使用类型后置的话，就可以把类型关键字解析完全放在语义解析里面做了。从而不需要在 parse 的时候维护一个符号表来确定哪些标识符是类型、哪些是变量，或者在解析到类型转换时回溯了（见 [附录1][ref1] ）。</p>
+</blockquote>
+<p>[ref1]: #附录1：C 风格的语法在解析时的回溯问题与解决方案</p>
+<pre><pre class="playground"><code class="language-rust">let global_var: double = -123456.789e10;
+
+fn add(a: int, b: int) -&gt; int {
+    return a + b;
+}
+
+fn main() -&gt; void {
+    let a: int = 3;
+    let b: int = 4;
+    let c: double = add(a, b) as double;
+    if global_var &gt; 0 {
+        print(&quot;Hello&quot;);
+    } else {
+        print(c);
+    }
+}
+</code></pre></pre>
+<blockquote>
+<p>Rynco: 自动类型推断应该不会有了……吧？有人要当进阶内容做我不反对。</p>
+</blockquote>
+<h3><a class="header" href="#暂定的语法内容" id="暂定的语法内容">暂定的语法内容</a></h3>
+<blockquote>
+<p>Rynco: 这里决定的内容会在实现示例编译器的时候再次确认，保证实现编译器的工作量不会过大。如果实现示例编译器的时候发现什么地方难度偏大的话还会再砍。</p>
+</blockquote>
+<h4><a class="header" href="#字面量-1" id="字面量-1">字面量</a></h4>
+<p>字面量包括以下内容：</p>
+<ul>
+<li>整数</li>
+<li>浮点数</li>
+<li>字符</li>
+<li>字符串</li>
+<li>布尔值</li>
+</ul>
+<h4><a class="header" href="#运算" id="运算">运算</a></h4>
+<p>算术运算：</p>
+<ul>
+<li>相反数</li>
+<li>加</li>
+<li>减</li>
+<li>乘</li>
+<li>除</li>
+</ul>
+<p>比较运算：</p>
+<ul>
+<li>大于</li>
+<li>小于</li>
+<li>大于等于</li>
+<li>小于等于</li>
+<li>等于</li>
+<li>不等于</li>
+</ul>
+<p>赋值运算：</p>
+<ul>
+<li>赋值</li>
+</ul>
+<p>进阶版本可以支持以下运算（虚拟机已支持）：</p>
+<ul>
+<li>布尔非</li>
+<li>布尔与</li>
+<li>布尔或</li>
+<li>按位与</li>
+<li>按位或</li>
+<li>按位异或</li>
+<li>左移</li>
+<li>算术右移</li>
+<li>逻辑右移</li>
+</ul>
+<h4><a class="header" href="#变量声明与赋值" id="变量声明与赋值">变量声明与赋值</a></h4>
+<p>变量声明使用 <code>let</code> 或 <code>const</code> 关键字声明，语法见 附录1。</p>
+<p>赋值表达式使用等号 <code>=</code> 作为运算符，运算结果类型为空值（<code>void</code>）。</p>
+<blockquote>
+<p>比如 <code>(a = b) == c</code> 是合法的表达式，但是类型检查会出错。赋值作为表达式而不是语句的原因是赋值语句和表达式的 FIRST 集会相交。</p>
+</blockquote>
+<p>要求实现变量作用域。</p>
+<h4><a class="header" href="#条件表达式和循环" id="条件表达式和循环">条件表达式和循环</a></h4>
+<p>一种条件表达式：<code>if-elseif-else</code> 表达式。</p>
+<p>一种循环：<code>while</code> 循环。</p>
+<h4><a class="header" href="#函数-1" id="函数-1">函数</a></h4>
+<p>函数使用 <code>fn</code> 关键字声明，语法见 附录1。</p>
+<p>不要求实现前向引用。</p>
+<h2><a class="header" href="#类型系统" id="类型系统">类型系统</a></h2>
+<p>考点：类型转换</p>
+<p>虚拟机的设计默认使用 64 位整数和浮点数。</p>
+<p>会有整数和浮点数（没法用同一种类型假装能转换的）</p>
+<p>虚拟机的设计支持数组、结构体和堆内存分配，这三者可以作为进阶内容选做。</p>
+<h3><a class="header" href="#暂定的类型系统" id="暂定的类型系统">暂定的类型系统</a></h3>
+<p>必做</p>
+<ul>
+<li><code>int</code> (<code>i64</code>)</li>
+<li><code>double</code> (<code>f64</code>)</li>
+<li><code>void</code> (<code>unit</code> / <code>()</code>)</li>
+</ul>
+<p>进阶（待砍刀）</p>
+<ul>
+<li><code>bool</code>
+(存储上等同于 <code>u8</code>，<code>false == 0u8</code>, <code>true == 255u8</code>)</li>
+<li><code>u8</code>/<code>u16</code>/<code>u32</code>/<code>u64</code></li>
+<li><code>i8</code>/<code>i16</code>/<code>i32</code>/<code>i64</code></li>
+<li>struct</li>
+<li>array (<code>[T; N]</code>)</li>
+<li>pointer (<code>&amp;T</code>)</li>
+<li>自动类型推断（省去 <code>let variable</code> 后面的类型）</li>
+</ul>
+<h2><a class="header" href="#虚拟机" id="虚拟机">虚拟机</a></h2>
+<p>考点：代码生成</p>
+<p>编译目标是 r0vm 虚拟机，是栈式虚拟机。编译到 JVM / Dotnet CLR / x86 等目标如果想做的话可以选做，需要提前跟助教声明。</p>
+<p>虚拟机设计已经基本确定，见相关文档。</p>
+<h2><a class="header" href="#附录" id="附录">附录</a></h2>
+<h3><a class="header" href="#附录1c-风格的语法在解析时的回溯问题与解决方案" id="附录1c-风格的语法在解析时的回溯问题与解决方案">附录1：C 风格的语法在解析时的回溯问题与解决方案</a></h3>
+<p>考虑以下 C 风格的变量声明语句的语法规则（<code>int</code>、<code>double</code> 等类型名称不是关键字）：</p>
+<pre><code># 标识符
+ident -&gt; &quot;int&quot; | &quot;x&quot;
+# 运算符
+op -&gt; &quot;+&quot; | &quot;-&quot;
+
+# 类型，在词法分析时被分析为标识符
+ty -&gt; ident
+# 表达式
+expr -&gt; &quot;0&quot; | &quot;1&quot; | ident | expr op expr
+
+# 变量声明语句
+decl_stmt -&gt; ty ident &quot;=&quot; expr &quot;;&quot;
+# 表达式语句
+expr_stmt -&gt; expr &quot;;&quot;
+
+# 语句
+stmt -&gt; decl_stmt | expr_stmt
+</code></pre>
+<p>显然，FIRST(<code>decl_stmt</code>) ∩ FIRST(<code>expr_stmt</code>) == { <code>ident</code> }。鉴于大部分同学在实现的时候都会考虑采用递归下降分析法（这门课的大作业里不会真的有人去手写/生成 LL/LR 吧？），这个 FIRST 集的重合会造成大量的回溯。</p>
+<p>类似的还有显式类型转换：</p>
+<pre><code>ident -&gt; &quot;int&quot; | &quot;x&quot;
+ty -&gt; ident
+
+# 括号表达式
+paren_expr -&gt; &quot;(&quot; expr &quot;)&quot;
+# C 风格的显式类型转换
+cast_expr -&gt; &quot;(&quot; ty &quot;)&quot; expr
+
+expr -&gt; ident | cast_expr | paren_expr
+</code></pre>
+<p>如果没有在语法分析的时候就建立符号表，在分析代码 <code>(int)(x)</code> 时甚至在读完 <code>(int)</code> 这三个 token 之后都不能确定解析的表达式到底是类型转换还是括号。为了解决这个问题，要么需要预读不确定数量的 token （在类型声明可能大于 1 个 token 时），要么遇到括号就要准备回溯，两者在代码上实现难度都偏大。</p>
+<p>因此，我建议在设计语法的时候就考虑这类问题，避免大量的 FIRST 集重合现象，降低递归下降语法分析器的实现难度。具体方案如下：</p>
+<blockquote>
+<p>在以下的语法规则中，<code>ty</code> 代表类型，<code>ident</code> 代表标识符，<code>expr</code> 代表表达式，<code>block</code> 代表语法块。</p>
+</blockquote>
+<p>一，将变量和函数声明中的类型后置，使用关键字开始此类语句，避免与 <code>expr</code> 的 FIRST 集重叠。此语法与多种现代语言（如 TypeScript、Kotlin、Go、Rust）相类似。</p>
+<blockquote>
+<p>九个六：<code>const</code> 可以考虑砍掉（待定）</p>
+</blockquote>
+<pre><code># 修改前:
+
+decl_stmt -&gt; &quot;const&quot;? ty ident (&quot;=&quot; expr)? &quot;;&quot;
+# int myVariable = 123 + 456;
+
+function_param -&gt; ty ident (&quot;,&quot; ty ident)*
+function -&gt; ty ident &quot;(&quot; function_param? &quot;)&quot; block
+# int add(int a, int b) { ... }
+
+# 修改后:
+
+decl_stmt -&gt; (&quot;let&quot; | &quot;const&quot;) ident &quot;:&quot; ty (&quot;=&quot; expr)? &quot;;&quot;
+# let myVariable: int = 123 + 456;
+
+function_param -&gt; ident &quot;:&quot; ty (&quot;,&quot; ident &quot;:&quot; ty)*
+function -&gt; &quot;fn&quot; ident &quot;(&quot; function_param? &quot;)&quot; &quot;-&gt;&quot; ty block
+# fn add(a: int, b: int) -&gt; int { ... }
+</code></pre>
+<p>二，将显式类型转换的语法从括号变为使用 <code>as</code> 做运算符的二元表达式。此语法与多种现代语言（如 TypeScript、Kotlin、Rust、C#）相类似。</p>
+<pre><code># 修改前：
+
+cast_expr -&gt; &quot;(&quot; ty &quot;)&quot; expr
+# (int)42.0
+# (double)(a + b)
+
+# 修改后：
+
+cast_expr -&gt; expr &quot;as&quot; ty
+# 42.0 as int
+# (a + b) as double
+</code></pre>
+<h3><a class="header" href="#附录2九个六先生的例程" id="附录2九个六先生的例程">附录2：九个六先生的例程</a></h3>
+<pre><pre class="playground"><code class="language-rust">let a1, a2, a3, a4, a5: int;
+
+fn me(x: int) -&gt; int {
+ return x;
+}
+
+fn add(x: double, y: double) -&gt; int {
+    let xx: int = x as int;
+    let yy: int = y as int;
+    return xx + yy
+}
+
+fn give(idx: int) -&gt; int {
+    if idx == 1 {
+        return a1;
+    }
+    else if idx == 2 {
+        return a2;
+    }
+    else if idx == 3 {
+        return a3;
+    }
+    else if idx == 4 {
+        return a4;
+    }
+    else if idx == 5 {
+        return a5;
+    }
+    else {
+        return 114514.0 as int
+    }
+}
+
+fn set(idx: int, val: int) -&gt; void {
+    if idx == 1 {
+        a1 = val;
+    }
+    else if idx == 2 {
+        a2 = val;
+    }
+    else if idx == 3 {
+        a3 = val;
+    }
+    else if idx == 4 {
+        a4 = val;
+    }
+    else if idx == 5 {
+        a5 = val;
+    }
+}
+
+fn main() -&gt; void {
+    let a, b, c, t: int;
+    let five: int = 5;
+    a = getint();
+    b = getint();
+    set(1, a);
+    set(2, b);
+    t = 3;
+    while t &lt;= five {
+        c = add(a as double, b as double);
+        b = a;
+        a = c;
+        set(t, c);
+        t = t + 1;
+    }
+    print(give(me(five)));
+</code></pre></pre>
+<h1><a class="header" href="#navm-虚拟机说明" id="navm-虚拟机说明">navm 虚拟机说明</a></h1>
+<h1><a class="header" href="#编译原理评测姬说明" id="编译原理评测姬说明">编译原理评测姬说明</a></h1>
+<p>如果时间足够&amp;&amp;安排得开的话，编译原理课程将使用自动评测。以下为评测方案草案：</p>
+<h2><a class="header" href="#自建-gitlab-存储库" id="自建-gitlab-存储库">自建 Gitlab 存储库</a></h2>
+<p>此处未定。可能会在校内自建一个 Gitlab 的站点用于实验作业的存储与自动评测。</p>
+<h2><a class="header" href="#judgetoml-与自动评测" id="judgetoml-与自动评测"><code>judge.toml</code> 与自动评测</a></h2>
+<p>为了简化评测步骤，我们将要求所有上交的作业都包含一个名为 <code>judge.toml</code> 的文件，作为评测机的配置文件。这个文件所在的目录将被视作自动评测时的根目录。</p>
+<p><code>judge.toml</code> 的文件内容如下所示：</p>
+<pre><code class="language-toml"># 你的学号
+id = &quot;17370000&quot;
+
+# 评测部分
+[judge]
+
+# 编译和评测你的程序时使用的 docker 环境镜像，不改变可以不填（默认是 `lazymio/compilers-env`）
+image = {
+    # 来源
+    source = &quot;hub&quot;,
+    # 镜像名称
+    image = &quot;rustlang/rust:nightly&quot;
+}
+
+# 编译编译器所需要依次执行的命令
+# 所有命令执行的根目录都是 `judge.toml` 所在的目录
+# 请将用到的每一个命令部分作为单独的字符串填入数组
+build = [
+    [&quot;cargo&quot;, &quot;fetch&quot;],
+    [&quot;cargo&quot;, &quot;build&quot;, &quot;--release&quot;]
+]
+
+# 在编译完成之后，运行编译器所需要的命令
+# 运行环境是 linux
+lex = [&quot;./target/release/natrium&quot;, &quot;lex&quot;, &quot;$file&quot;]
+parse = [&quot;./target/release/natrium&quot;, &quot;parse&quot;, &quot;$file&quot;]
+compile = [&quot;./target/release/natrium&quot;, &quot;compile&quot;, &quot;$file&quot;, &quot;--out&quot;, &quot;$output&quot;]
+</code></pre>
+<h1><a class="header" href="#参考" id="参考">参考</a></h1>
+<h2><a class="header" href="#二进制补码" id="二进制补码">二进制补码</a></h2>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            MathJax.Hub.Register.StartupHook('End', function() {
+                window.setTimeout(window.print, 100);
+            });
+        });
+        </script>
+        
+        
+
+    </body>
+</html>

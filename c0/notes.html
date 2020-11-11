@@ -1,0 +1,521 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js ayu">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>设计笔记 - C0 指导书</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="../favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="../favicon.png">
+        
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+        <link rel="stylesheet" href=".././theme/css/additional.css">
+        
+
+        
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "ayu";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('ayu')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../todo.html"><strong aria-hidden="true">1.</strong> 参考资料</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">1.1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">1.2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../c0/token.html"><strong aria-hidden="true">1.2.1.</strong> 单词</a></li><li class="chapter-item "><a href="../c0/expr.html"><strong aria-hidden="true">1.2.2.</strong> 表达式</a></li><li class="chapter-item "><a href="../c0/stmt.html"><strong aria-hidden="true">1.2.3.</strong> 语句</a></li><li class="chapter-item "><a href="../c0/func.html"><strong aria-hidden="true">1.2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="../c0/notes.html" class="active"><strong aria-hidden="true">1.2.5.</strong> 设计笔记</a></li></ol></li><li class="chapter-item expanded "><a href="../navm.html"><strong aria-hidden="true">1.3.</strong> navm 虚拟机说明</a></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">1.4.</strong> 编译原理评测姬说明</a></li></ol></li><li class="chapter-item expanded "><a href="../reference.html">参考</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu (default)</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">C0 指导书</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#设计笔记与讨论" id="设计笔记与讨论">设计笔记与讨论</a></h1>
+<blockquote>
+<p>这里存放着设计 2020 软院编译原理所使用的语言的时候所考虑的一些东西。</p>
+</blockquote>
+<blockquote>
+<p>Rynco：我认为，实验的目标应当是让学生尽可能多的了解一个真实的编译器是如何运行的。因此，我们需要尽可能消减不必要的内容，比如复杂的指令集、寄存器分配、过于繁琐的语法等等。剩下来的应该是一个只包含核心内容的现代语言。</p>
+</blockquote>
+<h2><a class="header" href="#语法" id="语法">语法</a></h2>
+<blockquote>
+<p>邵老师：最好不要自创一门新的语言或者改编自小众语言。</p>
+<p>Rynco：我个人是倾向于创建一门新的语言的。</p>
+</blockquote>
+<p>考点：词法、语法分析</p>
+<blockquote>
+<p>按照 hambaka 的意思，c0 的语法可以进一步简化，降低实现难度。</p>
+</blockquote>
+<p>Hambaka 建议的语法修改包括：</p>
+<ul>
+<li>去除隐式类型转换，所有类型转换必须显式声明</li>
+<li>只保留 while 和/或 for 作为唯一/二可用的循环</li>
+<li>去除 switch 语句</li>
+</ul>
+<p>Rynco 正在考虑的语法修改包括：</p>
+<ul>
+<li>类型后置</li>
+<li>规范 bool 类型</li>
+</ul>
+<blockquote>
+<p>Rynco: </p>
+<p>我计划的是一个长得有点 Rust（只借鉴了关键字和部分语法，因为解析器写起来容易）的 C，不知道其他人怎么看</p>
+<p>我希望这么做的原因是：如果使用类型后置的话，就可以把类型关键字解析完全放在语义解析里面做了。从而不需要在 parse 的时候维护一个符号表来确定哪些标识符是类型、哪些是变量，或者在解析到类型转换时回溯了（见 [附录1][ref1] ）。</p>
+</blockquote>
+<p>[ref1]: #附录1：C 风格的语法在解析时的回溯问题与解决方案</p>
+<pre><pre class="playground"><code class="language-rust">let global_var: double = -123456.789e10;
+
+fn add(a: int, b: int) -&gt; int {
+    return a + b;
+}
+
+fn main() -&gt; void {
+    let a: int = 3;
+    let b: int = 4;
+    let c: double = add(a, b) as double;
+    if global_var &gt; 0 {
+        print(&quot;Hello&quot;);
+    } else {
+        print(c);
+    }
+}
+</code></pre></pre>
+<blockquote>
+<p>Rynco: 自动类型推断应该不会有了……吧？有人要当进阶内容做我不反对。</p>
+</blockquote>
+<h3><a class="header" href="#暂定的语法内容" id="暂定的语法内容">暂定的语法内容</a></h3>
+<blockquote>
+<p>Rynco: 这里决定的内容会在实现示例编译器的时候再次确认，保证实现编译器的工作量不会过大。如果实现示例编译器的时候发现什么地方难度偏大的话还会再砍。</p>
+</blockquote>
+<h4><a class="header" href="#字面量" id="字面量">字面量</a></h4>
+<p>字面量包括以下内容：</p>
+<ul>
+<li>整数</li>
+<li>浮点数</li>
+<li>字符</li>
+<li>字符串</li>
+<li>布尔值</li>
+</ul>
+<h4><a class="header" href="#运算" id="运算">运算</a></h4>
+<p>算术运算：</p>
+<ul>
+<li>相反数</li>
+<li>加</li>
+<li>减</li>
+<li>乘</li>
+<li>除</li>
+</ul>
+<p>比较运算：</p>
+<ul>
+<li>大于</li>
+<li>小于</li>
+<li>大于等于</li>
+<li>小于等于</li>
+<li>等于</li>
+<li>不等于</li>
+</ul>
+<p>赋值运算：</p>
+<ul>
+<li>赋值</li>
+</ul>
+<p>进阶版本可以支持以下运算（虚拟机已支持）：</p>
+<ul>
+<li>布尔非</li>
+<li>布尔与</li>
+<li>布尔或</li>
+<li>按位与</li>
+<li>按位或</li>
+<li>按位异或</li>
+<li>左移</li>
+<li>算术右移</li>
+<li>逻辑右移</li>
+</ul>
+<h4><a class="header" href="#变量声明与赋值" id="变量声明与赋值">变量声明与赋值</a></h4>
+<p>变量声明使用 <code>let</code> 或 <code>const</code> 关键字声明，语法见 附录1。</p>
+<p>赋值表达式使用等号 <code>=</code> 作为运算符，运算结果类型为空值（<code>void</code>）。</p>
+<blockquote>
+<p>比如 <code>(a = b) == c</code> 是合法的表达式，但是类型检查会出错。赋值作为表达式而不是语句的原因是赋值语句和表达式的 FIRST 集会相交。</p>
+</blockquote>
+<p>要求实现变量作用域。</p>
+<h4><a class="header" href="#条件表达式和循环" id="条件表达式和循环">条件表达式和循环</a></h4>
+<p>一种条件表达式：<code>if-elseif-else</code> 表达式。</p>
+<p>一种循环：<code>while</code> 循环。</p>
+<h4><a class="header" href="#函数" id="函数">函数</a></h4>
+<p>函数使用 <code>fn</code> 关键字声明，语法见 附录1。</p>
+<p>不要求实现前向引用。</p>
+<h2><a class="header" href="#类型系统" id="类型系统">类型系统</a></h2>
+<p>考点：类型转换</p>
+<p>虚拟机的设计默认使用 64 位整数和浮点数。</p>
+<p>会有整数和浮点数（没法用同一种类型假装能转换的）</p>
+<p>虚拟机的设计支持数组、结构体和堆内存分配，这三者可以作为进阶内容选做。</p>
+<h3><a class="header" href="#暂定的类型系统" id="暂定的类型系统">暂定的类型系统</a></h3>
+<p>必做</p>
+<ul>
+<li><code>int</code> (<code>i64</code>)</li>
+<li><code>double</code> (<code>f64</code>)</li>
+<li><code>void</code> (<code>unit</code> / <code>()</code>)</li>
+</ul>
+<p>进阶（待砍刀）</p>
+<ul>
+<li><code>bool</code>
+(存储上等同于 <code>u8</code>，<code>false == 0u8</code>, <code>true == 255u8</code>)</li>
+<li><code>u8</code>/<code>u16</code>/<code>u32</code>/<code>u64</code></li>
+<li><code>i8</code>/<code>i16</code>/<code>i32</code>/<code>i64</code></li>
+<li>struct</li>
+<li>array (<code>[T; N]</code>)</li>
+<li>pointer (<code>&amp;T</code>)</li>
+<li>自动类型推断（省去 <code>let variable</code> 后面的类型）</li>
+</ul>
+<h2><a class="header" href="#虚拟机" id="虚拟机">虚拟机</a></h2>
+<p>考点：代码生成</p>
+<p>编译目标是 r0vm 虚拟机，是栈式虚拟机。编译到 JVM / Dotnet CLR / x86 等目标如果想做的话可以选做，需要提前跟助教声明。</p>
+<p>虚拟机设计已经基本确定，见相关文档。</p>
+<h2><a class="header" href="#附录" id="附录">附录</a></h2>
+<h3><a class="header" href="#附录1c-风格的语法在解析时的回溯问题与解决方案" id="附录1c-风格的语法在解析时的回溯问题与解决方案">附录1：C 风格的语法在解析时的回溯问题与解决方案</a></h3>
+<p>考虑以下 C 风格的变量声明语句的语法规则（<code>int</code>、<code>double</code> 等类型名称不是关键字）：</p>
+<pre><code># 标识符
+ident -&gt; &quot;int&quot; | &quot;x&quot;
+# 运算符
+op -&gt; &quot;+&quot; | &quot;-&quot;
+
+# 类型，在词法分析时被分析为标识符
+ty -&gt; ident
+# 表达式
+expr -&gt; &quot;0&quot; | &quot;1&quot; | ident | expr op expr
+
+# 变量声明语句
+decl_stmt -&gt; ty ident &quot;=&quot; expr &quot;;&quot;
+# 表达式语句
+expr_stmt -&gt; expr &quot;;&quot;
+
+# 语句
+stmt -&gt; decl_stmt | expr_stmt
+</code></pre>
+<p>显然，FIRST(<code>decl_stmt</code>) ∩ FIRST(<code>expr_stmt</code>) == { <code>ident</code> }。鉴于大部分同学在实现的时候都会考虑采用递归下降分析法（这门课的大作业里不会真的有人去手写/生成 LL/LR 吧？），这个 FIRST 集的重合会造成大量的回溯。</p>
+<p>类似的还有显式类型转换：</p>
+<pre><code>ident -&gt; &quot;int&quot; | &quot;x&quot;
+ty -&gt; ident
+
+# 括号表达式
+paren_expr -&gt; &quot;(&quot; expr &quot;)&quot;
+# C 风格的显式类型转换
+cast_expr -&gt; &quot;(&quot; ty &quot;)&quot; expr
+
+expr -&gt; ident | cast_expr | paren_expr
+</code></pre>
+<p>如果没有在语法分析的时候就建立符号表，在分析代码 <code>(int)(x)</code> 时甚至在读完 <code>(int)</code> 这三个 token 之后都不能确定解析的表达式到底是类型转换还是括号。为了解决这个问题，要么需要预读不确定数量的 token （在类型声明可能大于 1 个 token 时），要么遇到括号就要准备回溯，两者在代码上实现难度都偏大。</p>
+<p>因此，我建议在设计语法的时候就考虑这类问题，避免大量的 FIRST 集重合现象，降低递归下降语法分析器的实现难度。具体方案如下：</p>
+<blockquote>
+<p>在以下的语法规则中，<code>ty</code> 代表类型，<code>ident</code> 代表标识符，<code>expr</code> 代表表达式，<code>block</code> 代表语法块。</p>
+</blockquote>
+<p>一，将变量和函数声明中的类型后置，使用关键字开始此类语句，避免与 <code>expr</code> 的 FIRST 集重叠。此语法与多种现代语言（如 TypeScript、Kotlin、Go、Rust）相类似。</p>
+<blockquote>
+<p>九个六：<code>const</code> 可以考虑砍掉（待定）</p>
+</blockquote>
+<pre><code># 修改前:
+
+decl_stmt -&gt; &quot;const&quot;? ty ident (&quot;=&quot; expr)? &quot;;&quot;
+# int myVariable = 123 + 456;
+
+function_param -&gt; ty ident (&quot;,&quot; ty ident)*
+function -&gt; ty ident &quot;(&quot; function_param? &quot;)&quot; block
+# int add(int a, int b) { ... }
+
+# 修改后:
+
+decl_stmt -&gt; (&quot;let&quot; | &quot;const&quot;) ident &quot;:&quot; ty (&quot;=&quot; expr)? &quot;;&quot;
+# let myVariable: int = 123 + 456;
+
+function_param -&gt; ident &quot;:&quot; ty (&quot;,&quot; ident &quot;:&quot; ty)*
+function -&gt; &quot;fn&quot; ident &quot;(&quot; function_param? &quot;)&quot; &quot;-&gt;&quot; ty block
+# fn add(a: int, b: int) -&gt; int { ... }
+</code></pre>
+<p>二，将显式类型转换的语法从括号变为使用 <code>as</code> 做运算符的二元表达式。此语法与多种现代语言（如 TypeScript、Kotlin、Rust、C#）相类似。</p>
+<pre><code># 修改前：
+
+cast_expr -&gt; &quot;(&quot; ty &quot;)&quot; expr
+# (int)42.0
+# (double)(a + b)
+
+# 修改后：
+
+cast_expr -&gt; expr &quot;as&quot; ty
+# 42.0 as int
+# (a + b) as double
+</code></pre>
+<h3><a class="header" href="#附录2九个六先生的例程" id="附录2九个六先生的例程">附录2：九个六先生的例程</a></h3>
+<pre><pre class="playground"><code class="language-rust">let a1, a2, a3, a4, a5: int;
+
+fn me(x: int) -&gt; int {
+ return x;
+}
+
+fn add(x: double, y: double) -&gt; int {
+    let xx: int = x as int;
+    let yy: int = y as int;
+    return xx + yy
+}
+
+fn give(idx: int) -&gt; int {
+    if idx == 1 {
+        return a1;
+    }
+    else if idx == 2 {
+        return a2;
+    }
+    else if idx == 3 {
+        return a3;
+    }
+    else if idx == 4 {
+        return a4;
+    }
+    else if idx == 5 {
+        return a5;
+    }
+    else {
+        return 114514.0 as int
+    }
+}
+
+fn set(idx: int, val: int) -&gt; void {
+    if idx == 1 {
+        a1 = val;
+    }
+    else if idx == 2 {
+        a2 = val;
+    }
+    else if idx == 3 {
+        a3 = val;
+    }
+    else if idx == 4 {
+        a4 = val;
+    }
+    else if idx == 5 {
+        a5 = val;
+    }
+}
+
+fn main() -&gt; void {
+    let a, b, c, t: int;
+    let five: int = 5;
+    a = getint();
+    b = getint();
+    set(1, a);
+    set(2, b);
+    t = 3;
+    while t &lt;= five {
+        c = add(a as double, b as double);
+        b = a;
+        a = c;
+        set(t, c);
+        t = t + 1;
+    }
+    print(give(me(five)));
+</code></pre></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../c0/func.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../navm.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../c0/func.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../navm.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

@@ -1,0 +1,12 @@
+body {
+  line-height: 175%;
+  font-family: Iosevka, Fira Sans, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
+    'Helvetica Neue', sans-serif;
+}
+
+code {
+  line-height: 150%;
+  /* The original file has !important here so don't blame me */
+  font-family: Iosevka, Inconsolata, Consolas, 'Roboto Mono', 'San Francisco Mono', 'Courier New',
+    Courier, monospace !important;
+}

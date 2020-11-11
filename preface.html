@@ -1,0 +1,251 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js ayu">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>前言 - C0 指导书</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+        <link rel="stylesheet" href="./theme/css/additional.css">
+        
+
+        
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "ayu";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('ayu')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html" class="active">前言</a></li><li class="chapter-item expanded "><a href="todo.html"><strong aria-hidden="true">1.</strong> 参考资料</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">1.1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">1.2.</strong> c0 语言标准与指导书</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="c0/token.html"><strong aria-hidden="true">1.2.1.</strong> 单词</a></li><li class="chapter-item "><a href="c0/expr.html"><strong aria-hidden="true">1.2.2.</strong> 表达式</a></li><li class="chapter-item "><a href="c0/stmt.html"><strong aria-hidden="true">1.2.3.</strong> 语句</a></li><li class="chapter-item "><a href="c0/func.html"><strong aria-hidden="true">1.2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item "><a href="c0/notes.html"><strong aria-hidden="true">1.2.5.</strong> 设计笔记</a></li></ol></li><li class="chapter-item expanded "><a href="navm.html"><strong aria-hidden="true">1.3.</strong> navm 虚拟机说明</a></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">1.4.</strong> 编译原理评测姬说明</a></li></ol></li><li class="chapter-item expanded "><a href="reference.html">参考</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu (default)</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">C0 指导书</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#本文档已过时请等待编译助教重新编写文档" id="本文档已过时请等待编译助教重新编写文档">本文档已过时。请等待编译助教重新编写文档。</a></h1>
+<hr />
+<h1><a class="header" href="#编译实验指导书-前言" id="编译实验指导书-前言">编译实验指导书 前言</a></h1>
+<p>嗨。欢迎来到编译原理课。</p>
+<p>在这门课里，我们将学到计算机是如何把编程语言处理成机器指令的。这将包括文法分析、语法分析、变量分配、类型检查、代码生成等多个步骤。当然，由于课程难度原因，我们实际上在这些步骤上都有所删减，和现实中的编译器相比简化了许多部分。但是，麻雀虽小五脏俱全，通过编写这么一个 “玩具编译器”，我相信大家都能对程序的编译过程有一个实际的认识，从而更好地配合编译器写出更加高效的代码，乃至对自己将来遇到的类似的工作有所帮助。</p>
+<p>我们这次编译原理课所使用的语言是 __（待定）。</p>
+<p>我们编译的目标是一个虚拟机的指令集。这是一个栈式虚拟机——也就是一个会把运算的参数和结果存储在栈上（而不是寄存器里）的虚拟机。它相比于常见的 x86_64 或者 ARM 指令集在编程上会简单很多。如果你碰巧了解过 Java 的 JVM (Java Virtual Machine，Java 虚拟机) 或者 .NET 平台的 CLR (Common Language Runtime, 通用语言运行时) 的话，你会发现它们之间的共通之处的。</p>
+<p>编译原理是一门比较困难的课，涉及到的知识点很多，学起来会比较吃力。虽然我们会尽量把涉及到的知识点都放在相关的章节中，但是难免会有遗漏。遇到不懂或者可能有误的地方，可以在论坛和这本书所在的 GitHub 存储库的 Issues 区中提出来，我们会尽量解答。也希望大家可以用好搜索引擎和 StackOverflow。</p>
+<p>本指导书仍然还是 Beta 版本。如果你在书中发现了（包括但不限于）以下问题，欢迎积极联系助教，或者提 Issue/PR 修正：</p>
+<ul>
+<li>难以理解的表述</li>
+<li>逻辑/知识错误</li>
+<li>代码错误</li>
+<li>前后矛盾</li>
+<li>代码不对应/过时</li>
+<li>任何可以优化的部分</li>
+</ul>
+<p>对实验过程提出改进意见的同学会有加分。</p>
+<p>以上，祝各位同学编译愉快！</p>
+<p>—— 你们的魔鬼助教（笑）</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+                            <a rel="next" href="todo.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+                    <a rel="next" href="todo.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
