@@ -467,10 +467,15 @@ where
         expect!(self, Token::LParen)?;
         let params = separated!(
             {
+                let is_const = is_next!(self, Token::ConstKw);
+                if is_const {
+                    self.lexer.next();
+                }
                 let param_name = self.parse_ident()?;
                 expect!(self, Token::Colon)?;
                 let param_ty = self.parse_ty()?;
                 Ok(FuncParam {
+                    is_const,
                     name: param_name,
                     ty: param_ty,
                 })

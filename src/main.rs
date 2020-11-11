@@ -4,7 +4,7 @@ use r0syntax::{span::Span, token::Token};
 use std::io::{Read, Write};
 
 static INPUT: &str = r#"
-fn fib(x: int) -> int {
+fn fib(const x: int) -> int {
     if x<=1 {
         return 1;
     }
@@ -69,19 +69,6 @@ fn main() {
             std::process::exit(1);
         }
     };
-
-    let sexpr = serde_lexpr::to_value(&s0).unwrap();
-    println!(
-        "{:}",
-        serde_lexpr::print::to_string_custom(
-            &sexpr,
-            serde_lexpr::print::Options::default()
-                .with_bool_syntax(serde_lexpr::print::BoolSyntax::Symbol)
-                .with_bytes_syntax(serde_lexpr::print::BytesSyntax::R6RS)
-                .with_keyword_syntax(serde_lexpr::parse::KeywordSyntax::ColonPostfix)
-        )
-        .unwrap()
-    );
 
     let mut stdin = std::io::stdin();
     let mut stdout = std::io::stdout();

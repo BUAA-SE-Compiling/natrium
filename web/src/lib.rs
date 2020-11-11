@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use natrium::util::pretty_print_error;
 use r0vm::s0::S0;
-use std::{fmt::Write, io};
+use std::{fmt::Write as FmtWrite, io, io::Write};
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
@@ -28,28 +28,28 @@ fn compile_internal(input: &str) -> Result<S0, String> {
     let program = match r {
         Ok(p) => p,
         Err(e) => {
-            let mut err = String::new();
+            let mut err = Vec::new();
             if let Some(span) = e.span {
                 pretty_print_error(&mut err, input, &format!("{:?}", e.kind), span)
                     .map_err(|x| x.to_string())?;
             } else {
                 writeln!(err, "{:?}", e.kind).map_err(|x| x.to_string())?;
             }
-            return Err(err);
+            return Err(unsafe { String::from_utf8_unchecked(err) });
         }
     };
 
     let s0 = match r0codegen::generator::compile(&program) {
         Ok(p) => p,
         Err(e) => {
-            let mut err = String::new();
+            let mut err = Vec::new();
             if let Some(span) = e.span {
                 pretty_print_error(&mut err, input, &format!("{:?}", e.kind), span)
                     .map_err(|x| x.to_string())?;
             } else {
                 writeln!(err, "{:?}", e.kind).map_err(|x| x.to_string())?;
             }
-            return Err(err);
+            return Err(unsafe { String::from_utf8_unchecked(err) });
         }
     };
 

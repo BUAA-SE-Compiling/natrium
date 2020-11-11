@@ -26,6 +26,7 @@ pub struct FuncStmt {
 
 #[derive(Debug, Clone)]
 pub struct FuncParam {
+    pub is_const: bool,
     pub name: Ident,
     pub ty: TyDef,
 }
