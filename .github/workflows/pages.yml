@@ -29,9 +29,9 @@ jobs:
       - name: combine build results
         run: |
           mkdir web-dist
-          cp -r ./docs/book web-dist
+          cp -r ./docs/book/* web-dist
           mkdir -p web-dist/playground
-          cp -r ./web/dist web-dist/playground
+          cp -r ./web/dist/* web-dist/playground
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
