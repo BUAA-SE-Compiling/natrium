@@ -342,7 +342,11 @@ impl<'f> FuncCodegen<'f> {
 
         let start_bb = self.new_bb();
 
-        let end_bb = self.compile_block(&self.func.body, start_bb, &scope)?;
+        let end_bb = self.compile_block_without_scope(&self.func.body, start_bb, &mut scope)?;
+
+        if scope.find(RET_VAL_KEY).unwrap().ty == Ty::Void {
+            self.set_jump(end_bb, JumpInst::Return);
+        }
 
         let arrange = self.bb_arrange(start_bb)?;
 
@@ -454,9 +458,18 @@ impl<'f> FuncCodegen<'f> {
         scope: &Scope,
     ) -> CompileResult<BB> {
         let mut block_scope = Scope::new_with_parent(scope);
+        self.compile_block_without_scope(blk, bb_id, &mut block_scope)
+    }
+
+    fn compile_block_without_scope(
+        &mut self,
+        blk: &ast::BlockStmt,
+        bb_id: BB,
+        scope: &mut Scope,
+    ) -> CompileResult<BB> {
         let mut cur_bb_id = bb_id;
         for stmt in &blk.stmts {
-            cur_bb_id = self.compile_stmt(stmt, cur_bb_id, &mut block_scope)?;
+            cur_bb_id = self.compile_stmt(stmt, cur_bb_id, scope)?;
         }
         Ok(cur_bb_id)
     }
@@ -471,15 +484,25 @@ impl<'f> FuncCodegen<'f> {
             ast::Stmt::Block(blk) => self.compile_block(blk, bb_id, scope),
             ast::Stmt::While(stmt) => self.compile_while(stmt, bb_id, scope),
             ast::Stmt::If(stmt) => self.compile_if(stmt, bb_id, scope),
-            ast::Stmt::Expr(expr) => {
-                self.compile_expr(expr, bb_id, scope)?;
-                Ok(bb_id)
-            }
+            ast::Stmt::Expr(expr) => self.compile_expr_stmt(expr, bb_id, scope),
             ast::Stmt::Decl(stmt) => self.compile_decl(stmt, bb_id, scope),
             ast::Stmt::Return(stmt) => self.compile_return(stmt, bb_id, scope),
             ast::Stmt::Break(span) => self.compile_break(*span, bb_id, scope),
             ast::Stmt::Continue(span) => self.compile_continue(*span, bb_id, scope),
         }
+    }
+
+    fn compile_expr_stmt(
+        &mut self,
+        expr: &ast::Expr,
+        bb_id: BB,
+        scope: &Scope,
+    ) -> CompileResult<BB> {
+        let ty = self.compile_expr(expr, bb_id, scope)?;
+        if ty.size_slot() > 0 {
+            self.append_code(bb_id, Op::PopN(ty.size_slot() as u32));
+        }
+        Ok(bb_id)
     }
 
     fn compile_while(
