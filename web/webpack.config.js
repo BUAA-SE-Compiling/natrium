@@ -1,11 +1,8 @@
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin')
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const APP_DIR = path.resolve(__dirname, './src')
-const MONACO_DIR = path.resolve(__dirname, './node_modules/monaco-editor')
-
 const dist = path.resolve(__dirname, 'dist')
 
 module.exports = {
@@ -29,11 +26,6 @@ module.exports = {
         include: APP_DIR,
         use: ['style-loader', 'css-loader'],
       },
-      {
-        test: /.css$/,
-        include: MONACO_DIR,
-        use: ['style-loader', 'css-loader'],
-      },
       { test: /.styl$/, use: ['style-loader', 'css-loader', 'stylus-loader'] },
       { test: /.ttf$/, use: 'file-loader' },
     ],
@@ -48,8 +40,5 @@ module.exports = {
   optimization: {
     minimize: true,
     minimizer: [new TerserPlugin()],
-  },
-  experiments: {
-    asyncWebAssembly: true,
   },
 }

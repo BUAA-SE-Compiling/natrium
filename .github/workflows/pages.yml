@@ -15,6 +15,9 @@ jobs:
           # mdbook-version: '0.4.1'
           mdbook-version: 'latest'
 
+      - name: setup wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
       - name: build c0 book
         run: mdbook build
         working-directory: ./docs
