@@ -391,6 +391,7 @@ dependencies = [
  "r0vm",
  "serde",
  "serde-lexpr",
+ "unicode-width",
 ]
 
 [[package]]

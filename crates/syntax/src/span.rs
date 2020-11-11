@@ -3,7 +3,7 @@ use std::{fmt::Debug, ops::Index};
 /// A Span is the information of a piece of source code inside a file.
 ///
 /// `Span`s are only meaningful when indexing the file it is originated from.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Span {
     /// The start index (in bytes or other meaningful item index)

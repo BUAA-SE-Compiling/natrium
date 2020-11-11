@@ -112,7 +112,7 @@ where
         match peek {
             Some((t, _)) if f(t) => Ok(self.lexer.next().unwrap()),
             Some((_, s)) => Err(Some(*s)),
-            None => Err(None),
+            None => Err(Some(Span::eof())),
         }
     }
 
