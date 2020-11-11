@@ -26,18 +26,19 @@ c0 有 8 个关键字。扩展 c0 增加了 2 个关键字。
 ```
 digit -> [0-9]
 UINT_LITERAL -> digit+
-FLOAT_LITERAL -> digit+ '.' digit+ ([eE] digit+)?
 
 escape_sequence -> '\' [\\"'nrt]
 string_regular_char -> [^"\\]
 STRING_LITERAL -> '"' (string_regular_char | escape_sequence)* '"'
 
-// 扩展 c0 的字符常量
+// 扩展 c0
+FLOAT_LITERAL -> digit+ '.' digit+ ([eE] digit+)?
+
 char_regular_char -> [^'\\]
 CHAR_LITERAL -> '\'' (char_regular_char | escape_sequence)* '\''
 ```
 
-c0 有三种字面量，分别是 _无符号整数_、_浮点数_ 和 _字符串常量_。
+基础 c0 有两种字面量，分别是 _无符号整数_ 和 _字符串常量_。扩展 c0 增加了 _浮点数常量_ 和 _字符常量_。
 
 ## 标识符
 
