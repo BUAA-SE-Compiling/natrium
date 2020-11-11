@@ -23,7 +23,11 @@ jobs:
         working-directory: ./docs
 
       - name: build c0 web
-        run: yarn && yarn build
+        run: |
+          mkdir -p static/fonts
+          wget https://github.com/be5invis/Iosevka/releases/download/v4.0.0-alpha.1/webfont-iosevka-4.0.0-alpha.1.zip -o iosevka.zip
+          7z x iosevka.zip static/fonts/
+          yarn && yarn build
         working-directory: ./web
 
       - name: combine build results

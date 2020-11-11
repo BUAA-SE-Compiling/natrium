@@ -22,7 +22,7 @@ export class App extends React.Component<AppProps, AppState> {
     this.natrium = props.natrium
     this.state = {
       error: undefined,
-      code: '// code here',
+      code: '',
       compiledCode: undefined,
       output: '',
     }
@@ -101,9 +101,14 @@ class Editor extends React.Component<EditorProps> {
   render() {
     return (
       <AceEditor
+        className="ace-editor"
         mode="rust"
         value={this.props.code}
         onChange={(code) => this.updateCode(code)}
+        width="100%"
+        height="100%"
+        fontSize="1rem"
+        placeholder="// Your code here"
         editorProps={{
           $blockScrolling: true,
         }}
