@@ -487,6 +487,13 @@ char_regular_char -&gt; [^'\\]
 CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
 </code></pre>
 <p>基础 c0 有两种字面量，分别是 <em>无符号整数</em> 和 <em>字符串常量</em>。扩展 c0 增加了 <em>浮点数常量</em> 和 <em>字符常量</em>。</p>
+<p>语义约束：</p>
+<ul>
+<li>字符串字面量中的字符可以是 ASCII 中除了双引号 <code>&quot;</code>、反斜线 <code>\\</code>、空白符 <code>\r</code> <code>\n</code> <code>\t</code> 以外的任何字符。转义序列可以是 <code>\'</code>、<code>\&quot;</code>、<code>\\</code>、<code>\n</code>、<code>\t</code>、<code>\r</code>，含义与 C 中的对应序列相同。</li>
+</ul>
+<blockquote>
+<p>UB: 对于无符号整数和浮点数常量超出相应数据类型表示范围的情况我们不做规定。你可以选择报错也可以选择无视。</p>
+</blockquote>
 <h2><a class="header" href="#标识符" id="标识符">标识符</a></h2>
 <pre><code>IDENT -&gt; [_a-zA-Z] [_a-zA-Z0-9]*
 </code></pre>
@@ -804,7 +811,7 @@ fn putln() -&gt; void;
 CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
 literal_expr -&gt; UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL | CHAR_LITERAL
 </code></pre>
-<p>字符字面量是由单引号 <code>'</code> 包裹的单个字符或转义序列。其中单个字符可以是 ASCII 中除了单引号 <code>'</code>、反斜线 <code>\\</code>、空白符 <code>\r</code> <code>\n</code> <code>\t</code> 以外的任何字符。转义序列可以是 <code>\'</code>、<code>\\</code>、<code>\n</code>、<code>\t</code>、<code>\r</code>，含义与 C 中的对应序列相同。</p>
+<p>字符字面量是由单引号 <code>'</code> 包裹的单个字符或转义序列。其中单个字符可以是 ASCII 中除了单引号 <code>'</code>、反斜线 <code>\\</code>、空白符 <code>\r</code>(CR)、<code>\n</code>(LF)、<code>\t</code>(Tab) 以外的任何字符。转义序列可以是 <code>\'</code>、<code>\&quot;</code>、<code>\\</code>、<code>\n</code>、<code>\t</code>、<code>\r</code>，含义与 C 中的对应序列相同。</p>
 <p><em>字符字面量</em> 的语义是被包裹的字符的 ASCII 编码无符号扩展到 64 位的整数值，类型是 <code>int</code>。</p>
 <h2><a class="header" href="#类型转换--浮点数类型" id="类型转换--浮点数类型">类型转换 &amp; 浮点数类型</a></h2>
 <p>加分：25pt</p>
@@ -915,8 +922,8 @@ continue_stmt -&gt; 'continue' ';'
 <p>实现一个 parser 有很多种方法，这里会提供一些关于代码实现（而不是理论）的方法指导。</p>
 <p>对于没有讲到的内容，可以参考 <a href="https://github.com/BUAA-SE-Compiling/c0-handbook#33-%E5%AE%9E%E7%8E%B0%E6%8C%87%E5%BC%95">去年的指导书</a></p>
 <h2><a class="header" href="#一些通用的部分" id="一些通用的部分">一些通用的部分</a></h2>
-<h3><a class="header" href="#类型" id="类型">类型</a></h3>
-<p>对于词法、语法分析时产生的类型，因为类型确定且已知，可以使用继承实现。在支持和类型 (sum type) 的语言里也可以用和类型实现。这样做可以显著降低判断 token 或者语法树节点类型时的工作量，因为可以直接判断变量本身的类型，甚至直接进行模式匹配。比如：</p>
+<h3><a class="header" href="#类型定义" id="类型定义">类型定义</a></h3>
+<p>对于词法、语法分析时用到的类型，因为类型确定且已知，可以使用继承实现。在支持和类型 (sum type) 的语言里也可以用和类型实现。这样做可以显著降低判断 token 或者语法树节点类型时的工作量，因为可以直接判断变量本身的类型，甚至直接进行模式匹配。比如：</p>
 <pre><code class="language-csharp">/* 词法分析器 */
 
 class Token {}
@@ -949,7 +956,7 @@ class BinaryExpr : Expr {
 
 // ...
 </code></pre>
-<p>或者在支持和类型的语言里：</p>
+<p>或者在支持的语言里使用带标签的联合类型：</p>
 <pre><code class="language-rust ignore">enum Expr {
     Literal(LiteralExpr),
     Binary(BinaryExpr),
@@ -982,21 +989,20 @@ struct BinaryExpr {
 </ul>
 <p>由于在解析时常常要回溯，使用的迭代器可以提供一些额外的方法，比如 <code>peek()</code> 用于查看下一个值但不移动迭代器，或者 <code>unread(value)</code> 用于将已经读出的值放回迭代器。</p>
 <h2><a class="header" href="#词法分析" id="词法分析">词法分析</a></h2>
-<p>词法分析这个主题比较简单，基本上就是对于每个 token 使用自动机（或者退化成普通的逻辑分支）进行解析。token 的组成一般比较简单，可以在分析时参考正则表达式的状态。</p>
-<p>比如我们要分析一个数字（整数或浮点数），我们可以写出它的正则表达式：<code>\d*\.\d*(e[+-]?\d+)?|0x[0-9a-fA-F]+|\d+</code></p>
+<p>词法分析这个主题比较简单，基本上就是对于每个 token 使用自动机（或者退化成普通的逻辑分支）进行解析。token 的组成一般比较简单，可以在分析时参考正则表达式的状态来设计自动机或逻辑分支。</p>
+<p>当然，也有一些库允许你直接用正则表达式定义 token 来进行自动分析。好耶。</p>
 <blockquote>
 <p>不要学助教<a href="https://github.com/01010101lzy/chigusa/blob/0a08176f4318542c1bb96114ac3f0df56ac9510d/src/c0/lexer.rs#L392-L511">用逻辑分支模拟自动机</a>（逃</p>
 </blockquote>
 <h2><a class="header" href="#语法分析" id="语法分析">语法分析</a></h2>
 <h3><a class="header" href="#普通的递归下降分析法" id="普通的递归下降分析法">普通的递归下降分析法</a></h3>
 <p>递归下降是一个很简单、很直观的分析法，也是大多数人实现语法分析的首选方法。在实现递归下降分析器的时候，有一些可以降低编码难度的方法。</p>
-<p>TODO: 展示一个一般的递归下降分析的过程，使用 C++ 或者类似语言</p>
-<h4><a class="header" href="#使用迭代器" id="使用迭代器">使用迭代器</a></h4>
-<p>TODO: 迭代器是个好东西。展示使用迭代器解耦的方法</p>
-<h4><a class="header" href="#解析器结合子-parser-combinator" id="解析器结合子-parser-combinator">解析器结合子 (Parser Combinator)</a></h4>
-<p>TODO: 展示使用 Parser Combinator 的库，比如 nom，以及其使用方法</p>
+<h4><a class="header" href="#使用迭代器和辅助函数" id="使用迭代器和辅助函数">使用迭代器和辅助函数</a></h4>
+<p>看 miniplc0 java 版本基本上就够了（逃）</p>
+<h4><a class="header" href="#解析器组合子-parser-combinator" id="解析器组合子-parser-combinator">解析器组合子 (Parser Combinator)</a></h4>
+<p>助教没有试过这么写，如果你用 Haskell 来写的话或许可以试试 <code>parsec</code> 这个库。</p>
 <h3><a class="header" href="#使用-lllr-解析器生成器" id="使用-lllr-解析器生成器">使用 LL/LR 解析器生成器</a></h3>
-<p>唔……这个咱似乎帮不上什么忙。记得选一个好用的，比如 <a href="https://www.antlr.org">ANTLR</a>。</p>
+<p>自动生成解析器代码总感觉有点作弊的意思，不过用了就用了吧（笑）。如果你确定要用的话，记得选一个好用的，比如 <a href="https://www.antlr.org">ANTLR</a>。</p>
 <h1><a class="header" href="#navm-虚拟机标准" id="navm-虚拟机标准">navm 虚拟机标准</a></h1>
 <p>本次大作业的编译目标是 Natrium 虚拟机 (navm) 的汇编 (s0)。其设计参考了 JVM、DotNet CLR 和上学期的 c0 虚拟机。</p>
 <h2><a class="header" href="#虚拟机简介" id="虚拟机简介">虚拟机简介</a></h2>

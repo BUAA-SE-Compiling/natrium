@@ -177,7 +177,7 @@
 CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
 literal_expr -&gt; UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL | CHAR_LITERAL
 </code></pre>
-<p>字符字面量是由单引号 <code>'</code> 包裹的单个字符或转义序列。其中单个字符可以是 ASCII 中除了单引号 <code>'</code>、反斜线 <code>\\</code>、空白符 <code>\r</code> <code>\n</code> <code>\t</code> 以外的任何字符。转义序列可以是 <code>\'</code>、<code>\\</code>、<code>\n</code>、<code>\t</code>、<code>\r</code>，含义与 C 中的对应序列相同。</p>
+<p>字符字面量是由单引号 <code>'</code> 包裹的单个字符或转义序列。其中单个字符可以是 ASCII 中除了单引号 <code>'</code>、反斜线 <code>\\</code>、空白符 <code>\r</code>(CR)、<code>\n</code>(LF)、<code>\t</code>(Tab) 以外的任何字符。转义序列可以是 <code>\'</code>、<code>\&quot;</code>、<code>\\</code>、<code>\n</code>、<code>\t</code>、<code>\r</code>，含义与 C 中的对应序列相同。</p>
 <p><em>字符字面量</em> 的语义是被包裹的字符的 ASCII 编码无符号扩展到 64 位的整数值，类型是 <code>int</code>。</p>
 <h2><a class="header" href="#类型转换--浮点数类型" id="类型转换--浮点数类型">类型转换 &amp; 浮点数类型</a></h2>
 <p>加分：25pt</p>
