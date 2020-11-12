@@ -97,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">前言</a></li><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">1.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">2.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="c0/token.html"><strong aria-hidden="true">2.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="c0/expr.html"><strong aria-hidden="true">2.2.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="c0/stmt.html"><strong aria-hidden="true">2.3.</strong> 语句</a></li><li class="chapter-item expanded "><a href="c0/func.html"><strong aria-hidden="true">2.4.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="c0/stdlib.html"><strong aria-hidden="true">2.5.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="c0/extended-c0.html"><strong aria-hidden="true">2.6.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="c0/method_notes.html"><strong aria-hidden="true">2.7.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="navm/index.html"><strong aria-hidden="true">3.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="navm/instruction.html"><strong aria-hidden="true">3.1.</strong> navm 虚拟机指令集</a></li></ol></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">4.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="reference.html">参考资料</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">前言</a></li><li class="chapter-item expanded "><a href="compile-pipeline.html"><strong aria-hidden="true">1.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">2.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">3.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="c0/token.html"><strong aria-hidden="true">3.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="c0/ty.html"><strong aria-hidden="true">3.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="c0/expr.html"><strong aria-hidden="true">3.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="c0/stmt.html"><strong aria-hidden="true">3.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="c0/func.html"><strong aria-hidden="true">3.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="c0/stdlib.html"><strong aria-hidden="true">3.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="c0/extended-c0.html"><strong aria-hidden="true">3.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="c0/method_notes.html"><strong aria-hidden="true">3.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="navm/index.html"><strong aria-hidden="true">4.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="navm/instruction.html"><strong aria-hidden="true">4.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="navm/example.html"><strong aria-hidden="true">4.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">5.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="reference.html">参考资料</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -166,8 +166,8 @@
                 <div id="content" class="content">
                     <main>
                         <h1><a class="header" href="#前言" id="前言">前言</a></h1>
-<p>这是~~一条神奇的天路~~</p>
-<p>本指导书仍然还是 Beta 版本。如果你在书中发现了（包括但不限于）以下问题，欢迎积极联系助教，或者提 Issue/PR 修正：</p>
+<p>本指导书为 C0 指导书，阅读本指导书前，请确保你已经顺利完成了 mini 实验并且对编译器的结构和编译过程有了基本认识。</p>
+<p>本指导书仍然还是 Beta 版本。如果你在书中发现了（包括但不限于）以下问题，欢迎积极联系助教，或者提 Issue/PR 修正，可能会有加分哦 ouo：</p>
 <ul>
 <li>难以理解的表述</li>
 <li>逻辑/知识错误</li>
@@ -176,9 +176,76 @@
 <li>代码不对应/过时</li>
 <li>任何可以优化的部分</li>
 </ul>
-<p>对实验过程提出改进意见的同学会有加分。</p>
 <p>以上，祝各位同学编译愉快！</p>
 <p>—— 你们的魔鬼助教（笑）</p>
+<h1><a class="header" href="#编译过程概述" id="编译过程概述">编译过程概述</a></h1>
+<p>这次我们使用的编译目标是 C0，一种简化了 C 语言语义和编译过程、同时魔改了语法的玩具编程语言。</p>
+<h2><a class="header" href="#编译过程" id="编译过程">编译过程</a></h2>
+<p>整个 C0 工具链分为两个部分，分别是你接下来需要写的 <strong>编译器</strong> 和我们提供的 <strong>虚拟机</strong>。整个编译流程如下：</p>
+<ul>
+<li>编译器（你要写的）
+<ul>
+<li>读入 c0 源代码</li>
+<li>输出 o0 二进制代码</li>
+</ul>
+</li>
+<li>虚拟机
+<ul>
+<li>读入 o0 二进制代码</li>
+<li>解释执行代码</li>
+<li>输出运行结果</li>
+</ul>
+</li>
+</ul>
+<p>你的编译器至少能通过某种<strong>命令行接口</strong>读入一个 c0 文件，并将编译出的 o0 文件输出到另一个文件中。接口的实际特征我们不做规定，需要你自己定义并写在评测配置中，具体见 <a href="judge.html">评测要求</a>。</p>
+<p>o0 二进制代码的定义见 <a href="navm/readme.html#%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%A0%BC%E5%BC%8F">这里</a>。</p>
+<p>我们不限制你编写编译器使用的语言，且允许复用 miniplc0 实验中的代码。</p>
+<p>如果你决定编译到其他目标（自己设计的指令集、LLVM IR、Java Bitcode、物理 CPU 指令集等），请联系助教进行单独手动评测。由于需要单独评测，你不太可能因此获得额外的加分。</p>
+<h2><a class="header" href="#编译目标" id="编译目标">编译目标</a></h2>
+<p>我们编译的目标是本课程自行设计的 <code>navm</code> 虚拟机使用的 <code>o0</code> 代码。有关 <code>navm</code> 虚拟机的设计、结构参见 <a href="navm/readme.html">对 navm 虚拟机的介绍</a>。</p>
+<p>比如如果你编译这个文件：</p>
+<pre><code class="language-rust ignore">fn foo(i: int) -&gt; int {
+    return -i;
+}
+
+fn main() -&gt; void {
+    putint(foo(-123456));
+}
+</code></pre>
+<p>你得到的结果应该类似于这个（<code>o0</code> 格式没有规定相应的文字形式，以下是官方参考实现 <code>natrium</code> 和 <code>navm</code> 使用的输出格式）：</p>
+<pre><code>static: 66 6F 6F (`foo`)
+
+static: 70 75 74 69 6E 74 (`putint`)
+
+static: 6D 61 69 6E (`main`)
+
+static: 5F 73 74 61 72 74 (`_start`)
+
+
+fn [3] 0 0 -&gt; 0 {
+    0: StackAlloc(0)
+    1: Call(2)
+}
+
+fn [0] 0 1 -&gt; 1 {
+    0: ArgA(0)
+    1: ArgA(1)
+    2: Load64
+    3: NegI
+    4: Store64
+    5: Ret
+}
+
+fn [2] 0 0 -&gt; 0 {
+    0: StackAlloc(0)
+    1: StackAlloc(1)
+    2: Push(123456)
+    3: NegI
+    4: Call(1)
+    5: CallName(1)
+    6: Ret
+}
+</code></pre>
 <h1><a class="header" href="#语法表示说明" id="语法表示说明">语法表示说明</a></h1>
 <p>本文介绍的是一种 EBNF 的变体，用于描述字符写成的编程语言语法。这个变体将每一个非终结符的产生式都表示成了一个正则表达式，以此来使得语言定义写起来更加精炼。</p>
 <p>本变体的格式大量参考了 <a href="https://doc.rust-lang.org/reference/notation.html">Rust 的语法描述语言</a>。</p>
@@ -408,17 +475,18 @@ CONTINUE_KW -&gt; 'continue'
 <h1><a class="header" href="#字面量" id="字面量">字面量</a></h1>
 <pre><code>digit -&gt; [0-9]
 UINT_LITERAL -&gt; digit+
-FLOAT_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
 
 escape_sequence -&gt; '\' [\\&quot;'nrt]
 string_regular_char -&gt; [^&quot;\\]
 STRING_LITERAL -&gt; '&quot;' (string_regular_char | escape_sequence)* '&quot;'
 
-// 扩展 c0 的字符常量
+// 扩展 c0
+FLOAT_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
+
 char_regular_char -&gt; [^'\\]
 CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
 </code></pre>
-<p>c0 有三种字面量，分别是 <em>无符号整数</em>、<em>浮点数</em> 和 <em>字符串常量</em>。</p>
+<p>基础 c0 有两种字面量，分别是 <em>无符号整数</em> 和 <em>字符串常量</em>。扩展 c0 增加了 <em>浮点数常量</em> 和 <em>字符常量</em>。</p>
 <h2><a class="header" href="#标识符" id="标识符">标识符</a></h2>
 <pre><code>IDENT -&gt; [_a-zA-Z] [_a-zA-Z0-9]*
 </code></pre>
@@ -448,6 +516,23 @@ SEMICOLON -&gt; ';'
 <p>注释是扩展 c0 内容，见 <a href="c0/extended-c0.html#%E6%B3%A8%E9%87%8A">扩展 c0</a></p>
 <pre><code>COMMENT -&gt; '//' regex(.*) '\n'
 </code></pre>
+<h1><a class="header" href="#类型系统" id="类型系统">类型系统</a></h1>
+<h2><a class="header" href="#基础类型" id="基础类型">基础类型</a></h2>
+<p>c0 有一个十分简单的类型系统。在基础 C0 中你会用到的类型有两种：</p>
+<ul>
+<li>64 位有符号整数 <code>int</code></li>
+<li>空类型 <code>void</code></li>
+</ul>
+<p>扩展 C0 增加了一种类型：</p>
+<ul>
+<li>64 位 IEEE-754 浮点数 <code>double</code></li>
+</ul>
+<h2><a class="header" href="#类型表示" id="类型表示">类型表示</a></h2>
+<pre><code>ty -&gt; IDENT
+</code></pre>
+<p>在 C0 中，用到类型的地方使用一个标识符表示。这个标识符的所有可能值就是上面列出的基础类型。填入其他值的情况应被视为编译错误。</p>
+<h2><a class="header" href="#关于布尔类型" id="关于布尔类型">关于布尔类型</a></h2>
+<p>比较运算符的运行结果是布尔类型。在 c0 中，我们并没有规定布尔类型的实际表示方式。在 navm 虚拟机中，所有非 0 的布尔值都被视为 <code>true</code>，而 0 被视为 <code>false</code>。</p>
 <h1><a class="header" href="#表达式" id="表达式">表达式</a></h1>
 <pre><code>expr -&gt; 
       operator_expr
@@ -474,13 +559,15 @@ operator_expr -&gt; expr binary_operator expr
 <tr><td><code>-</code></td><td>将左右两侧相减</td><td>数值</td><td>与参数相同</td><td>左到右</td></tr>
 <tr><td><code>*</code></td><td>将左右两侧相乘</td><td>数值</td><td>与参数相同</td><td>左到右</td></tr>
 <tr><td><code>/</code></td><td>将左右两侧相除</td><td>数值</td><td>与参数相同</td><td>左到右</td></tr>
-<tr><td><code>&gt;</code></td><td>如果左侧大于右侧则为真</td><td>数值</td><td>布尔</td><td>左到右</td></tr>
-<tr><td><code>&lt;</code></td><td>如果左侧小于右侧则为真</td><td>数值</td><td>布尔</td><td>左到右</td></tr>
-<tr><td><code>&gt;=</code></td><td>如果左侧大于等于右侧则为真</td><td>数值</td><td>布尔</td><td>左到右</td></tr>
-<tr><td><code>&lt;=</code></td><td>如果左侧小于等于右侧则为真</td><td>数值</td><td>布尔</td><td>左到右</td></tr>
-<tr><td><code>==</code></td><td>如果左侧等于右侧则为真</td><td>数值</td><td>布尔</td><td>左到右</td></tr>
-<tr><td><code>!=</code></td><td>如果左侧不等于右侧则为真</td><td>数值</td><td>布尔</td><td>左到右</td></tr>
+<tr><td><code>&gt;</code></td><td>如果左侧大于右侧则为真</td><td>数值</td><td>布尔*</td><td>左到右</td></tr>
+<tr><td><code>&lt;</code></td><td>如果左侧小于右侧则为真</td><td>数值</td><td>布尔*</td><td>左到右</td></tr>
+<tr><td><code>&gt;=</code></td><td>如果左侧大于等于右侧则为真</td><td>数值</td><td>布尔*</td><td>左到右</td></tr>
+<tr><td><code>&lt;=</code></td><td>如果左侧小于等于右侧则为真</td><td>数值</td><td>布尔*</td><td>左到右</td></tr>
+<tr><td><code>==</code></td><td>如果左侧等于右侧则为真</td><td>数值</td><td>布尔*</td><td>左到右</td></tr>
+<tr><td><code>!=</code></td><td>如果左侧不等于右侧则为真</td><td>数值</td><td>布尔*</td><td>左到右</td></tr>
 </tbody></table>
+<h3><a class="header" href="#-关于布尔类型" id="-关于布尔类型">* 关于布尔类型</a></h3>
+<p>由于布尔类型的表达式只会出现在 <code>if</code> 和 <code>while</code> 语句的条件表达式中，我们不规定布尔类型的表现形式。在 <code>navm</code> 中，所有非 0 值均表示 <code>true</code>，0 表示 <code>false</code>。</p>
 <h2><a class="header" href="#取反表达式" id="取反表达式">取反表达式</a></h2>
 <pre><code>negate_expr -&gt; '-' expr
 </code></pre>
@@ -720,7 +807,7 @@ expr -&gt; .. | as_expr
 <li>浮点数 <code>double</code> 和整数 <code>int</code> 之间互相转换</li>
 </ul>
 <h3><a class="header" href="#浮点数类型" id="浮点数类型">浮点数类型</a></h3>
-<pre><code>FLOAT_LITERAL -&gt; digit* '.' digit+ ([eE] digit+)?
+<pre><code>FLOAT_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
 </code></pre>
 <p>浮点数类型 <code>double</code> 是遵循 IEEE 754 标准的 64 位浮点数（在其它语言中经常称作 <code>double</code>、<code>float64</code> 或 <code>f64</code>）。</p>
 <p>浮点数和整数之间不能进行运算。浮点数之间进行四则运算的结果仍为浮点数。</p>
@@ -1154,10 +1241,16 @@ fn test(a: int, b: int) -&gt; int {
 <p>指令会从 <code>addr</code> 处取 <code>T</code> 长度的数据压入栈中。如果 <code>addr</code> 不是 <code>T</code> 的倍数，将会产生 <code>UnalignedAccess</code> 错误。如果 <code>T</code> 小于 64，多余的数位将会被补成 0。</p>
 <h3><a class="header" href="#store8163264-指令" id="store8163264-指令"><code>store.8/16/32/64</code> 指令</a></h3>
 <p>指令会将 <code>T</code> 长度的数据弹栈并存入 <code>addr</code> 地址处。如果 <code>addr</code> 不是 <code>T</code> 的倍数，将会产生 <code>UnalignedAccess</code> 错误。如果 <code>T</code> 小于 64，数据将被截断至 <code>T</code> 长度。</p>
+<h1><a class="header" href="#实现指导" id="实现指导">实现指导</a></h1>
 <h1><a class="header" href="#提交与评测说明" id="提交与评测说明">提交与评测说明</a></h1>
 <p>C0 大作业的提交方式是自动评测，评测的方式之后会写在这里。</p>
+<h2><a class="header" href="#程序要求" id="程序要求">程序要求</a></h2>
+<p>你提交的程序应当至少能通过命令行参数接收一个 c0 代码文件的输入，并输出一个 s0 二进制文件。</p>
+<p>如果编译过程中出现了错误（语法、语义、编译过程错误等），你的程序应当<strong>以非 0 的返回值退出</strong>。否则如果一切正常，你的程序应当以返回值 0 退出。</p>
+<h2><a class="header" href="#提交要求" id="提交要求">提交要求</a></h2>
+<p>TODO: 创建 OJ 上的相关题目</p>
 <h1><a class="header" href="#参考实现" id="参考实现">参考实现</a></h1>
-<p>这个仓库中保存了实现了全部扩展 C0 的编译器参考实现，以及相关的工具链。你可以在 Release 中下载相关程序自己测试（尚未发布），也可以在 <a href="https://c0.karenia.cc/playground">https://c0.karenia.cc/playground</a> 使用浏览器版本测试。</p>
+<p><a href="https://github.com/BUAA-SE-Compiling/natrium">这个仓库</a> 中保存了一个实现了全部扩展 C0 的编译器参考实现，以及相关的工具链。你可以在 Release 中下载相关程序自己测试（尚未发布），也可以在 <a href="https://c0.karenia.cc/playground">https://c0.karenia.cc/playground</a> 使用浏览器版本测试。</p>
 <p>当然，参考实现真的只是给你参考用的。敢抄的话有你好果子吃（</p>
 <h1><a class="header" href="#参考资料" id="参考资料">参考资料</a></h1>
 

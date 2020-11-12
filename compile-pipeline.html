@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>参考实现 - C0 指导书</title>
+        <title>编译过程概述 - C0 指导书</title>
         
         
 
@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">前言</a></li><li class="chapter-item expanded "><a href="compile-pipeline.html"><strong aria-hidden="true">1.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">2.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">3.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="c0/token.html"><strong aria-hidden="true">3.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="c0/ty.html"><strong aria-hidden="true">3.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="c0/expr.html"><strong aria-hidden="true">3.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="c0/stmt.html"><strong aria-hidden="true">3.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="c0/func.html"><strong aria-hidden="true">3.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="c0/stdlib.html"><strong aria-hidden="true">3.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="c0/extended-c0.html"><strong aria-hidden="true">3.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="c0/method_notes.html"><strong aria-hidden="true">3.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="navm/index.html"><strong aria-hidden="true">4.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="navm/instruction.html"><strong aria-hidden="true">4.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="navm/example.html"><strong aria-hidden="true">4.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">5.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="ref-impl.html" class="active">参考实现</a></li><li class="chapter-item expanded affix "><a href="reference.html">参考资料</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">前言</a></li><li class="chapter-item expanded "><a href="compile-pipeline.html" class="active"><strong aria-hidden="true">1.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">2.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">3.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="c0/token.html"><strong aria-hidden="true">3.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="c0/ty.html"><strong aria-hidden="true">3.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="c0/expr.html"><strong aria-hidden="true">3.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="c0/stmt.html"><strong aria-hidden="true">3.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="c0/func.html"><strong aria-hidden="true">3.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="c0/stdlib.html"><strong aria-hidden="true">3.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="c0/extended-c0.html"><strong aria-hidden="true">3.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="c0/method_notes.html"><strong aria-hidden="true">3.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="navm/index.html"><strong aria-hidden="true">4.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="navm/instruction.html"><strong aria-hidden="true">4.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="navm/example.html"><strong aria-hidden="true">4.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">5.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="reference.html">参考资料</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -163,22 +163,87 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#参考实现" id="参考实现">参考实现</a></h1>
-<p><a href="https://github.com/BUAA-SE-Compiling/natrium">这个仓库</a> 中保存了一个实现了全部扩展 C0 的编译器参考实现，以及相关的工具链。你可以在 Release 中下载相关程序自己测试（尚未发布），也可以在 <a href="https://c0.karenia.cc/playground">https://c0.karenia.cc/playground</a> 使用浏览器版本测试。</p>
-<p>当然，参考实现真的只是给你参考用的。敢抄的话有你好果子吃（</p>
+                        <h1><a class="header" href="#编译过程概述" id="编译过程概述">编译过程概述</a></h1>
+<p>这次我们使用的编译目标是 C0，一种简化了 C 语言语义和编译过程、同时魔改了语法的玩具编程语言。</p>
+<h2><a class="header" href="#编译过程" id="编译过程">编译过程</a></h2>
+<p>整个 C0 工具链分为两个部分，分别是你接下来需要写的 <strong>编译器</strong> 和我们提供的 <strong>虚拟机</strong>。整个编译流程如下：</p>
+<ul>
+<li>编译器（你要写的）
+<ul>
+<li>读入 c0 源代码</li>
+<li>输出 o0 二进制代码</li>
+</ul>
+</li>
+<li>虚拟机
+<ul>
+<li>读入 o0 二进制代码</li>
+<li>解释执行代码</li>
+<li>输出运行结果</li>
+</ul>
+</li>
+</ul>
+<p>你的编译器至少能通过某种<strong>命令行接口</strong>读入一个 c0 文件，并将编译出的 o0 文件输出到另一个文件中。接口的实际特征我们不做规定，需要你自己定义并写在评测配置中，具体见 <a href="judge.html">评测要求</a>。</p>
+<p>o0 二进制代码的定义见 <a href="navm/readme.html#%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%A0%BC%E5%BC%8F">这里</a>。</p>
+<p>我们不限制你编写编译器使用的语言，且允许复用 miniplc0 实验中的代码。</p>
+<p>如果你决定编译到其他目标（自己设计的指令集、LLVM IR、Java Bitcode、物理 CPU 指令集等），请联系助教进行单独手动评测。由于需要单独评测，你不太可能因此获得额外的加分。</p>
+<h2><a class="header" href="#编译目标" id="编译目标">编译目标</a></h2>
+<p>我们编译的目标是本课程自行设计的 <code>navm</code> 虚拟机使用的 <code>o0</code> 代码。有关 <code>navm</code> 虚拟机的设计、结构参见 <a href="navm/readme.html">对 navm 虚拟机的介绍</a>。</p>
+<p>比如如果你编译这个文件：</p>
+<pre><code class="language-rust ignore">fn foo(i: int) -&gt; int {
+    return -i;
+}
+
+fn main() -&gt; void {
+    putint(foo(-123456));
+}
+</code></pre>
+<p>你得到的结果应该类似于这个（<code>o0</code> 格式没有规定相应的文字形式，以下是官方参考实现 <code>natrium</code> 和 <code>navm</code> 使用的输出格式）：</p>
+<pre><code>static: 66 6F 6F (`foo`)
+
+static: 70 75 74 69 6E 74 (`putint`)
+
+static: 6D 61 69 6E (`main`)
+
+static: 5F 73 74 61 72 74 (`_start`)
+
+
+fn [3] 0 0 -&gt; 0 {
+    0: StackAlloc(0)
+    1: Call(2)
+}
+
+fn [0] 0 1 -&gt; 1 {
+    0: ArgA(0)
+    1: ArgA(1)
+    2: Load64
+    3: NegI
+    4: Store64
+    5: Ret
+}
+
+fn [2] 0 0 -&gt; 0 {
+    0: StackAlloc(0)
+    1: StackAlloc(1)
+    2: Push(123456)
+    3: NegI
+    4: Call(1)
+    5: CallName(1)
+    6: Ret
+}
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="judge.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="preface.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
                         
-                            <a rel="next" href="reference.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="ebnf.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -190,13 +255,13 @@
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a rel="prev" href="judge.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="preface.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a rel="next" href="reference.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="ebnf.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
