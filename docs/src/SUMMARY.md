@@ -14,7 +14,7 @@
   - [扩展 C0（加分项）](./c0/extended-c0.md)
   - [实现指导](./c0/method_notes.md)
   <!-- - [设计笔记](./c0/notes.md) -->
-- [navm 虚拟机说明](./navm/readme.md)
+- [navm 虚拟机说明](./navm/index.md)
   - [navm 虚拟机指令集](./navm/instruction.md)
   - [一些实现指导](./navm/faq.md)
 - [评测说明](./judge.md)
