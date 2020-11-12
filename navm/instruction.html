@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../compile-pipeline.html"><strong aria-hidden="true">1.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">2.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">3.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../c0/token.html"><strong aria-hidden="true">3.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="../c0/ty.html"><strong aria-hidden="true">3.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="../c0/expr.html"><strong aria-hidden="true">3.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="../c0/stmt.html"><strong aria-hidden="true">3.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="../c0/func.html"><strong aria-hidden="true">3.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="../c0/stdlib.html"><strong aria-hidden="true">3.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="../c0/extended-c0.html"><strong aria-hidden="true">3.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="../c0/method_notes.html"><strong aria-hidden="true">3.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">4.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../navm/instruction.html" class="active"><strong aria-hidden="true">4.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="../navm/example.html"><strong aria-hidden="true">4.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">5.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="../ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="../reference.html">参考资料</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../compile-pipeline.html"><strong aria-hidden="true">1.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">2.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">3.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../c0/token.html"><strong aria-hidden="true">3.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="../c0/ty.html"><strong aria-hidden="true">3.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="../c0/expr.html"><strong aria-hidden="true">3.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="../c0/stmt.html"><strong aria-hidden="true">3.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="../c0/func.html"><strong aria-hidden="true">3.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="../c0/stdlib.html"><strong aria-hidden="true">3.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="../c0/extended-c0.html"><strong aria-hidden="true">3.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="../c0/method_notes.html"><strong aria-hidden="true">3.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">4.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../navm/instruction.html" class="active"><strong aria-hidden="true">4.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="../navm/faq.html"><strong aria-hidden="true">4.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">5.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="../ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="../reference.html">参考资料</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -231,15 +231,6 @@
 <!-- | 0x40 | `bra`        | -        | 1:addr        |              | 无条件跳转到地址 `addr`                 | -->
 <h3><a class="header" href="#cmpt-指令" id="cmpt-指令"><code>cmp.T</code> 指令</a></h3>
 <p>指令会在 <code>lhs &lt; rhs</code> 时压入 <code>-1</code>, <code>lhs &gt; rhs</code> 时压入 <code>1</code>, <code>lhs == rhs</code> 时压入 <code>0</code>。浮点数无法比较时压入 <code>0</code>。</p>
-<p>如果需要实现条件跳转，请使用以下指令的组合：</p>
-<ul>
-<li>等于：<code>cmp.T</code>, <code>br.false</code></li>
-<li>不等于：<code>cmp.T</code>, <code>br.true</code></li>
-<li>大于：<code>cmp.T</code>, <code>set.gt</code>, <code>br.true</code></li>
-<li>小于：<code>cmp.T</code>, <code>set.lt</code>, <code>br.true</code></li>
-<li>大于等于：<code>cmp.T</code>, <code>set.lt</code>, <code>br.false</code></li>
-<li>小于等于：<code>cmp.T</code>, <code>set.gt</code>, <code>br.false</code></li>
-</ul>
 <h3><a class="header" href="#load8163264-指令" id="load8163264-指令"><code>load.8/16/32/64</code> 指令</a></h3>
 <p>指令会从 <code>addr</code> 处取 <code>T</code> 长度的数据压入栈中。如果 <code>addr</code> 不是 <code>T</code> 的倍数，将会产生 <code>UnalignedAccess</code> 错误。如果 <code>T</code> 小于 64，多余的数位将会被补成 0。</p>
 <h3><a class="header" href="#store8163264-指令" id="store8163264-指令"><code>store.8/16/32/64</code> 指令</a></h3>
@@ -256,7 +247,7 @@
                         
 
                         
-                            <a rel="next" href="../navm/example.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../navm/faq.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -274,7 +265,7 @@
                 
 
                 
-                    <a rel="next" href="../navm/example.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../navm/faq.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

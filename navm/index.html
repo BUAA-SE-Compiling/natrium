@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../compile-pipeline.html"><strong aria-hidden="true">1.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">2.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">3.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../c0/token.html"><strong aria-hidden="true">3.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="../c0/ty.html"><strong aria-hidden="true">3.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="../c0/expr.html"><strong aria-hidden="true">3.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="../c0/stmt.html"><strong aria-hidden="true">3.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="../c0/func.html"><strong aria-hidden="true">3.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="../c0/stdlib.html"><strong aria-hidden="true">3.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="../c0/extended-c0.html"><strong aria-hidden="true">3.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="../c0/method_notes.html"><strong aria-hidden="true">3.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html" class="active"><strong aria-hidden="true">4.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../navm/instruction.html"><strong aria-hidden="true">4.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="../navm/example.html"><strong aria-hidden="true">4.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">5.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="../ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="../reference.html">参考资料</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../compile-pipeline.html"><strong aria-hidden="true">1.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">2.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">3.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../c0/token.html"><strong aria-hidden="true">3.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="../c0/ty.html"><strong aria-hidden="true">3.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="../c0/expr.html"><strong aria-hidden="true">3.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="../c0/stmt.html"><strong aria-hidden="true">3.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="../c0/func.html"><strong aria-hidden="true">3.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="../c0/stdlib.html"><strong aria-hidden="true">3.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="../c0/extended-c0.html"><strong aria-hidden="true">3.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="../c0/method_notes.html"><strong aria-hidden="true">3.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html" class="active"><strong aria-hidden="true">4.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../navm/instruction.html"><strong aria-hidden="true">4.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="../navm/faq.html"><strong aria-hidden="true">4.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">5.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="../ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="../reference.html">参考资料</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -168,8 +168,8 @@
 <h2><a class="header" href="#虚拟机简介" id="虚拟机简介">虚拟机简介</a></h2>
 <p>navm 是一个 <a href="https://en.wikipedia.org/wiki/Stack_machine">栈式虚拟机</a> —— 简单来说就是，它的寄存器是一个栈。除了少数内存访问指令以外，navm 的大部分指令都只操作位于栈顶的数据。堆栈式计算机的指令与 <a href="https://en.wikipedia.org/wiki/Reverse_Polish_notation">逆波兰表示法（后缀表示法</a> 表示的表达式（或者说后序遍历的表达式树）有简单的对应关系。</p>
 <p>navm 有 64 位有符号整数、无符号整数、浮点数三种数据类型。详见 <a href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B">数据类型</a> 节。</p>
-<p>navm 使用 64 位的地址空间，详见 <a href="#%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4">地址空间</a> 节。</p>
-<p>navm 使用自制的指令集，共有 50+ 个指令，详见 <a href="#%E6%8C%87%E4%BB%A4%E9%9B%86">指令集</a> 节。</p>
+<p>navm 使用 64 位无符号整数表示地址，具体实现不需要关心。</p>
+<p>navm 使用自制的指令集，共有 50+ 个指令，详见 <a href="./instruction.html">指令集说明</a>。</p>
 <h2><a class="header" href="#内存空间" id="内存空间">内存空间</a></h2>
 <p>navm 的内存空间以 8 位（1 字节）为单位寻址。8、16、32、64 位的数据类型分别以其大小为单位在内存中对齐。当读取或写入操作未对齐时，会产生 <code>UnalignedAccess</code> 错误。</p>
 <p>navm 的栈空间以 8 字节为一个 slot，压栈、弹栈以及各种运算操作均以 slot 为单位进行。默认情况下，栈的大小是 1 MiB (1048576 字节)，即 131072 个 slot。栈空时弹栈和栈满时压栈分别会产生 <code>StackUnderflow</code> 和 <code>StackOverflow</code> 错误。</p>
@@ -178,27 +178,27 @@
 <p><code>u64</code> 和 <code>i64</code> 都是 64 位整数，使用<a href="https://en.wikipedia.org/wiki/Two%27s_complement">二进制补码</a>形式表示。两种类型在多数整数运算中不做区分，仅在 <code>cmp.T</code>（比较指令，见下）等两种运算结果有差别的地方有所区分。在运算溢出时，两种类型均采用环绕 (wrap-around) 方式处理结果。<code>u64</code> 同时也可以表示虚拟机中的内存地址。</p>
 <p><code>f64</code> 是符合 <a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE 754</a> 规定的<a href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format">双精度浮点数</a>。</p>
 <h2><a class="header" href="#二进制格式" id="二进制格式">二进制格式</a></h2>
-<p>s0 是 navm 所使用的汇编文件格式，其作用和内容类似 Java 的 <code>.class</code> 文件或者 DotNet 的 <code>.dll</code> 文件。</p>
-<p>下面的结构体表示了 s0 的二进制文件结构。其中，<code>uXX</code> 表示 XX 位无符号整数 。</p>
-<pre><code>/// 整个 S0 二进制文件
-struct S0 {
+<p>o0 是 navm 所使用的二进制程序文件格式，其作用和内容类似 Java 的 <code>.class</code> 文件或者 DotNet 的 <code>.dll</code> 文件。</p>
+<p>下面的结构体表示了 o0 的二进制文件结构。其中，<code>uXX</code> 表示 XX 位无符号整数。</p>
+<pre><code class="language-rust ignore">/// 整个 o0 二进制文件
+struct o0 {
     /// 魔数
     magic: u32 = 0x72303b3e,
     /// 版本号，定为 1
     version: u32 = 0x00000001,
     /// 标志位，留空
-    flags: u32,
+    flags: u32 = 0x00000000,
     /// 全局变量表
     globals: Array&lt;GlobalDef&gt;,
     /// 函数列表
     functions: Array&lt;FunctionDef&gt;,
 }
 
-/// 数组
+/// 类型为 T 的通用数组的定义
 struct Array&lt;T&gt; {
     /// 数组的长度
     count: u32,
-    /// 数组的元素，无间隔排列
+    /// 数组所有元素的无间隔排列
     items: T[],
 }
 
@@ -224,18 +224,18 @@ struct FunctionDef {
     body: Array&lt;Instruction&gt;,
 }
 
-/// 指令
+/// 指令，可以是以下三个选择之一
 union Instruction {
-    /// 无参数的指令
+    /// 无参数的指令，占 1 字节
     variant NoParam {
         opcode: u8
     },
-    /// 有 4 字节参数的指令
+    /// 有 4 字节参数的指令，占 5 字节
     variant u32Param {
         opcode: u8,
         param: u32,
     }
-    /// 有 8 字节参数的指令
+    /// 有 8 字节参数的指令，占 9 字节
     variant u64Param {
         opcode: u8,
         param: u64
@@ -244,7 +244,7 @@ union Instruction {
 </code></pre>
 <h2><a class="header" href="#栈帧结构" id="栈帧结构">栈帧结构</a></h2>
 <blockquote>
-<p>这里描述的是 <strong>这个</strong> navm 实现中使用的栈帧结构。其他实现可能与本实现具有不同的栈帧结构，和/或使用不同的方式传递参数、储存局部变量等。</p>
+<p>这里描述的是 <strong>这个</strong> navm 实现中使用的栈帧结构。</p>
 </blockquote>
 <pre><code>| ...           |
 |               | &lt;- 栈顶 %sp
@@ -285,7 +285,7 @@ fn test(a: int, b: int) -&gt; int {
     return ...;
 }
 </code></pre>
-<p>现在，它被编号为 1 的函数 <code>main</code> 调用，则执行 <code>call</code> 指令前的栈如下（不规定参数压栈顺序）：</p>
+<p>现在，它被编号为 1 的函数 <code>main</code> 调用。在调用前，调用者应压入 1 slot 的返回值预留空间、2 slot 的参数（顺序压栈），再通过调用指令调用这个函数。调用前的栈应该长这样：</p>
 <pre><code>| -          |
 |============|&lt;- 栈顶
 | b          | ↑
@@ -293,18 +293,18 @@ fn test(a: int, b: int) -&gt; int {
 | _ret       | 返回值
 | ...        | ...表达式栈
 </code></pre>
-<p>在执行 <code>call</code> 指令后，栈如下：</p>
+<p>在执行 <code>call</code> 指令后，栈中的变量以及对应的偏移量如下：</p>
 <pre><code>| -            | &lt;- 栈顶（表达式栈）
-| d            | ↑
-| c            | 局部变量   
+| d            | ↑          loc.1
+| c            | 局部变量   loc.0
 |==============|
 | 1            | ↑          
 | %ip          |            
 | %bp          | 虚拟机数据 
 |==============|
-| b            | ↑          
-| a            | 参数       
-| _ret         | 返回值     
+| b            | ↑          arg.2
+| a            | 参数       arg.1
+| _ret         | 返回值     arg.0
 | ...          |
 </code></pre>
 <p>在函数调用返回后，栈如下：</p>
@@ -325,19 +325,15 @@ fn test(a: int, b: int) -&gt; int {
 <p>一般来说，程序会在 <code>_start</code> 中设置全局变量的值，以及进行其他的准备工作。在准备工作完成之后，<code>_start</code> 函数应当调用 <code>main</code> 函数开始正式的程序运行。如果需要，<code>_start</code> 函数也可以在 <code>main</code> 函数返回之后进行清理工作。<code>_start</code> 函数不需要返回。</p>
 <p>一个示例的 <code>_start</code> 函数如下：</p>
 <pre><code>fn _start 0 0 -&gt; 0 {
-    // global(1) = 1 + 1;
+    // 设置全局变量 1 的值为 1 + 1;
     globa 1
     push 1
     push 1
     add.i
     store.64
-    // main();
+    // 调用 main
     call 4
-    // cleanup: global(1) = 0;
-    globa 1
-    push 0
-    store.64
-    // no return
+    // 没有返回语句
 }
 </code></pre>
 

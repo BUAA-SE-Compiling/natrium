@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../compile-pipeline.html"><strong aria-hidden="true">1.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">2.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">3.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../c0/token.html"><strong aria-hidden="true">3.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="../c0/ty.html"><strong aria-hidden="true">3.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="../c0/expr.html"><strong aria-hidden="true">3.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="../c0/stmt.html"><strong aria-hidden="true">3.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="../c0/func.html"><strong aria-hidden="true">3.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="../c0/stdlib.html"><strong aria-hidden="true">3.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="../c0/extended-c0.html"><strong aria-hidden="true">3.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="../c0/method_notes.html"><strong aria-hidden="true">3.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">4.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../navm/instruction.html"><strong aria-hidden="true">4.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="../navm/example.html" class="active"><strong aria-hidden="true">4.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">5.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="../ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="../reference.html">参考资料</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../compile-pipeline.html"><strong aria-hidden="true">1.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">2.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">3.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../c0/token.html"><strong aria-hidden="true">3.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="../c0/ty.html"><strong aria-hidden="true">3.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="../c0/expr.html"><strong aria-hidden="true">3.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="../c0/stmt.html"><strong aria-hidden="true">3.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="../c0/func.html"><strong aria-hidden="true">3.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="../c0/stdlib.html"><strong aria-hidden="true">3.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="../c0/extended-c0.html"><strong aria-hidden="true">3.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="../c0/method_notes.html"><strong aria-hidden="true">3.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">4.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../navm/instruction.html"><strong aria-hidden="true">4.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="../navm/faq.html" class="active"><strong aria-hidden="true">4.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">5.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="../ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="../reference.html">参考资料</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -163,7 +163,48 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#实现指导" id="实现指导">实现指导</a></h1>
+                        <h1><a class="header" href="#应该比较常见的问题" id="应该比较常见的问题">应该比较常见的问题</a></h1>
+<h2><a class="header" href="#条件跳转" id="条件跳转">条件跳转</a></h2>
+<p>如果需要实现条件跳转，请使用以下指令的组合（<code>T</code> 代表 <code>u</code>、<code>f</code> 或 <code>i</code>：</p>
+<ul>
+<li>等于：<code>cmp.T</code>, <code>br.false</code></li>
+<li>不等于：<code>cmp.T</code>, <code>br.true</code></li>
+<li>大于：<code>cmp.T</code>, <code>set.gt</code>, <code>br.true</code></li>
+<li>小于：<code>cmp.T</code>, <code>set.lt</code>, <code>br.true</code></li>
+<li>大于等于：<code>cmp.T</code>, <code>set.lt</code>, <code>br.false</code></li>
+<li>小于等于：<code>cmp.T</code>, <code>set.gt</code>, <code>br.false</code></li>
+</ul>
+<h2><a class="header" href="#局部变量和参数的存取" id="局部变量和参数的存取">局部变量和参数的存取</a></h2>
+<p>在 navm 中，局部变量和参数是分开存储的。其中，参数和返回值（<code>arg</code>）存储在一起，从栈底方向开始顺序编号。局部变量（<code>loc</code>）存储在另一个位置，也从栈底开始顺序编号。比如：</p>
+<pre><code>| d            | ↑          loc.1
+| c            | 局部变量   loc.0
+|==============|
+| 1            | ↑          
+| %ip          |            
+| %bp          | 虚拟机数据 
+|==============|
+| b            | ↑          arg.2
+| a            | 参数       arg.1
+| _ret         | 返回值     arg.0
+| ...          |
+</code></pre>
+<p>此时执行 <code>loca 1</code> 获得的就是变量 <code>d</code> 的地址，执行 <code>arga 0</code> 获得的就是返回值的地址。</p>
+<p>获取到地址之后，就可以执行存取操作了。我们用的基本都是 64 位数据类型，所以使用 <code>load.64</code> 和 <code>store.64</code> 指令就可以了。</p>
+<pre><code># 加载局部变量 1
+loca 1
+load.64
+
+# 存储 0 到参数 0
+arga 0
+push 0
+store.64
+
+# 将局部变量 1 拷贝到局部变量 0
+loca 0
+loca 1
+load.64
+store.64
+</code></pre>
 
                     </main>
 

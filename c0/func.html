@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../compile-pipeline.html"><strong aria-hidden="true">1.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">2.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">3.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../c0/token.html"><strong aria-hidden="true">3.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="../c0/ty.html"><strong aria-hidden="true">3.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="../c0/expr.html"><strong aria-hidden="true">3.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="../c0/stmt.html"><strong aria-hidden="true">3.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="../c0/func.html" class="active"><strong aria-hidden="true">3.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="../c0/stdlib.html"><strong aria-hidden="true">3.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="../c0/extended-c0.html"><strong aria-hidden="true">3.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="../c0/method_notes.html"><strong aria-hidden="true">3.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">4.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../navm/instruction.html"><strong aria-hidden="true">4.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="../navm/example.html"><strong aria-hidden="true">4.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">5.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="../ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="../reference.html">参考资料</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../preface.html">前言</a></li><li class="chapter-item expanded "><a href="../compile-pipeline.html"><strong aria-hidden="true">1.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="../ebnf.html"><strong aria-hidden="true">2.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="../c0/c0.html"><strong aria-hidden="true">3.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../c0/token.html"><strong aria-hidden="true">3.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="../c0/ty.html"><strong aria-hidden="true">3.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="../c0/expr.html"><strong aria-hidden="true">3.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="../c0/stmt.html"><strong aria-hidden="true">3.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="../c0/func.html" class="active"><strong aria-hidden="true">3.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="../c0/stdlib.html"><strong aria-hidden="true">3.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="../c0/extended-c0.html"><strong aria-hidden="true">3.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="../c0/method_notes.html"><strong aria-hidden="true">3.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../navm/index.html"><strong aria-hidden="true">4.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../navm/instruction.html"><strong aria-hidden="true">4.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="../navm/faq.html"><strong aria-hidden="true">4.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="../judge.html"><strong aria-hidden="true">5.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="../ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="../reference.html">参考资料</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -173,11 +173,25 @@ function -&gt; 'fn' IDENT '(' function_param_list? ')' '-&gt;' ty block_stmt
 //               function_name  param_list     return_type  function_body
 </code></pre>
 <p>与 miniplc0 不同，c0 中存在函数。</p>
-<p>c0 中一个函数的定义由 <em>函数名</em>、<em>参数列表</em>、<em>返回值</em> 和 <em>函数体</em> 组成。</p>
-<p>函数的参数声明和变量声明类似，等价于在函数体内进行变量声明，只不过会保证已经初始化过。</p>
+<p>c0 中一个函数的定义由 <em>函数名</em>、<em>参数列表</em>、<em>返回类型</em> 和 <em>函数体</em> 组成。</p>
+<p>函数有以下语义约束：</p>
+<ul>
+<li>函数的名称 <code>function_name</code> 不能重复。</li>
+<li>函数的参数声明 <code>param_list</code> 与 含有初始化表达式的变量声明 有相同的语义约束。</li>
+<li>函数体、函数的参数声明 在同一个作用域（函数作用域）中，是全局作用域的子作用域。</li>
+</ul>
+<p>另外再提醒一下，返回值类型 <code>return_type</code> 即使为 <code>void</code> 也不能省略。</p>
 <p>函数体的组成单位是语句，见 <a href="stmt.html">语句页面</a>。</p>
 <h2><a class="header" href="#全局变量" id="全局变量">全局变量</a></h2>
-<p>全局变量的声明与局部变量相同，都是使用 <a href="stmt.html#%E5%A3%B0%E6%98%8E%E8%AF%AD%E5%8F%A5">声明语句</a> 进行声明。</p>
+<p>全局变量的声明与局部变量相同，都是使用 <a href="stmt.html#%E5%A3%B0%E6%98%8E%E8%AF%AD%E5%8F%A5">声明语句</a> 进行声明。全局变量的定义方式和约束与局部变量相同。全局变量所在作用域是全局，因此有可能被函数内定义的局部变量覆盖。</p>
+<h2><a class="header" href="#程序结构" id="程序结构">程序结构</a></h2>
+<pre><code>program -&gt; decl_stmt* function*
+</code></pre>
+<p>一个 c0 的程序中可以存在多个 <em>变量声明</em>，后接多个 <em>函数声明</em>。</p>
+<p>语义约束：</p>
+<ul>
+<li>一个合法的 c0 程序必须存在一个名为 <code>main</code> 的函数作为程序入口，否则应视为编译错误。</li>
+</ul>
 
                     </main>
 
