@@ -16,7 +16,7 @@
   <!-- - [设计笔记](./c0/notes.md) -->
 - [navm 虚拟机说明](./navm/readme.md)
   - [navm 虚拟机指令集](./navm/instruction.md)
-  - [一些实现指导](./navm/example.md)
+  - [一些实现指导](./navm/faq.md)
 - [评测说明](./judge.md)
 
 [参考实现](./ref-impl.md)

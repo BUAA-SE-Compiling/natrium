@@ -8,9 +8,9 @@ navm 是一个 [栈式虚拟机][stack_machine] —— 简单来说就是，它�
 
 navm 有 64 位有符号整数、无符号整数、浮点数三种数据类型。详见 [数据类型](#数据类型) 节。
 
-navm 使用 64 位的地址空间，详见 [地址空间](#地址空间) 节。
+navm 使用 64 位无符号整数表示地址，具体实现不需要关心。
 
-navm 使用自制的指令集，共有 50+ 个指令，详见 [指令集](#指令集) 节。
+navm 使用自制的指令集，共有 50+ 个指令，详见 [指令集说明](./instruction.md)。
 
 [stack_machine]: https://en.wikipedia.org/wiki/Stack_machine
 [reverse_polish_notation]: https://en.wikipedia.org/wiki/Reverse_Polish_notation
@@ -35,30 +35,30 @@ navm 在运算中支持三种基本数据类型，分别是 64 位无符号整�
 
 ## 二进制格式
 
-s0 是 navm 所使用的汇编文件格式，其作用和内容类似 Java 的 `.class` 文件或者 DotNet 的 `.dll` 文件。
+o0 是 navm 所使用的二进制程序文件格式，其作用和内容类似 Java 的 `.class` 文件或者 DotNet 的 `.dll` 文件。
 
-下面的结构体表示了 s0 的二进制文件结构。其中，`uXX` 表示 XX 位无符号整数 。
+下面的结构体表示了 o0 的二进制文件结构。其中，`uXX` 表示 XX 位无符号整数。
 
-```
-/// 整个 S0 二进制文件
-struct S0 {
+```rust,ignore
+/// 整个 o0 二进制文件
+struct o0 {
     /// 魔数
     magic: u32 = 0x72303b3e,
     /// 版本号，定为 1
     version: u32 = 0x00000001,
     /// 标志位，留空
-    flags: u32,
+    flags: u32 = 0x00000000,
     /// 全局变量表
     globals: Array<GlobalDef>,
     /// 函数列表
     functions: Array<FunctionDef>,
 }
 
-/// 数组
+/// 类型为 T 的通用数组的定义
 struct Array<T> {
     /// 数组的长度
     count: u32,
-    /// 数组的元素，无间隔排列
+    /// 数组所有元素的无间隔排列
     items: T[],
 }
 
@@ -84,18 +84,18 @@ struct FunctionDef {
     body: Array<Instruction>,
 }
 
-/// 指令
+/// 指令，可以是以下三个选择之一
 union Instruction {
-    /// 无参数的指令
+    /// 无参数的指令，占 1 字节
     variant NoParam {
         opcode: u8
     },
-    /// 有 4 字节参数的指令
+    /// 有 4 字节参数的指令，占 5 字节
     variant u32Param {
         opcode: u8,
         param: u32,
     }
-    /// 有 8 字节参数的指令
+    /// 有 8 字节参数的指令，占 9 字节
     variant u64Param {
         opcode: u8,
         param: u64
@@ -105,7 +105,7 @@ union Instruction {
 
 ## 栈帧结构
 
-> 这里描述的是 **这个** navm 实现中使用的栈帧结构。其他实现可能与本实现具有不同的栈帧结构，和/或使用不同的方式传递参数、储存局部变量等。
+> 这里描述的是 **这个** navm 实现中使用的栈帧结构。
 
 ```
 | ...           |
@@ -157,7 +157,7 @@ fn test(a: int, b: int) -> int {
 }
 ```
 
-现在，它被编号为 1 的函数 `main` 调用，则执行 `call` 指令前的栈如下（不规定参数压栈顺序）：
+现在，它被编号为 1 的函数 `main` 调用。在调用前，调用者应压入 1 slot 的返回值预留空间、2 slot 的参数（顺序压栈），再通过调用指令调用这个函数。调用前的栈应该长这样：
 
 ```
 | -          |
@@ -168,20 +168,20 @@ fn test(a: int, b: int) -> int {
 | ...        | ...表达式栈
 ```
 
-在执行 `call` 指令后，栈如下：
+在执行 `call` 指令后，栈中的变量以及对应的偏移量如下：
 
 ```
 | -            | <- 栈顶（表达式栈）
-| d            | ↑
-| c            | 局部变量   
+| d            | ↑          loc.1
+| c            | 局部变量   loc.0
 |==============|
 | 1            | ↑          
 | %ip          |            
 | %bp          | 虚拟机数据 
 |==============|
-| b            | ↑          
-| a            | 参数       
-| _ret         | 返回值     
+| b            | ↑          arg.2
+| a            | 参数       arg.1
+| _ret         | 返回值     arg.0
 | ...          |
 ```
 
@@ -211,18 +211,14 @@ navm 总是会最先运行函数列表里编号为 0 的（也就是整个列表
 
 ```
 fn _start 0 0 -> 0 {
-    // global(1) = 1 + 1;
+    // 设置全局变量 1 的值为 1 + 1;
     globa 1
     push 1
     push 1
     add.i
     store.64
-    // main();
+    // 调用 main
     call 4
-    // cleanup: global(1) = 0;
-    globa 1
-    push 0
-    store.64
-    // no return
+    // 没有返回语句
 }
 ```

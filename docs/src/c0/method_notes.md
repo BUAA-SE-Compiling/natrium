@@ -2,7 +2,7 @@
 
 实现一个 parser 有很多种方法，这里会提供一些关于代码实现（而不是理论）的方法指导。
 
-对于没有讲到的内容，可以参考去年的指导书：https://github.com/BUAA-SE-Compiling/c0-handbook#33-%E5%AE%9E%E7%8E%B0%E6%8C%87%E5%BC%95
+对于没有讲到的内容，可以参考 [去年的指导书](https://github.com/BUAA-SE-Compiling/c0-handbook#33-%E5%AE%9E%E7%8E%B0%E6%8C%87%E5%BC%95)
 
 ## 一些通用的部分
 
