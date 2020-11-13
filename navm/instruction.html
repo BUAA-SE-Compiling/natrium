@@ -172,17 +172,17 @@
 <tr><td>0x02</td><td><code>pop</code></td><td>-</td><td>1</td><td></td><td>弹栈 1 个 slot</td></tr>
 <tr><td>0x03</td><td><code>popn</code></td><td>num:u32</td><td>1-num</td><td>-</td><td>弹栈 num 个 slot</td></tr>
 <tr><td>0x04</td><td><code>dup</code></td><td>-</td><td>1:num</td><td>1:num, 2:num</td><td>复制栈顶 slot</td></tr>
-<tr><td>0x08</td><td><code>loca</code></td><td>off:u32</td><td>-</td><td>1:addr</td><td>加载 off 偏移量处局部变量的地址</td></tr>
-<tr><td>0x08</td><td><code>arga</code></td><td>off:u32</td><td>-</td><td>1:addr</td><td>加载 off 偏移量处参数的地址</td></tr>
+<tr><td>0x08</td><td><code>loca</code></td><td>off:u32</td><td>-</td><td>1:addr</td><td>加载 off 个 slot 处局部变量的地址</td></tr>
+<tr><td>0x08</td><td><code>arga</code></td><td>off:u32</td><td>-</td><td>1:addr</td><td>加载 off 个 slot 处参数/返回值的地址</td></tr>
 <tr><td>0x09</td><td><code>globa</code></td><td>n:u32</td><td>-</td><td>1:addr</td><td>加载第 n 个全局变量/常量的地址</td></tr>
 <tr><td>0x10</td><td><code>load.8</code></td><td>-</td><td>1:addr</td><td>1:val</td><td>从 addr 加载 8 位 value 压栈</td></tr>
 <tr><td>0x11</td><td><code>load.16</code></td><td>-</td><td>1:addr</td><td>1:val</td><td>从 addr 加载 16 位 value 压栈</td></tr>
 <tr><td>0x12</td><td><code>load.32</code></td><td>-</td><td>1:addr</td><td>1:val</td><td>从 addr 加载 32 位 value 压栈</td></tr>
 <tr><td>0x13</td><td><code>load.64</code></td><td>-</td><td>1:addr</td><td>1:val</td><td>从 addr 加载 64 位 value 压栈</td></tr>
-<tr><td>0x14</td><td><code>store.8</code></td><td>-</td><td>1:val, 2:addr</td><td>-</td><td>把 val 截断到 8 位存入 addr</td></tr>
-<tr><td>0x15</td><td><code>store.16</code></td><td>-</td><td>1:val, 2:addr</td><td>-</td><td>把 val 截断到 16 位存入 addr</td></tr>
-<tr><td>0x16</td><td><code>store.32</code></td><td>-</td><td>1:val, 2:addr</td><td>-</td><td>把 val 截断到 32 位存入 addr</td></tr>
-<tr><td>0x17</td><td><code>store.64</code></td><td>-</td><td>1:val, 2:addr</td><td>-</td><td>把 val 存入 addr</td></tr>
+<tr><td>0x14</td><td><code>store.8</code></td><td>-</td><td>1:addr, 2:val</td><td>-</td><td>把 val 截断到 8 位存入 addr</td></tr>
+<tr><td>0x15</td><td><code>store.16</code></td><td>-</td><td>1:addr, 2:val</td><td>-</td><td>把 val 截断到 16 位存入 addr</td></tr>
+<tr><td>0x16</td><td><code>store.32</code></td><td>-</td><td>1:addr, 2:val</td><td>-</td><td>把 val 截断到 32 位存入 addr</td></tr>
+<tr><td>0x17</td><td><code>store.64</code></td><td>-</td><td>1:addr, 2:val</td><td>-</td><td>把 val 存入 addr</td></tr>
 <tr><td>0x18</td><td><code>alloc</code></td><td>-</td><td>1:size</td><td>1:addr</td><td>在堆上分配 size 字节的内存</td></tr>
 <tr><td>0x19</td><td><code>free</code></td><td>-</td><td>1:addr</td><td>-</td><td>释放 addr 指向的内存块</td></tr>
 <tr><td>0x1a</td><td><code>stackalloc</code></td><td>size:u32</td><td>-</td><td>-</td><td>在当前栈顶分配 size 个 slot，初始化为 0</td></tr>
@@ -224,7 +224,7 @@
 <tr><td>0x54</td><td><code>print.i</code></td><td>-</td><td>1:x</td><td>-</td><td>向标准输出写入一个有符号整数 x</td></tr>
 <tr><td>0x55</td><td><code>print.c</code></td><td>-</td><td>1:c</td><td>-</td><td>向标准输出写入字符 c</td></tr>
 <tr><td>0x56</td><td><code>print.f</code></td><td>-</td><td>1:f</td><td>-</td><td>向标准输出写入浮点数 f</td></tr>
-<tr><td>0x57</td><td><code>print.s</code></td><td>-</td><td>1:addr, 2:l</td><td>-</td><td>向标准输出写入地址 addr 的 l 长度字符串</td></tr>
+<tr><td>0x57</td><td><code>print.s</code></td><td>-</td><td>1:i</td><td>-</td><td>向标准输出写入全局变量 i 代表的字符串</td></tr>
 <tr><td>0x58</td><td><code>println</code></td><td>-</td><td>-</td><td>-</td><td>向标准输出写入一个换行</td></tr>
 <tr><td>0xfe</td><td><code>panic</code></td><td></td><td></td><td></td><td>恐慌（强行退出）</td></tr>
 </tbody></table>
