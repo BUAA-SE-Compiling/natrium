@@ -60,7 +60,7 @@ const m: int;
 // 类型不匹配
 let n: double = 3;
 // 常量不能被修改
-let p: double = 3.0;
+const p: double = 3.0;
 p = 3.1415;
 ```
 
