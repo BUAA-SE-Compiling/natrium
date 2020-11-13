@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html" class="active">前言</a></li><li class="chapter-item expanded "><a href="compile-pipeline.html"><strong aria-hidden="true">1.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">2.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">3.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="c0/token.html"><strong aria-hidden="true">3.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="c0/ty.html"><strong aria-hidden="true">3.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="c0/expr.html"><strong aria-hidden="true">3.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="c0/stmt.html"><strong aria-hidden="true">3.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="c0/func.html"><strong aria-hidden="true">3.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="c0/stdlib.html"><strong aria-hidden="true">3.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="c0/extended-c0.html"><strong aria-hidden="true">3.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="c0/method_notes.html"><strong aria-hidden="true">3.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="navm/index.html"><strong aria-hidden="true">4.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="navm/instruction.html"><strong aria-hidden="true">4.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="navm/faq.html"><strong aria-hidden="true">4.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">5.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="reference.html">参考资料</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html" class="active">前言</a></li><li class="chapter-item expanded "><a href="requirement.html"><strong aria-hidden="true">1.</strong> 实验安排及要求</a></li><li class="chapter-item expanded "><a href="compile-pipeline.html"><strong aria-hidden="true">2.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">3.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">4.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="c0/token.html"><strong aria-hidden="true">4.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="c0/ty.html"><strong aria-hidden="true">4.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="c0/expr.html"><strong aria-hidden="true">4.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="c0/stmt.html"><strong aria-hidden="true">4.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="c0/func.html"><strong aria-hidden="true">4.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="c0/stdlib.html"><strong aria-hidden="true">4.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="c0/extended-c0.html"><strong aria-hidden="true">4.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="c0/method_notes.html"><strong aria-hidden="true">4.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="navm/index.html"><strong aria-hidden="true">5.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="navm/instruction.html"><strong aria-hidden="true">5.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="navm/faq.html"><strong aria-hidden="true">5.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">6.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="reference.html">参考资料</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -165,6 +165,7 @@
                     <main>
                         <h1><a class="header" href="#前言" id="前言">前言</a></h1>
 <p>本指导书为 C0 指导书，阅读本指导书前，请确保你已经顺利完成了 mini 实验并且对编译器的结构和编译过程有了基本认识。</p>
+<p>这次实验要实现的编译器，根据你选择的编程语言、模型不同，代码量可能会在 2000--5000 行之间。作为参考，使用 Rust 编写的参考实现的代码量约为 3500 行。</p>
 <p>本指导书仍然还是 Beta 版本。如果你在书中发现了（包括但不限于）以下问题，欢迎积极联系助教，或者提 Issue/PR 修正，可能会有加分哦 ouo：</p>
 <ul>
 <li>难以理解的表述</li>
@@ -184,7 +185,7 @@
                         
 
                         
-                            <a rel="next" href="compile-pipeline.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="requirement.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -198,7 +199,7 @@
                 
 
                 
-                    <a rel="next" href="compile-pipeline.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="requirement.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

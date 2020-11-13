@@ -97,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">前言</a></li><li class="chapter-item expanded "><a href="compile-pipeline.html"><strong aria-hidden="true">1.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">2.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">3.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="c0/token.html"><strong aria-hidden="true">3.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="c0/ty.html"><strong aria-hidden="true">3.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="c0/expr.html"><strong aria-hidden="true">3.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="c0/stmt.html"><strong aria-hidden="true">3.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="c0/func.html"><strong aria-hidden="true">3.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="c0/stdlib.html"><strong aria-hidden="true">3.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="c0/extended-c0.html"><strong aria-hidden="true">3.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="c0/method_notes.html"><strong aria-hidden="true">3.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="navm/index.html"><strong aria-hidden="true">4.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="navm/instruction.html"><strong aria-hidden="true">4.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="navm/faq.html"><strong aria-hidden="true">4.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">5.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="reference.html">参考资料</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="preface.html">前言</a></li><li class="chapter-item expanded "><a href="requirement.html"><strong aria-hidden="true">1.</strong> 实验安排及要求</a></li><li class="chapter-item expanded "><a href="compile-pipeline.html"><strong aria-hidden="true">2.</strong> 编译过程概述</a></li><li class="chapter-item expanded "><a href="ebnf.html"><strong aria-hidden="true">3.</strong> 语法表示说明</a></li><li class="chapter-item expanded "><a href="c0/c0.html"><strong aria-hidden="true">4.</strong> c0 语言标准与指导书</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="c0/token.html"><strong aria-hidden="true">4.1.</strong> 单词</a></li><li class="chapter-item expanded "><a href="c0/ty.html"><strong aria-hidden="true">4.2.</strong> 类型系统</a></li><li class="chapter-item expanded "><a href="c0/expr.html"><strong aria-hidden="true">4.3.</strong> 表达式</a></li><li class="chapter-item expanded "><a href="c0/stmt.html"><strong aria-hidden="true">4.4.</strong> 语句</a></li><li class="chapter-item expanded "><a href="c0/func.html"><strong aria-hidden="true">4.5.</strong> 函数、全局变量与程序</a></li><li class="chapter-item expanded "><a href="c0/stdlib.html"><strong aria-hidden="true">4.6.</strong> 标准库</a></li><li class="chapter-item expanded "><a href="c0/extended-c0.html"><strong aria-hidden="true">4.7.</strong> 扩展 C0（加分项）</a></li><li class="chapter-item expanded "><a href="c0/method_notes.html"><strong aria-hidden="true">4.8.</strong> 实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="navm/index.html"><strong aria-hidden="true">5.</strong> navm 虚拟机说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="navm/instruction.html"><strong aria-hidden="true">5.1.</strong> navm 虚拟机指令集</a></li><li class="chapter-item expanded "><a href="navm/faq.html"><strong aria-hidden="true">5.2.</strong> 一些实现指导</a></li></ol></li><li class="chapter-item expanded "><a href="judge.html"><strong aria-hidden="true">6.</strong> 评测说明</a></li><li class="chapter-item expanded affix "><a href="ref-impl.html">参考实现</a></li><li class="chapter-item expanded affix "><a href="reference.html">参考资料</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -167,6 +167,7 @@
                     <main>
                         <h1><a class="header" href="#前言" id="前言">前言</a></h1>
 <p>本指导书为 C0 指导书，阅读本指导书前，请确保你已经顺利完成了 mini 实验并且对编译器的结构和编译过程有了基本认识。</p>
+<p>这次实验要实现的编译器，根据你选择的编程语言、模型不同，代码量可能会在 2000--5000 行之间。作为参考，使用 Rust 编写的参考实现的代码量约为 3500 行。</p>
 <p>本指导书仍然还是 Beta 版本。如果你在书中发现了（包括但不限于）以下问题，欢迎积极联系助教，或者提 Issue/PR 修正，可能会有加分哦 ouo：</p>
 <ul>
 <li>难以理解的表述</li>
@@ -178,6 +179,23 @@
 </ul>
 <p>以上，祝各位同学编译愉快！</p>
 <p>—— 你们的魔鬼助教（笑）</p>
+<h1><a class="header" href="#c0-编译实验安排及要求" id="c0-编译实验安排及要求">C0 编译实验安排及要求</a></h1>
+<h2><a class="header" href="#安排" id="安排">安排</a></h2>
+<p><strong>时间:</strong> 2020-11-13（第 10 周） -- 2021-01-03（第 17 周）（作业提交截止到考期结束）</p>
+<p><strong>提交方式:</strong> 于 <a href="https://oj.karenia.cc">https://oj.karenia.cc</a> 在线评测</p>
+<h2><a class="header" href="#要求" id="要求">要求</a></h2>
+<ol>
+<li>以个人为单位进行开发，不得多人合作完成；</li>
+<li>利用实验课和课余时间完成；</li>
+<li>编程语言、实现方式自定；</li>
+<li>输入语言为 <a href="./c0/c0.html">C0</a>，输出语言为 <a href="./navm/index.html">虚拟机代码</a>；</li>
+<li>存在选做部分（<a href="./c0/extended-c0.html">扩展 C0</a>），实现选做部分可以获得更高分数；</li>
+<li>程序具体要求见本指导书其余内容。</li>
+</ol>
+<h2><a class="header" href="#成绩评定" id="成绩评定">成绩评定</a></h2>
+<p>学生进行在线评测，取提交截止前最后一次测试的结果，所有通过的测试点权重之和为学生最终成绩。</p>
+<h2><a class="header" href="#参考书" id="参考书">参考书</a></h2>
+<p>龙书、虎书、狼书等</p>
 <h1><a class="header" href="#编译过程概述" id="编译过程概述">编译过程概述</a></h1>
 <p>这次我们使用的编译目标是 C0，一种简化了 C 语言语义和编译过程、同时魔改了语法的玩具编程语言。</p>
 <h2><a class="header" href="#编译过程" id="编译过程">编译过程</a></h2>
