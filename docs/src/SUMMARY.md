@@ -2,6 +2,7 @@
 
 [前言](./preface.md)
 
+- [实验安排及要求](./requirement.md)
 - [编译过程概述](./compile-pipeline.md)
 - [语法表示说明](./ebnf.md)
 - [c0 语言标准与指导书](./c0/c0.md)
