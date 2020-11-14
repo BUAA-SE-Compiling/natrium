@@ -35,7 +35,7 @@ STRING_LITERAL -> '"' (string_regular_char | escape_sequence)* '"'
 FLOAT_LITERAL -> digit+ '.' digit+ ([eE] digit+)?
 
 char_regular_char -> [^'\\]
-CHAR_LITERAL -> '\'' (char_regular_char | escape_sequence)* '\''
+CHAR_LITERAL -> '\'' (char_regular_char | escape_sequence) '\''
 ```
 
 基础 c0 有两种字面量，分别是 _无符号整数_ 和 _字符串常量_。扩展 c0 增加了 _浮点数常量_ 和 _字符常量_。
