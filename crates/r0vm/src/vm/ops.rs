@@ -578,7 +578,7 @@ impl<'src> super::R0Vm<'src> {
     }
 
     pub(crate) fn print_i(&mut self) -> Result<()> {
-        let i = self.pop()?;
+        let i = self.pop()? as i64;
         write!(self.stdout, "{}", i)?;
         self.stdout.flush().map_err(|err| err.into())
     }
