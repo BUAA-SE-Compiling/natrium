@@ -182,7 +182,7 @@
 <h1><a class="header" href="#c0-编译实验安排及要求" id="c0-编译实验安排及要求">C0 编译实验安排及要求</a></h1>
 <h2><a class="header" href="#安排" id="安排">安排</a></h2>
 <p><strong>时间:</strong> 2020-11-13（第 10 周） -- 2021-01-03（第 17 周）（作业提交截止到考期结束）</p>
-<p><strong>提交方式:</strong> 于 <a href="https://oj.karenia.cc">https://oj.karenia.cc</a> 在线评测</p>
+<p><strong>提交方式:</strong> 于 <a href="https://oj.karenia.cc">https://oj.karenia.cc</a> 在线评测，详见 <a href="./judge.html">提交与评测说明</a>。</p>
 <h2><a class="header" href="#要求" id="要求">要求</a></h2>
 <ol>
 <li>以个人为单位进行开发，不得多人合作完成；</li>
@@ -336,7 +336,7 @@ string_regular_char -&gt; [^&quot;\\]
 STRING_LITERAL -&gt; '&quot;' (string_regular_char | escape_sequence)* '&quot;'
 
 char_regular_char -&gt; [^'\\]
-CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
+CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence) '\''
 
 // ## 标识符
 IDENT -&gt; [_a-zA-Z] [_a-zA-Z0-9]*
@@ -502,7 +502,7 @@ STRING_LITERAL -&gt; '&quot;' (string_regular_char | escape_sequence)* '&quot;'
 FLOAT_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
 
 char_regular_char -&gt; [^'\\]
-CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
+CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence) '\''
 </code></pre>
 <p>基础 c0 有两种字面量，分别是 <em>无符号整数</em> 和 <em>字符串常量</em>。扩展 c0 增加了 <em>浮点数常量</em> 和 <em>字符常量</em>。</p>
 <p>语义约束：</p>

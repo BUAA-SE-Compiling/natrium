@@ -192,7 +192,7 @@ STRING_LITERAL -&gt; '&quot;' (string_regular_char | escape_sequence)* '&quot;'
 FLOAT_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
 
 char_regular_char -&gt; [^'\\]
-CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
+CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence) '\''
 </code></pre>
 <p>基础 c0 有两种字面量，分别是 <em>无符号整数</em> 和 <em>字符串常量</em>。扩展 c0 增加了 <em>浮点数常量</em> 和 <em>字符常量</em>。</p>
 <p>语义约束：</p>

@@ -191,7 +191,7 @@ string_regular_char -&gt; [^&quot;\\]
 STRING_LITERAL -&gt; '&quot;' (string_regular_char | escape_sequence)* '&quot;'
 
 char_regular_char -&gt; [^'\\]
-CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
+CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence) '\''
 
 // ## 标识符
 IDENT -&gt; [_a-zA-Z] [_a-zA-Z0-9]*
