@@ -32,7 +32,7 @@ string_regular_char -> [^"\\]
 STRING_LITERAL -> '"' (string_regular_char | escape_sequence)* '"'
 
 // 扩展 c0
-FLOAT_LITERAL -> digit+ '.' digit+ ([eE] digit+)?
+DOUBLE_LITERAL -> digit+ '.' digit+ ([eE] digit+)?
 
 char_regular_char -> [^'\\]
 CHAR_LITERAL -> '\'' (char_regular_char | escape_sequence) '\''

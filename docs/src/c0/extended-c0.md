@@ -21,7 +21,7 @@ C0 的注释是从 `//` 开始到这行结束（遇到第一个 `\n`）为止的
 ```
 char_regular_char -> [^'\\\n\r]
 CHAR_LITERAL -> '\'' (char_regular_char | escape_sequence)* '\''
-literal_expr -> UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL | CHAR_LITERAL
+literal_expr -> UINT_LITERAL | DOUBLE_LITERAL | STRING_LITERAL | CHAR_LITERAL
 ```
 
 字符字面量是由单引号 `'` 包裹的单个字符或转义序列。其中单个字符可以是 ASCII 中除了单引号 `'`、反斜线 `\\`、空白符 `\r`(CR)、`\n`(LF)、`\t`(Tab) 以外的任何字符。转义序列可以是 `\'`、`\"`、`\\`、`\n`、`\t`、`\r`，含义与 C 中的对应序列相同。
