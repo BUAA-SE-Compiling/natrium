@@ -399,6 +399,7 @@ name = "natrium-web"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "console_error_panic_hook",
  "futures",
  "js-sys",
  "line-span",
