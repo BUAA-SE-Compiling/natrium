@@ -189,7 +189,7 @@ string_regular_char -&gt; [^&quot;\\]
 STRING_LITERAL -&gt; '&quot;' (string_regular_char | escape_sequence)* '&quot;'
 
 // 扩展 c0
-FLOAT_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
+DOUBLE_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
 
 char_regular_char -&gt; [^'\\]
 CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence) '\''

@@ -184,7 +184,7 @@ CONTINUE_KW -&gt; 'continue'
 // ## 字面量
 digit -&gt; [0-9]
 UINT_LITERAL -&gt; digit+
-FLOAT_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
+DOUBLE_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
 
 escape_sequence -&gt; '\' [\\&quot;'nrt]
 string_regular_char -&gt; [^&quot;\\]
@@ -242,7 +242,7 @@ as_expr -&gt; expr 'as' ty
 call_param_list -&gt; expr (',' expr)*
 call_expr -&gt; IDENT '(' call_param_list? ')'
 
-literal_expr -&gt; UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL | CHAR_LITERAL
+literal_expr -&gt; UINT_LITERAL | DOUBLE_LITERAL | STRING_LITERAL | CHAR_LITERAL
 
 ident_expr -&gt; IDENT
 

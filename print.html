@@ -329,7 +329,7 @@ CONTINUE_KW -&gt; 'continue'
 // ## 字面量
 digit -&gt; [0-9]
 UINT_LITERAL -&gt; digit+
-FLOAT_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
+DOUBLE_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
 
 escape_sequence -&gt; '\' [\\&quot;'nrt]
 string_regular_char -&gt; [^&quot;\\]
@@ -387,7 +387,7 @@ as_expr -&gt; expr 'as' ty
 call_param_list -&gt; expr (',' expr)*
 call_expr -&gt; IDENT '(' call_param_list? ')'
 
-literal_expr -&gt; UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL | CHAR_LITERAL
+literal_expr -&gt; UINT_LITERAL | DOUBLE_LITERAL | STRING_LITERAL | CHAR_LITERAL
 
 ident_expr -&gt; IDENT
 
@@ -499,7 +499,7 @@ string_regular_char -&gt; [^&quot;\\]
 STRING_LITERAL -&gt; '&quot;' (string_regular_char | escape_sequence)* '&quot;'
 
 // 扩展 c0
-FLOAT_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
+DOUBLE_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
 
 char_regular_char -&gt; [^'\\]
 CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence) '\''
@@ -827,7 +827,7 @@ fn putln() -&gt; void;
 <p>加分：5pt</p>
 <pre><code>char_regular_char -&gt; [^'\\\n\r]
 CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
-literal_expr -&gt; UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL | CHAR_LITERAL
+literal_expr -&gt; UINT_LITERAL | DOUBLE_LITERAL | STRING_LITERAL | CHAR_LITERAL
 </code></pre>
 <p>字符字面量是由单引号 <code>'</code> 包裹的单个字符或转义序列。其中单个字符可以是 ASCII 中除了单引号 <code>'</code>、反斜线 <code>\\</code>、空白符 <code>\r</code>(CR)、<code>\n</code>(LF)、<code>\t</code>(Tab) 以外的任何字符。转义序列可以是 <code>\'</code>、<code>\&quot;</code>、<code>\\</code>、<code>\n</code>、<code>\t</code>、<code>\r</code>，含义与 C 中的对应序列相同。</p>
 <p><em>字符字面量</em> 的语义是被包裹的字符的 ASCII 编码无符号扩展到 64 位的整数值，类型是 <code>int</code>。</p>
