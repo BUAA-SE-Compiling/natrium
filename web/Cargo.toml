@@ -24,7 +24,7 @@ bytes = "0.6"
 js-sys = "0.3.22"
 "line-span" = "0.1.2"
 "logos" = "0.11.4"
-natrium = {path = "../"}
+natrium = {path = "../", default-features = false}
 "r0codegen" = {path = "../crates/r0codegen"}
 "r0syntax" = {path = "../crates/syntax"}
 "r0vm" = {path = "../crates/r0vm", default-features = false}
@@ -41,8 +41,8 @@ version = "0.3.22"
 # logging them with `console.error`. This is great for development, but requires
 # all the `std::fmt` and `std::panicking` infrastructure, so it's only enabled
 # in debug mode.
-[target."cfg(debug_assertions)".dependencies]
-console_error_panic_hook = "0.1.5"
+# [target."cfg(debug_assertions)".dependencies]
+# console_error_panic_hook = "0.1.5"
 
 # These crates are used for running unit tests.
 [dev-dependencies]
@@ -50,5 +50,5 @@ futures = "0.1.27"
 wasm-bindgen-futures = "0.3.22"
 wasm-bindgen-test = "0.2.45"
 
-[package.metadata.wasm-pack.profile.release]
-wasm-opt = false
+# [package.metadata.wasm-pack.profile.release]
+# wasm-opt = false
