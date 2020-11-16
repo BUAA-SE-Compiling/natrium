@@ -177,6 +177,16 @@
 <blockquote>
 <p>提示：对于 运算符表达式 <code>operator_expr</code>、取反表达式 <code>negate_expr</code> 和类型转换表达式 <code>as_expr</code> 可以使用局部的算符优先文法进行分析。</p>
 </blockquote>
+<p>表达式中运算符的优先级从高到低为：</p>
+<table><thead><tr><th>运算符</th><th>结合性</th></tr></thead><tbody>
+<tr><td>函数调用</td><td>-</td></tr>
+<tr><td>前置 <code>-</code></td><td>-</td></tr>
+<tr><td><code>as</code></td><td>-</td></tr>
+<tr><td><code>*</code> <code>/</code></td><td>左到右</td></tr>
+<tr><td><code>+</code> <code>-</code></td><td>左到右</td></tr>
+<tr><td><code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code> <code>==</code> <code>!=</code></td><td>左到右</td></tr>
+<tr><td><code>=</code></td><td>右到左</td></tr>
+</tbody></table>
 <h2><a class="header" href="#运算符表达式" id="运算符表达式">运算符表达式</a></h2>
 <pre><code>binary_operator -&gt; '+' | '-' | '*' | '/' | '==' | '!=' | '&lt;' | '&gt;' | '&lt;=' | '&gt;='
 operator_expr -&gt; expr binary_operator expr
