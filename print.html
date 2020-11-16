@@ -569,6 +569,9 @@ SEMICOLON -&gt; ';'
     | ident_expr
 </code></pre>
 <p>表达式是代码中运算的最小单位。在语法解析的时候，一个表达式会被展开成一棵树，称作表达式树。</p>
+<blockquote>
+<p>提示：对于 运算符表达式 <code>operator_expr</code>、取反表达式 <code>negate_expr</code> 和类型转换表达式 <code>as_expr</code> 可以使用局部的算符优先文法进行分析。</p>
+</blockquote>
 <h2><a class="header" href="#运算符表达式" id="运算符表达式">运算符表达式</a></h2>
 <pre><code>binary_operator -&gt; '+' | '-' | '*' | '/' | '==' | '!=' | '&lt;' | '&gt;' | '&lt;=' | '&gt;='
 operator_expr -&gt; expr binary_operator expr
