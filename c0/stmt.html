@@ -213,6 +213,9 @@ p = 3.1415;
 </code></pre>
 <h2><a class="header" href="#控制流语句" id="控制流语句">控制流语句</a></h2>
 <p>基础 C0 中有三种控制流语句，分别是 <code>if</code>、<code>while</code> 和 <code>return</code> 语句。</p>
+<blockquote>
+<p>对于 <code>if</code> 和 <code>while</code> 的条件，如果求值结果是 <code>int</code> 类型，则所有非零值均视为 <code>true</code>。</p>
+</blockquote>
 <h3><a class="header" href="#if-语句" id="if-语句"><code>if</code> 语句</a></h3>
 <pre><code>if_stmt -&gt; 'if' expr block_stmt ('else' (block_stmt | if_stmt))?
 //              ^~~~ ^~~~~~~~~~         ^~~~~~~~~~~~~~~~~~~~~~
