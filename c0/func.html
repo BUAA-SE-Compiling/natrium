@@ -190,8 +190,12 @@ function -&gt; 'fn' IDENT '(' function_param_list? ')' '-&gt;' ty block_stmt
 <p>一个 c0 的程序中可以存在多个 <em>变量声明</em>，后接多个 <em>函数声明</em>。</p>
 <p>语义约束：</p>
 <ul>
-<li>一个合法的 c0 程序必须存在一个名为 <code>main</code> 的函数作为程序入口，否则应视为编译错误。</li>
+<li>一个合法的 c0 程序必须存在一个名为 <code>main</code> 的函数作为程序入口，否则应视为编译错误；</li>
+<li>一个函数或变量只能在它的定义中及之后的位置被引用，换句话说就是不存在先使用后定义的情况。</li>
 </ul>
+<blockquote>
+<p>注：扩展 c0 中允许变量声明和函数声明混搭，但仍要遵循以上规定。</p>
+</blockquote>
 
                     </main>
 

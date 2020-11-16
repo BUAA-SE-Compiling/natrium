@@ -311,7 +311,7 @@ binary_operator -&gt;
 <h1><a class="header" href="#c0-语法说明" id="c0-语法说明">c0 语法说明</a></h1>
 <p>c0 是一个用于编译原理课程的微型语言。c0 提供的功能类似于 C，但是为了减少编译器实现的压力（减少前瞻和/或回溯），在语言风格上大量参考了 Rust 的设计。请注意，这个语言<strong>并不是</strong>对 Rust 语言的简化。</p>
 <h2><a class="header" href="#语法定义" id="语法定义">语法定义</a></h2>
-<p>以下是 c0 语言的全部语法定义，包括所有扩展语法。</p>
+<p>以下是 c0 语言的全部语法定义，<strong>包括所有扩展语法</strong>。</p>
 <pre><code>// # 单词
  
 // ## 关键字
@@ -789,8 +789,12 @@ function -&gt; 'fn' IDENT '(' function_param_list? ')' '-&gt;' ty block_stmt
 <p>一个 c0 的程序中可以存在多个 <em>变量声明</em>，后接多个 <em>函数声明</em>。</p>
 <p>语义约束：</p>
 <ul>
-<li>一个合法的 c0 程序必须存在一个名为 <code>main</code> 的函数作为程序入口，否则应视为编译错误。</li>
+<li>一个合法的 c0 程序必须存在一个名为 <code>main</code> 的函数作为程序入口，否则应视为编译错误；</li>
+<li>一个函数或变量只能在它的定义中及之后的位置被引用，换句话说就是不存在先使用后定义的情况。</li>
 </ul>
+<blockquote>
+<p>注：扩展 c0 中允许变量声明和函数声明混搭，但仍要遵循以上规定。</p>
+</blockquote>
 <h1><a class="header" href="#标准库" id="标准库">标准库</a></h1>
 <p>由于 c0 语言本身比较简单，为了实现输入输出的功能，我们规定了 8 个不需要声明就可以调用的函数，它们的分别是：</p>
 <pre><code class="language-rust ignore">/// 读入一个整数
