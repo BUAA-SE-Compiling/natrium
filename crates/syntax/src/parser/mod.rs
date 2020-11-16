@@ -367,11 +367,8 @@ where
                 span += else_if.span;
                 IfElseBlock::If(P::new(else_if))
             } else {
-                expect!(self, Token::LBrace);
                 let else_blk = self.parse_block()?;
-
                 span += else_blk.span;
-
                 IfElseBlock::Block(P::new(else_blk))
             }
         } else {
