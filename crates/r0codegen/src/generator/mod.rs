@@ -329,7 +329,11 @@ impl<'f> FuncCodegen<'f> {
 
     fn set_jump(&mut self, bb_id: BB, jump: JumpInst) {
         if let Some(bb) = self.basic_blocks.get_mut(bb_id) {
-            bb.jump = jump;
+            if matches!(bb.jump, JumpInst::Undefined) {
+                bb.jump = jump;
+            } else {
+                panic!("Double-set jump instruction")
+            }
         } else {
             panic!("Non-existent basic block: {}", bb_id);
         }
@@ -546,51 +550,33 @@ impl<'f> FuncCodegen<'f> {
          *           V                                   |
          *           [bb:C else_body]----------------------> end
          */
-        let mut body_bbs = vec![];
-        let mut cond_bbs = vec![];
         let end_bb = self.new_bb();
 
-        for (cond, body) in &stmt.cond {
-            let cond_bb = self.new_bb();
-            cond_bbs.push(cond_bb);
-            self.compile_expr(cond.as_ref(), cond_bb, scope)?;
+        self.compile_expr(stmt.cond.as_ref(), bb_id, scope)?;
 
-            let body_bb = self.new_bb();
-            body_bbs.push(body_bb);
-            let body_end_bb = self.compile_block(body.as_ref(), body_bb, scope)?;
+        let bb_true = self.new_bb();
+        let bb_true_end = self.compile_block(stmt.if_block.as_ref(), bb_true, scope)?;
 
-            // body -> end
-            self.set_jump(body_end_bb, JumpInst::Jump(end_bb));
-        }
+        // body -> end
+        self.set_jump(bb_true_end, JumpInst::Jump(end_bb));
 
-        let else_bb = if let Some(b) = &stmt.else_block {
-            let else_bb = self.new_bb();
-            let else_end_bb = self.compile_block(b, else_bb, scope)?;
-            // else_body -> end
-            self.set_jump(else_end_bb, JumpInst::Jump(end_bb));
-            else_end_bb
-        } else {
-            end_bb
+        let bb_false = match &stmt.else_block {
+            ast::IfElseBlock::None => end_bb,
+            ast::IfElseBlock::If(stmt) => {
+                let else_bb = self.new_bb();
+                let else_end = self.compile_if(stmt.as_ref(), else_bb, scope)?;
+                self.set_jump(else_end, JumpInst::Jump(end_bb));
+                else_bb
+            }
+            ast::IfElseBlock::Block(block) => {
+                let else_bb = self.new_bb();
+                let else_end = self.compile_block(block.as_ref(), else_bb, scope)?;
+                self.set_jump(else_end, JumpInst::Jump(end_bb));
+                else_bb
+            }
         };
 
-        let cond_iter = cond_bbs.iter().cloned().zip(
-            body_bbs.into_iter().zip(
-                cond_bbs
-                    .iter()
-                    .skip(1)
-                    .cloned()
-                    .chain(std::iter::once(else_bb)),
-            ),
-        );
-
-        for (cond, (bb_true, bb_false)) in cond_iter {
-            // cond -> body
-            //   \---> cond
-            self.set_jump(cond, JumpInst::JumpIf(bb_true, bb_false));
-        }
-
-        // start -> cond
-        self.set_jump(bb_id, JumpInst::Jump(*cond_bbs.first().unwrap()));
+        self.set_jump(bb_id, JumpInst::JumpIf(bb_true, bb_false));
 
         Ok(end_bb)
     }
@@ -660,7 +646,7 @@ impl<'f> FuncCodegen<'f> {
 
                 self.append_code(bb_id, op_load_address(offset));
                 self.compile_expr(stmt.val.as_deref().unwrap(), bb_id, scope)?;
-                self.append_code(bb_id, Op::Store64);
+                self.append_code(bb_id, store_ty(ret_ty));
             }
         }
 

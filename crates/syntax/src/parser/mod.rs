@@ -352,48 +352,37 @@ where
 
     fn parse_if_stmt(&mut self) -> Result<IfStmt, ParseError> {
         let (_, mut span) = expect!(self, Token::IfKw)?;
-        let mut conds = vec![];
 
-        {
-            // if block
-            let cond = self.parse_expr()?;
-            let if_blk = self.parse_block()?;
+        let cond = P::new(self.parse_expr()?);
+        let if_block = P::new(self.parse_block()?);
 
-            span += if_blk.span;
+        span += if_block.span;
 
-            conds.push((P::new(cond), P::new(if_blk)));
-        }
-
-        let mut else_block = None;
-
-        if is_next!(self, Token::ElseKw) {
+        let else_block = if is_next!(self, Token::ElseKw) {
             expect!(self, Token::ElseKw)?;
 
-            while is_next!(self, Token::IfKw) {
+            if is_next!(self, Token::IfKw) {
                 // else-if block
-                expect!(self, Token::IfKw)?;
-                let cond = self.parse_expr()?;
-                let if_blk = self.parse_block()?;
-
-                span += if_blk.span;
-
-                conds.push((P::new(cond), P::new(if_blk)));
-                expect!(self, Token::ElseKw)?;
-            }
-
-            if is_next!(self, Token::LBrace) {
+                let else_if = self.parse_if_stmt()?;
+                span += else_if.span;
+                IfElseBlock::If(P::new(else_if))
+            } else {
+                expect!(self, Token::LBrace);
                 let else_blk = self.parse_block()?;
 
                 span += else_blk.span;
 
-                else_block = Some(P::new(else_blk));
+                IfElseBlock::Block(P::new(else_blk))
             }
-        }
+        } else {
+            IfElseBlock::None
+        };
 
         Ok(IfStmt {
-            cond: conds,
-            else_block,
+            cond,
             span,
+            if_block,
+            else_block,
         })
     }
 

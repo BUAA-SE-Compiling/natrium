@@ -108,8 +108,17 @@ pub struct WhileStmt {
 #[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct IfStmt {
     pub span: Span,
-    pub cond: Vec<(P<Expr>, P<BlockStmt>)>,
-    pub else_block: Option<P<BlockStmt>>,
+    pub cond: P<Expr>,
+    pub if_block: P<BlockStmt>,
+    pub else_block: IfElseBlock,
+}
+
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
+pub enum IfElseBlock {
+    None,
+    If(P<IfStmt>),
+    Block(P<BlockStmt>),
 }
 
 #[derive(Debug, Clone)]
