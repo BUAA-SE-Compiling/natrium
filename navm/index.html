@@ -179,15 +179,13 @@
 <p><code>f64</code> 是符合 <a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE 754</a> 规定的<a href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format">双精度浮点数</a>。</p>
 <h2><a class="header" href="#二进制格式" id="二进制格式">二进制格式</a></h2>
 <p>o0 是 navm 所使用的二进制程序文件格式，其作用和内容类似 Java 的 <code>.class</code> 文件或者 DotNet 的 <code>.dll</code> 文件。</p>
-<p>下面的结构体表示了 o0 的二进制文件结构。其中，<code>uXX</code> 表示 XX 位无符号整数。</p>
+<p>下面的结构体表示了 o0 的二进制文件结构（也就是说你输出的时候应该按顺序输出下面这些结构体的各个字段的内容，中间不加空隙）。其中，<code>uXX</code> 表示 XX 位无符号整数。</p>
 <pre><code class="language-rust ignore">/// 整个 o0 二进制文件
 struct o0 {
     /// 魔数
     magic: u32 = 0x72303b3e,
     /// 版本号，定为 1
     version: u32 = 0x00000001,
-    /// 标志位，留空
-    flags: u32 = 0x00000000,
     /// 全局变量表
     globals: Array&lt;GlobalDef&gt;,
     /// 函数列表

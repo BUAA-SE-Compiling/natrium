@@ -164,7 +164,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1><a class="header" href="#指令集" id="指令集">指令集</a></h1>
-<p>navm 的指令使用 8 位（1 字节）无符号整数标识，后面跟随可变长度的操作数。操作数类型为 <code>u64</code> <code>i64</code> 时，长度为 64 位（8 字节），类型为 <code>u32</code> <code>i32</code> 时，长度为 32 位（6 字节）。</p>
+<p>navm 的指令使用 8 位（1 字节）无符号整数标识，后面跟随可变长度的操作数。操作数类型为 <code>u64</code> <code>i64</code> 时，长度为 64 位（8 字节），类型为 <code>u32</code> <code>i32</code> 时，长度为 32 位（4 字节）。</p>
 <p>下表展示了 navm 的所有指令。其中弹栈和压栈的格式为：<code>栈变化范围[:变量]</code>，数字按照栈底到栈顶编号。</p>
 <table><thead><tr><th>指令</th><th>指令名</th><th>操作数</th><th>弹栈</th><th>压栈</th><th>介绍</th></tr></thead><tbody>
 <tr><td>0x00</td><td><code>nop</code></td><td>-</td><td>-</td><td>-</td><td>空指令</td></tr>
