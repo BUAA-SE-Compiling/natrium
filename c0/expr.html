@@ -237,11 +237,11 @@ call_expr -&gt; IDENT '(' call_param_list? ')'
 <h3><a class="header" href="#特殊情况" id="特殊情况">特殊情况</a></h3>
 <p>标准库中的函数在调用前不需要声明，见 <a href="stdlib.html">标准库文档</a>。</p>
 <h2><a class="header" href="#字面量表达式" id="字面量表达式">字面量表达式</a></h2>
-<pre><code>literal_expr -&gt; UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL
+<pre><code>literal_expr -&gt; UINT_LITERAL | DOUBLE_LITERAL | STRING_LITERAL
 
 digit -&gt; [0-9]
 UINT_LITERAL -&gt; digit+
-FLOAT_LITERAL -&gt; digit* '.' digit+ ([eE] digit+)?
+DOUBLE_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
 
 escape_sequence -&gt; '\' [\\&quot;'nrt]
 string_regular_char -&gt; [^&quot;\\]

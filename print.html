@@ -636,11 +636,11 @@ call_expr -&gt; IDENT '(' call_param_list? ')'
 <h3><a class="header" href="#特殊情况" id="特殊情况">特殊情况</a></h3>
 <p>标准库中的函数在调用前不需要声明，见 <a href="c0/stdlib.html">标准库文档</a>。</p>
 <h2><a class="header" href="#字面量表达式" id="字面量表达式">字面量表达式</a></h2>
-<pre><code>literal_expr -&gt; UINT_LITERAL | FLOAT_LITERAL | STRING_LITERAL
+<pre><code>literal_expr -&gt; UINT_LITERAL | DOUBLE_LITERAL | STRING_LITERAL
 
 digit -&gt; [0-9]
 UINT_LITERAL -&gt; digit+
-FLOAT_LITERAL -&gt; digit* '.' digit+ ([eE] digit+)?
+DOUBLE_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
 
 escape_sequence -&gt; '\' [\\&quot;'nrt]
 string_regular_char -&gt; [^&quot;\\]
@@ -823,7 +823,7 @@ function -&gt; 'fn' IDENT '(' function_param_list? ')' '-&gt;' ty block_stmt
 </blockquote>
 <h1><a class="header" href="#标准库" id="标准库">标准库</a></h1>
 <p>由于 c0 语言本身比较简单，为了实现输入输出的功能，我们规定了 8 个不需要声明就可以调用的函数，它们的分别是：</p>
-<pre><code class="language-rust ignore">/// 读入一个整数
+<pre><code class="language-rust ignore">/// 读入一个有符号整数
 fn getint() -&gt; int;
 
 /// 读入一个浮点数
@@ -879,7 +879,7 @@ expr -&gt; .. | as_expr
 <li>浮点数 <code>double</code> 和整数 <code>int</code> 之间互相转换</li>
 </ul>
 <h3><a class="header" href="#浮点数类型" id="浮点数类型">浮点数类型</a></h3>
-<pre><code>FLOAT_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
+<pre><code>DOUBLE_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
 </code></pre>
 <p>浮点数类型 <code>double</code> 是遵循 IEEE 754 标准的 64 位浮点数（在其它语言中经常称作 <code>double</code>、<code>float64</code> 或 <code>f64</code>）。</p>
 <p>浮点数和整数之间不能进行运算。浮点数之间进行四则运算的结果仍为浮点数。</p>
