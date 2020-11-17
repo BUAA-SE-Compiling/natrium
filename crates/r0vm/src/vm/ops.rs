@@ -530,7 +530,7 @@ impl<'src> super::R0Vm<'src> {
 
     pub(crate) fn scan_i(&mut self) -> Result<()> {
         let mut err = None;
-        let val = try_read!(
+        let val: i64 = try_read!(
             // HACK: Whenever an IOError is encountered, that error is forwarded to the error variable outside. This allows us to use try_read!() to parse the value.
             // Remained here until better options are available.
             "{}",
@@ -545,7 +545,7 @@ impl<'src> super::R0Vm<'src> {
                 .flatten()
         )
         .map_err(|_| err.map(Error::IoError).unwrap_or(Error::ParseError))?;
-        self.push(val)
+        self.push(val as u64)
     }
 
     pub(crate) fn scan_c(&mut self) -> Result<()> {
