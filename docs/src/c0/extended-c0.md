@@ -52,7 +52,7 @@ expr -> .. | as_expr
 ### 浮点数类型
 
 ```
-FLOAT_LITERAL -> digit+ '.' digit+ ([eE] digit+)?
+DOUBLE_LITERAL -> digit+ '.' digit+ ([eE] digit+)?
 ```
 
 浮点数类型 `double` 是遵循 IEEE 754 标准的 64 位浮点数（在其它语言中经常称作 `double`、`float64` 或 `f64`）。
