@@ -21,7 +21,7 @@ fn putdouble(double) -> void;
 /// 输出一个字符
 fn putchar(int) -> void;
 
-/// 输出整数代表的全局常量字符串
+/// 将编号为这个整数的全局常量看作字符串输出
 fn putstr(int) -> void;
 
 /// 输出一个换行
