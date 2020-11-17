@@ -213,11 +213,11 @@
 <tr><td>0x39</td><td><code>set.lt</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>如果 lhs &lt; 0 则推入 1，否则 0</td></tr>
 <tr><td>0x3a</td><td><code>set.gt</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>如果 lhs &gt; 0 则推入 1，否则 0</td></tr>
 <tr><td>0x41</td><td><code>br</code></td><td>off:i32</td><td></td><td></td><td>无条件跳转偏移 <code>off</code></td></tr>
-<tr><td>0x42</td><td><code>br.false</code></td><td>off:i32</td><td></td><td>1:test</td><td>如果 <code>test</code> 是 0 则跳转偏移 <code>off</code></td></tr>
-<tr><td>0x43</td><td><code>br.true</code></td><td>off:i32</td><td></td><td>1:test</td><td>如果 <code>test</code> 非 0 则跳转偏移 <code>off</code></td></tr>
-<tr><td>0x48</td><td><code>call</code></td><td>id:u32</td><td>见栈帧介绍</td><td>-</td><td>调用编号为 id 的函数</td></tr>
-<tr><td>0x49</td><td><code>ret</code></td><td>-</td><td>-</td><td>见栈帧介绍</td><td>从当前函数返回</td></tr>
-<tr><td>0x4a</td><td><code>callname</code></td><td>id:u32</td><td>见栈帧介绍</td><td>-</td><td>调用名称与编号为 id 的全局变量相同的函数</td></tr>
+<tr><td>0x42</td><td><code>br.false</code></td><td>off:i32</td><td>1:test</td><td></td><td>如果 <code>test</code> 是 0 则跳转偏移 <code>off</code></td></tr>
+<tr><td>0x43</td><td><code>br.true</code></td><td>off:i32</td><td>1:test</td><td></td><td>如果 <code>test</code> 非 0 则跳转偏移 <code>off</code></td></tr>
+<tr><td>0x48</td><td><code>call</code></td><td>id:u32</td><td></td><td>见栈帧介绍</td><td>调用编号为 id 的函数</td></tr>
+<tr><td>0x49</td><td><code>ret</code></td><td>-</td><td>见栈帧介绍</td><td></td><td>从当前函数返回</td></tr>
+<tr><td>0x4a</td><td><code>callname</code></td><td>id:u32</td><td></td><td>见栈帧介绍</td><td>调用名称与编号为 id 的全局变量相同的函数</td></tr>
 <tr><td>0x50</td><td><code>scan.i</code></td><td>-</td><td>-</td><td>1:n</td><td>从标准输入读入一个整数 n</td></tr>
 <tr><td>0x51</td><td><code>scan.c</code></td><td>-</td><td>-</td><td>1:c</td><td>从标准输入读入一个字符 c</td></tr>
 <tr><td>0x52</td><td><code>scan.f</code></td><td>-</td><td>-</td><td>1:f</td><td>从标准输入读入一个浮点数 f</td></tr>
