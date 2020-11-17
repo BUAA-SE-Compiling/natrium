@@ -195,6 +195,9 @@ decl_stmt -&gt; let_decl_stmt | const_decl_stmt
 <blockquote>
 <p>UB: 没有初始化的变量的值未定义。我们不规定对于使用未初始化变量的行为的处理方式，你可以选择忽略、提供默认值或者报错。</p>
 </blockquote>
+<blockquote>
+<p>UB: 我们不考虑局部变量和全局函数重名的情况。局部变量和全局变量重名的时候应当覆盖全局变量定义。</p>
+</blockquote>
 <p>以下是一些可以通过编译的变量声明的例子：</p>
 <pre><code class="language-rust ignore">let i: int;
 let j: int = 1;
