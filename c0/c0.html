@@ -229,6 +229,7 @@ expr -&gt;
     | call_expr
     | literal_expr
     | ident_expr
+    | group_expr
 
 binary_operator -&gt; '+' | '-' | '*' | '/' | '==' | '!=' | '&lt;' | '&gt;' | '&lt;=' | '&gt;='
 operator_expr -&gt; expr binary_operator expr
@@ -245,6 +246,8 @@ call_expr -&gt; IDENT '(' call_param_list? ')'
 literal_expr -&gt; UINT_LITERAL | DOUBLE_LITERAL | STRING_LITERAL | CHAR_LITERAL
 
 ident_expr -&gt; IDENT
+
+group_expr -&gt; '(' expr ')'
 
 // ## 左值表达式
 l_expr -&gt; IDENT
@@ -295,6 +298,7 @@ program -&gt; item*
 </code></pre>
 <p>其中，表达式中运算符的优先级从高到低为：</p>
 <table><thead><tr><th>运算符</th><th>结合性</th></tr></thead><tbody>
+<tr><td>括号表达式</td><td>-</td></tr>
 <tr><td>函数调用</td><td>-</td></tr>
 <tr><td>前置 <code>-</code></td><td>-</td></tr>
 <tr><td><code>as</code></td><td>-</td></tr>

@@ -172,6 +172,7 @@
     | call_expr
     | literal_expr
     | ident_expr
+    | group_expr
 </code></pre>
 <p>表达式是代码中运算的最小单位。在语法解析的时候，一个表达式会被展开成一棵树，称作表达式树。</p>
 <blockquote>
@@ -179,6 +180,7 @@
 </blockquote>
 <p>表达式中运算符的优先级从高到低为：</p>
 <table><thead><tr><th>运算符</th><th>结合性</th></tr></thead><tbody>
+<tr><td>括号表达式</td><td>-</td></tr>
 <tr><td>函数调用</td><td>-</td></tr>
 <tr><td>前置 <code>-</code></td><td>-</td></tr>
 <tr><td><code>as</code></td><td>-</td></tr>
@@ -250,6 +252,10 @@ STRING_LITERAL -&gt; '&quot;' (string_regular_char | escape_sequence)* '&quot;'
 <pre><code>ident_expr -&gt; IDENT
 </code></pre>
 <p>标识符表达式是由标识符组成的表达式。其语义是标识符对应的局部或全局变量。标识符表达式的类型与标识符的类型相同。</p>
+<h2><a class="header" href="#括号表达式" id="括号表达式">括号表达式</a></h2>
+<pre><code>group_expr -&gt; '(' expr ')'
+</code></pre>
+<p>括号表达式内部的表达式的值将被优先计算。</p>
 
                     </main>
 
