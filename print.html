@@ -783,7 +783,9 @@ if x &gt; 0
 <h2><a class="header" href="#代码块" id="代码块">代码块</a></h2>
 <pre><code>block_stmt -&gt; '{' stmt* '}'
 </code></pre>
-<p>一个代码块可以包含一条或多条语句。执行代码块的效果是顺序执行这些语句。在扩展 c0 中，一个代码块是其所在作用域的子作用域。</p>
+<p>一个代码块可以包含一条或多条语句。执行代码块的效果是顺序执行这些语句。</p>
+<p>在基础 c0 中，一个代码块中的声明语句只能在其他类型的语句之前出现。</p>
+<p>在扩展 c0（作用域嵌套）中，一个代码块是其所在作用域的子作用域。在扩展 c0（变量声明增强）中，一个代码块的任何地方均可声明变量。</p>
 <h2><a class="header" href="#空语句" id="空语句">空语句</a></h2>
 <pre><code>empty_stmt -&gt; ';'
 </code></pre>
@@ -859,7 +861,7 @@ fn putln() -&gt; void;
 <h2><a class="header" href="#字符字面量" id="字符字面量">字符字面量</a></h2>
 <p>加分：5pt</p>
 <pre><code>char_regular_char -&gt; [^'\\\n\r]
-CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence)* '\''
+CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence) '\''
 literal_expr -&gt; UINT_LITERAL | DOUBLE_LITERAL | STRING_LITERAL | CHAR_LITERAL
 </code></pre>
 <p>字符字面量是由单引号 <code>'</code> 包裹的单个字符或转义序列。其中单个字符可以是 ASCII 中除了单引号 <code>'</code>、反斜线 <code>\\</code>、空白符 <code>\r</code>(CR)、<code>\n</code>(LF)、<code>\t</code>(Tab) 以外的任何字符。转义序列可以是 <code>\'</code>、<code>\&quot;</code>、<code>\\</code>、<code>\n</code>、<code>\t</code>、<code>\r</code>，含义与 C 中的对应序列相同。</p>
@@ -908,7 +910,7 @@ expr -&gt; .. | as_expr
 </code></pre>
 <h2><a class="header" href="#变量声明增强" id="变量声明增强">变量声明增强</a></h2>
 <p>加分：5pt</p>
-<p>在每一级作用域中，你不仅可以在作用域顶端声明变量，也能在作用域中间声明变量。在作用域中间声明的变量同样遵循上一条的生命周期。</p>
+<p>在每一级作用域中，你不仅可以在作用域顶端声明变量，也能在作用域中间声明变量。在作用域中间声明的变量同样遵循上一条的生命周期。在全局作用域中，变量声明和函数声明也可以混合。</p>
 <h2><a class="header" href="#break-和-continue" id="break-和-continue"><code>break</code> 和 <code>continue</code></a></h2>
 <p>加分：10pt</p>
 <pre><code>BREAK_KW  -&gt; 'break'
