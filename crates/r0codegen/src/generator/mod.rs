@@ -444,7 +444,10 @@ impl<'f> FuncCodegen<'f> {
             let param_size = param_ty.size_slot();
 
             let param_id = scope
-                .insert(param.name.name.clone(), Symbol::new(param_ty, false))
+                .insert(
+                    param.name.name.clone(),
+                    Symbol::new(param_ty, param.is_const),
+                )
                 .ok_or_else(|| CompileError {
                     kind: CompileErrorKind::DuplicateSymbol(param.name.name.as_str().into()),
                     span: Some(param.name.span),
