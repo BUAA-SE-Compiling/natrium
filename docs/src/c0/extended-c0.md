@@ -20,7 +20,7 @@ C0 的注释是从 `//` 开始到这行结束（遇到第一个 `\n`）为止的
 
 ```
 char_regular_char -> [^'\\\n\r]
-CHAR_LITERAL -> '\'' (char_regular_char | escape_sequence)* '\''
+CHAR_LITERAL -> '\'' (char_regular_char | escape_sequence) '\''
 literal_expr -> UINT_LITERAL | DOUBLE_LITERAL | STRING_LITERAL | CHAR_LITERAL
 ```
 
@@ -92,7 +92,7 @@ DOUBLE_LITERAL -> digit+ '.' digit+ ([eE] digit+)?
 
 加分：5pt
 
-在每一级作用域中，你不仅可以在作用域顶端声明变量，也能在作用域中间声明变量。在作用域中间声明的变量同样遵循上一条的生命周期。
+在每一级作用域中，你不仅可以在作用域顶端声明变量，也能在作用域中间声明变量。在作用域中间声明的变量同样遵循上一条的生命周期。在全局作用域中，变量声明和函数声明也可以混合。
 
 ## `break` 和 `continue`
 
