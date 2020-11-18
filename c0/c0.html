@@ -288,7 +288,7 @@ block_stmt -&gt; '{' stmt* '}'
 empty_stmt -&gt; ';'
 
 // # 函数
-function_param -&gt; IDENT ':' ty
+function_param -&gt; 'const'? IDENT ':' ty
 function_param_list -&gt; function_param (',' function_param)*
 function -&gt; 'fn' IDENT '(' function_param_list? ')' '-&gt;' ty block_stmt
 

@@ -433,7 +433,7 @@ block_stmt -&gt; '{' stmt* '}'
 empty_stmt -&gt; ';'
 
 // # 函数
-function_param -&gt; IDENT ':' ty
+function_param -&gt; 'const'? IDENT ':' ty
 function_param_list -&gt; function_param (',' function_param)*
 function -&gt; 'fn' IDENT '(' function_param_list? ')' '-&gt;' ty block_stmt
 
@@ -1055,7 +1055,7 @@ struct BinaryExpr {
 <h3><a class="header" href="#使用-lllr-解析器生成器" id="使用-lllr-解析器生成器">使用 LL/LR 解析器生成器</a></h3>
 <p>自动生成解析器代码总感觉有点作弊的意思，不过用了就用了吧（笑）。如果你确定要用的话，记得选一个好用的，比如 <a href="https://www.antlr.org">ANTLR</a>。</p>
 <h1><a class="header" href="#navm-虚拟机标准" id="navm-虚拟机标准">navm 虚拟机标准</a></h1>
-<p>本次大作业的编译目标是 Natrium 虚拟机 (navm) 的汇编 (s0)。其设计参考了 JVM、DotNet CLR 和上学期的 c0 虚拟机。</p>
+<p>本次大作业的编译目标是 Natrium 虚拟机 (navm) 的汇编 (o0)。其设计参考了 JVM、DotNet CLR 和上学期的 c0 虚拟机。</p>
 <h2><a class="header" href="#虚拟机简介" id="虚拟机简介">虚拟机简介</a></h2>
 <p>navm 是一个 <a href="https://en.wikipedia.org/wiki/Stack_machine">栈式虚拟机</a> —— 简单来说就是，它的寄存器是一个栈。除了少数内存访问指令以外，navm 的大部分指令都只操作位于栈顶的数据。堆栈式计算机的指令与 <a href="https://en.wikipedia.org/wiki/Reverse_Polish_notation">逆波兰表示法（后缀表示法</a> 表示的表达式（或者说后序遍历的表达式树）有简单的对应关系。</p>
 <p>navm 有 64 位有符号整数、无符号整数、浮点数三种数据类型。详见 <a href="navm/index.html#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B">数据类型</a> 节。</p>
@@ -1130,6 +1130,34 @@ union Instruction {
         param: u64
     }
 }
+</code></pre>
+<p>下面是一个合法的 o0 文件的例子（以每一字节以十六进制或字符展示，<code>//</code> 后的是注释）：</p>
+<pre><code>0x72, 0x30, 0x3b, 0x3e, // magic
+0x00, 0x00, 0x00, 0x01, // version
+
+0x00, 0x00, 0x00, 0x02, // globals.count
+
+0x00, // globals[0].is_const
+0x00, 0x00, 0x00, 0x03, // globals[0].value.count
+0x00, 0x01, 0x02, // globals[0].value.items
+
+0x01, // globals[1].is_const
+0x00, 0x00, 0x00, 0x06, // globals[1].value.count
+'_',  's',  't',  'a',  'r',  't', // globals[1].value.items
+
+0x00, 0x00, 0x00, 0x01, // functions.count
+
+0x00, 0x00, 0x00, 0x01, // functions[0].name
+0x00, 0x00, 0x00, 0x00, // functions[0].ret_slots
+0x00, 0x00, 0x00, 0x00, // functions[0].param_slots
+0x00, 0x00, 0x00, 0x00, // functions[0].loc_slots
+0x00, 0x00, 0x00, 0x04, // functions[0].body.count
+    // functions[0].body.items
+    0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // Push(1)
+    0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, // Push(2)
+    0x20, // AddI
+    0x34, // NegI
+// finish
 </code></pre>
 <h2><a class="header" href="#栈帧结构" id="栈帧结构">栈帧结构</a></h2>
 <blockquote>
@@ -1348,7 +1376,7 @@ store.64
 <h1><a class="header" href="#提交与评测说明" id="提交与评测说明">提交与评测说明</a></h1>
 <p>C0 大作业的提交方式是自动评测，评测的方式之后会写在这里。</p>
 <h2><a class="header" href="#程序要求" id="程序要求">程序要求</a></h2>
-<p>你提交的程序应当至少能通过命令行参数接收一个 c0 代码文件的输入，并输出一个 s0 二进制文件。</p>
+<p>你提交的程序应当至少能通过命令行参数接收一个 c0 代码文件的输入，并输出一个 o0 二进制文件。</p>
 <p>如果编译过程中出现了错误（语法、语义、编译过程错误等），你的程序应当<strong>以非 0 的返回值退出</strong>。否则如果一切正常，你的程序应当以返回值 0 退出。</p>
 <h2><a class="header" href="#提交要求" id="提交要求">提交要求</a></h2>
 <blockquote>
