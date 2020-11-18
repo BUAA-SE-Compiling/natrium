@@ -205,7 +205,13 @@ fn compile_start_func(
                 .decls
                 .iter()
                 .cloned()
-                .map(ast::Stmt::Decl)
+                .filter_map(|decl: ast::DeclStmt| {
+                    Some(ast::Stmt::Expr(ast::Expr::Assign(ast::AssignExpr {
+                        span: decl.span,
+                        lhs: P::new(ast::Expr::Ident(decl.name)),
+                        rhs: decl.val?,
+                    })))
+                })
                 .chain(
                     vec![
                         ast::Stmt::Expr(ast::Expr::Call(ast::CallExpr {
