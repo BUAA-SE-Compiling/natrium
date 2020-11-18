@@ -102,7 +102,7 @@ fn create_lib_func(scope: &mut Scope) {
         ),
     );
     scope.insert(
-        "putfloat".into(),
+        "putdouble".into(),
         Symbol::new(
             Ty::Func(FuncTy {
                 params: vec![P(Ty::Double)],
