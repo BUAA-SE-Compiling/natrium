@@ -17,10 +17,10 @@ pub fn pretty_print_error(
 
         Ok(())
     } else {
-        let start = line_span::find_line_range(input, span.idx);
-        let end = line_span::find_line_range(input, span.idx + span.len);
+        let start = line_span::find_line_range(input, span.start());
+        let end = line_span::find_line_range(input, span.end());
 
-        if let Some(line) = line_span::find_prev_line_range(input, span.idx) {
+        if let Some(line) = line_span::find_prev_line_range(input, span.start()) {
             writeln!(writer, "{}", &input[line])?;
         }
         if start == end {
@@ -30,8 +30,8 @@ pub fn pretty_print_error(
                 "{:space_width$}{:^^line_width$}",
                 "",
                 "",
-                space_width = input[start.start..span.idx].width(),
-                line_width = input[span.idx..(span.idx + span.len)].width()
+                space_width = input[start.start..span.start()].width(),
+                line_width = input[span.start()..span.end()].width()
             )?;
         } else {
             let print_range = start.start..end.end;
@@ -43,8 +43,8 @@ pub fn pretty_print_error(
                 "{:space_width$}{:^^line_width$}",
                 "",
                 "",
-                space_width = input[start.start..span.idx].width(),
-                line_width = input[span.idx..start.end].width()
+                space_width = input[start.start..span.start()].width(),
+                line_width = input[span.start()..start.end].width()
             )?;
             for i in 1..(input_range.len() - 1) {
                 writeln!(writer, "{}", input_range[i])?;
@@ -55,10 +55,10 @@ pub fn pretty_print_error(
                 writer,
                 "{:^^line_width$}",
                 "",
-                line_width = input[end.start..(span.idx + span.len)].width()
+                line_width = input[end.start..(span.end())].width()
             )?;
         }
-        if let Some(line) = line_span::find_next_line_range(input, span.idx + span.len) {
+        if let Some(line) = line_span::find_next_line_range(input, span.end()) {
             writeln!(writer, "{}", &input[line])?;
         }
         Ok(())

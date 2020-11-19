@@ -21,6 +21,14 @@ pub const DUMMY_SPAN: Span = Span {
 };
 
 impl Span {
+    pub fn start(&self) -> usize {
+        self.idx
+    }
+
+    pub fn end(&self) -> usize {
+        self.idx + self.len
+    }
+
     pub fn new(idx: usize, len: usize) -> Span {
         Span { idx, len }
     }
@@ -43,15 +51,15 @@ impl std::ops::Add for Span {
     type Output = Span;
 
     fn add(self, rhs: Self) -> Self::Output {
-        let len = rhs.idx - self.idx + rhs.len;
-        Span::new(self.idx, len)
+        let start = std::cmp::min(self.start(), rhs.start());
+        let end = std::cmp::max(self.end(), rhs.end());
+        Span::new_idx(start, end)
     }
 }
 
 impl std::ops::AddAssign for Span {
     fn add_assign(&mut self, rhs: Self) {
-        let len = rhs.idx - self.idx + rhs.len;
-        *self = Span::new(self.idx, len)
+        *self = *self + rhs
     }
 }
 
