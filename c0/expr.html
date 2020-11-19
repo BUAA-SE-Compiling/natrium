@@ -212,7 +212,7 @@ operator_expr -&gt; expr binary_operator expr
 <tr><td><code>!=</code></td><td>如果左侧不等于右侧则为真</td><td>数值</td><td>布尔*</td><td>左到右</td></tr>
 </tbody></table>
 <h3><a class="header" href="#-关于布尔类型" id="-关于布尔类型">* 关于布尔类型</a></h3>
-<p>由于布尔类型的表达式只会出现在 <code>if</code> 和 <code>while</code> 语句的条件表达式中，我们不规定布尔类型的表现形式。在 <code>navm</code> 中，所有非 0 值均表示 <code>true</code>，0 表示 <code>false</code>。</p>
+<p>布尔类型的表达式只能出现在 <code>if</code> 和 <code>while</code> 语句的条件表达式中。因此，我们不强制规定布尔类型的值的表现形式。所有非 0 值都会被视为 true，0 会被视为 false。</p>
 <h2><a class="header" href="#取反表达式" id="取反表达式">取反表达式</a></h2>
 <pre><code>negate_expr -&gt; '-' expr
 </code></pre>

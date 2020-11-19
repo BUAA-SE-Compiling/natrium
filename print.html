@@ -503,7 +503,7 @@ string_regular_char -&gt; [^&quot;\\]
 STRING_LITERAL -&gt; '&quot;' (string_regular_char | escape_sequence)* '&quot;'
 
 // 扩展 c0
-DOUBLE_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
+DOUBLE_LITERAL -&gt; digit+ '.' digit+ ([eE] [+-]? digit+)?
 
 char_regular_char -&gt; [^'\\]
 CHAR_LITERAL -&gt; '\'' (char_regular_char | escape_sequence) '\''
@@ -611,7 +611,7 @@ operator_expr -&gt; expr binary_operator expr
 <tr><td><code>!=</code></td><td>如果左侧不等于右侧则为真</td><td>数值</td><td>布尔*</td><td>左到右</td></tr>
 </tbody></table>
 <h3><a class="header" href="#-关于布尔类型" id="-关于布尔类型">* 关于布尔类型</a></h3>
-<p>由于布尔类型的表达式只会出现在 <code>if</code> 和 <code>while</code> 语句的条件表达式中，我们不规定布尔类型的表现形式。在 <code>navm</code> 中，所有非 0 值均表示 <code>true</code>，0 表示 <code>false</code>。</p>
+<p>布尔类型的表达式只能出现在 <code>if</code> 和 <code>while</code> 语句的条件表达式中。因此，我们不强制规定布尔类型的值的表现形式。所有非 0 值都会被视为 true，0 会被视为 false。</p>
 <h2><a class="header" href="#取反表达式" id="取反表达式">取反表达式</a></h2>
 <pre><code>negate_expr -&gt; '-' expr
 </code></pre>
@@ -881,9 +881,12 @@ expr -&gt; .. | as_expr
 <li>浮点数 <code>double</code> 和整数 <code>int</code> 之间互相转换</li>
 </ul>
 <h3><a class="header" href="#浮点数类型" id="浮点数类型">浮点数类型</a></h3>
-<pre><code>DOUBLE_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
+<pre><code>DOUBLE_LITERAL -&gt; digit+ '.' digit+ ([eE] [+-]? digit+)?
+//                ^~~~~~~~~~~~~~~~~       ^~~~~~~~~~~~
+//                 number                  exponent
 </code></pre>
 <p>浮点数类型 <code>double</code> 是遵循 IEEE 754 标准的 64 位浮点数（在其它语言中经常称作 <code>double</code>、<code>float64</code> 或 <code>f64</code>）。</p>
+<p>带指数部分（<code>exponent</code>）的浮点数字面量的值是 <code>number * (10 ^ exponent)</code>，如 <code>1E6</code>、<code>1e+6</code> 均代表 <code>1000000</code>、<code>2.1e-2</code> 代表 <code>0.021</code>。</p>
 <p>浮点数和整数之间不能进行运算。浮点数之间进行四则运算的结果仍为浮点数。</p>
 <h2><a class="header" href="#作用域嵌套" id="作用域嵌套">作用域嵌套</a></h2>
 <p>加分：10pt</p>
