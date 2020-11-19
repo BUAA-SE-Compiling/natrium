@@ -56,19 +56,23 @@ macro_rules! separated {
 /// Requires `op` to be a binary operator, aka `op.is_binary_op() == true`
 fn combine_expr(lhs: Expr, rhs: Expr, op: Token) -> Expr {
     match op {
-        Token::Assign => Expr::Assign(AssignExpr {
-            lhs: P::new(lhs),
-            rhs: P::new(rhs),
-            span: Span::default(),
-        }),
+        Token::Assign => {
+            let span = lhs.span() + rhs.span();
+            Expr::Assign(AssignExpr {
+                lhs: P::new(lhs),
+                rhs: P::new(rhs),
+                span,
+            })
+        }
         _ => {
             let binary_op = op
                 .to_binary_op()
                 .expect("A token passed in combine_expr should always be a binary operator");
+            let span = lhs.span() + rhs.span();
             Expr::Binary(BinaryExpr {
                 lhs: P::new(lhs),
                 rhs: P::new(rhs),
-                span: Span::default(),
+                span,
                 op: binary_op,
             })
         }
@@ -201,16 +205,17 @@ where
 
     fn parse_func_call(&mut self, func: Ident) -> Result<CallExpr, ParseError> {
         // FunctionCall -> Ident '(' (Expr (,Expr)* )? ')'
+
         expect!(self, Token::LParen)?;
         let params = separated!(
             self.parse_expr(),
             is_next!(self, Token::Comma),
             self.lexer.next()
         );
-        expect!(self, Token::RParen)?;
+        let (_, r_span) = expect!(self, Token::RParen)?;
 
         Ok(CallExpr {
-            span: Span::default(),
+            span: func.span + r_span,
             func,
             params,
         })
@@ -275,18 +280,18 @@ where
         // ProUOp -> 'as' TypeDef
         let mut prec_ops = vec![];
         while is_next!(self, Token::Minus) {
-            prec_ops.push(self.lexer.next().unwrap().0)
+            prec_ops.push(self.lexer.next().unwrap())
         }
 
         let mut item = self.parse_item()?;
-        for prec_op in prec_ops.drain(..).rev() {
+        for (prec_op, span) in prec_ops.drain(..).rev() {
             let unary_op = match prec_op {
                 Token::Plus => UnaryOp::Pos,
                 Token::Minus => UnaryOp::Neg,
                 _ => unreachable!(),
             };
             item = Expr::Unary(UnaryExpr {
-                span: Span::default(),
+                span: item.span() + span,
                 op: unary_op,
                 expr: P::new(item),
             });
@@ -296,7 +301,7 @@ where
             self.lexer.next();
             let ty = self.parse_ty()?;
             item = Expr::As(AsExpr {
-                span: Span::default(),
+                span: ty.span + item.span(),
                 val: P::new(item),
                 ty,
             })
