@@ -39,8 +39,7 @@ navm 的指令使用 8 位（1 字节）无符号整数标识，后面跟随可�
 | 0x2b | `and`        | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs & rhs                     |
 | 0x2c | `or`         | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs &#124; rhs                |
 | 0x2d | `xor`        | -        | 1:lhs, 2:rhs  | 1:res        | 计算 res = lhs ^ rhs                     |
-| 0x2d | `not`        | -        | 1:lhs         | 1:res        | 计算 res = !lhs                          |
-| 0x2e | `inv`        | -        | 1:lhs         | 1:res        | 计算 res = ~lhs（按位反转）              |
+| 0x2e | `not`        | -        | 1:lhs         | 1:res        | 计算 res = !lhs                          |
 | 0x30 | `cmp.i`      | -        | 1:lhs, 2:rhs  | 1:res        | 比较有符号整数 lhs 和 rhs 大小           |
 | 0x31 | `cmp.f`      | -        | 1:lhs, 2:rhs  | 1:res        | 比较浮点数 lhs 和 rhs 大小               |
 | 0x32 | `cmp.u`      | -        | 1:lhs, 2:rhs  | 1:res        | 比较无符号整数 lhs 和 rhs 大小           |
