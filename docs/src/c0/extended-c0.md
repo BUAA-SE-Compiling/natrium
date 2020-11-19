@@ -52,10 +52,14 @@ expr -> .. | as_expr
 ### 浮点数类型
 
 ```
-DOUBLE_LITERAL -> digit+ '.' digit+ ([eE] digit+)?
+DOUBLE_LITERAL -> digit+ '.' digit+ ([eE] [+-]? digit+)?
+//                ^~~~~~~~~~~~~~~~~       ^~~~~~~~~~~~
+//                 number                  exponent
 ```
 
 浮点数类型 `double` 是遵循 IEEE 754 标准的 64 位浮点数（在其它语言中经常称作 `double`、`float64` 或 `f64`）。
+
+带指数部分（`exponent`）的浮点数字面量的值是 `number * (10 ^ exponent)`，如 `1E6`、`1e+6` 均代表 `1000000`、`2.1e-2` 代表 `0.021`。
 
 浮点数和整数之间不能进行运算。浮点数之间进行四则运算的结果仍为浮点数。
 

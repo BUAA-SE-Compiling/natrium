@@ -36,7 +36,7 @@ pub enum Token {
 
     #[regex(r"\d+", |lex| lex.slice().parse())]
     UIntLiteral(u64),
-    #[regex(r"\d*\.\d+([eE]\d+)?", |lex| lex.slice().parse())]
+    #[regex(r"\d+\.\d+([eE][+-]?\d+)?", |lex| lex.slice().parse())]
     FloatLiteral(f64),
     #[regex(r#"'([^\\']|\\[rnt\\/"'])'"#, parse_char_literal)]
     CharLiteral(char),
