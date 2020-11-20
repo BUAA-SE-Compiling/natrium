@@ -663,7 +663,16 @@ impl<'f> FuncCodegen<'f> {
                 let offset = self.get_place(ret_id).unwrap();
 
                 self.append_code(bb_id, op_load_address(offset));
-                self.compile_expr(stmt.val.as_deref().unwrap(), bb_id, scope)?;
+                let ty = self.compile_expr(stmt.val.as_deref().unwrap(), bb_id, scope)?;
+                if ty != *ret_ty {
+                    return Err(CompileError(
+                        CompileErrorKind::TypeMismatch {
+                            expected: ret_ty.to_string(),
+                            got: ty.to_string().into(),
+                        },
+                        Some(stmt.span),
+                    ));
+                }
                 self.append_code(bb_id, store_ty(ret_ty));
             }
         }

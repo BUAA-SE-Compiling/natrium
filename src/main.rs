@@ -33,9 +33,9 @@ fn main() {
     match vm.run_to_end() {
         Ok(_) => {}
         Err(e) => {
-            println!("{}", &s0);
-            println!("{}", e);
-            println!("{}", vm.debug_stack());
+            eprintln!("{}", &s0);
+            eprintln!("{}", e);
+            eprintln!("{}", vm.debug_stack());
         }
     }
 }

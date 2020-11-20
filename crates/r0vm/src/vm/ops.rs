@@ -593,7 +593,7 @@ impl<'src> super::R0Vm<'src> {
     pub(crate) fn print_f(&mut self) -> Result<()> {
         let i = self.pop()?;
         let f = reinterpret_u::<f64>(i);
-        write!(self.stdout, "{}", f)?;
+        write!(self.stdout, "{:.6}", f)?;
         self.stdout.flush().map_err(|err| err.into())
     }
 
