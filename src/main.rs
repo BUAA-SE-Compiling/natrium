@@ -2,6 +2,7 @@ use clap::Clap;
 use logos::{Lexer, Logos};
 use natrium::util::pretty_print_error;
 use r0syntax::{ast::Program, span::Span, token::Token};
+use r0vm::s0::io::WriteBinary;
 use std::{
     io::{Read, Write},
     path::PathBuf,
@@ -13,29 +14,38 @@ fn main() {
     let input = std::fs::read_to_string(&opt.input).expect("Unable to read input file");
 
     let output_file = get_output(&opt);
+    let mut output = build_output(output_file);
 
     let lexer = r0syntax::lexer::spanned_lexer(&input);
     if opt.emit == EmitTarget::Token {
-        dump_lex(lexer, output_file);
+        dump_lex(lexer, output);
     }
 
     let program = parser(lexer, &input);
     if opt.emit == EmitTarget::Ast {
-        dump_ast(program, output_file);
+        dump_ast(program, output);
     }
 
     let s0 = compile_s0(&program, &input);
+    if opt.emit == EmitTarget::O0 {
+        s0.write_binary(&mut output)
+            .expect("Failed to write to output");
+    } else {
+        write!(output, "{}", s0).expect("Failed to write to output");
+    }
 
-    let mut stdin = std::io::stdin();
-    let mut stdout = std::io::stdout();
-    let mut vm = r0vm::vm::R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    if opt.interpret {
+        let mut stdin = std::io::stdin();
+        let mut stdout = std::io::stdout();
+        let mut vm = r0vm::vm::R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
 
-    match vm.run_to_end() {
-        Ok(_) => {}
-        Err(e) => {
-            eprintln!("{}", &s0);
-            eprintln!("{}", e);
-            eprintln!("{}", vm.debug_stack());
+        match vm.run_to_end() {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!("{}", &s0);
+                eprintln!("{}", e);
+                eprintln!("{}", vm.debug_stack());
+            }
         }
     }
 }
@@ -63,16 +73,27 @@ fn get_output(opt: &Opt) -> Option<PathBuf> {
     }
 }
 
-fn dump_lex<T>(lexer: T, output: Option<PathBuf>) -> !
+fn build_output(output: Option<PathBuf>) -> Box<dyn Write> {
+    if let Some(path) = output {
+        let file = std::fs::File::create(path).expect("Failed to open file");
+        Box::new(file)
+    } else {
+        Box::new(std::io::stdout())
+    }
+}
+
+fn dump_lex<T>(lexer: T, mut output: Box<dyn Write>) -> !
 where
     T: Iterator<Item = (Token, Span)>,
 {
-    todo!("Dump lex result");
+    for (token, span) in lexer {
+        writeln!(output, "{:?} at {:?}", token, span).expect("Failed to write");
+    }
     std::process::exit(0);
 }
 
-fn dump_ast(ast: Program, output: Option<PathBuf>) -> ! {
-    todo!("Dump AST");
+fn dump_ast(ast: Program, mut output: Box<dyn Write>) -> ! {
+    writeln!(output, "{:?}", ast).expect("Failed to write to output");
     std::process::exit(0);
 }
 
