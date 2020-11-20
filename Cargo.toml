@@ -41,4 +41,4 @@ default = ["vm", "cli"]
 vm = ["r0vm/vm"]
 
 [workspace]
-members = ["crates/*", "web"]
+members = ["crates/r0codegen", "crates/r0vm", "crates/syntax", "web"]

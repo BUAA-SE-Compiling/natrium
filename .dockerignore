@@ -1,0 +1,6 @@
+/target/
+/crates/r0codegen/target/
+/crates/r0vm/target/
+/crates/syntax/target/
+/web/node_modules/
+/web/pkg/
