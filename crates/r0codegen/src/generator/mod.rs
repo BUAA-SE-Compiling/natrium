@@ -615,7 +615,7 @@ impl<'f> FuncCodegen<'f> {
                 lhs: P::new(ast::Expr::Ident(stmt.name.clone())),
                 rhs: val,
             };
-            self.compile_assign_expr(&assign_expr, bb_id, scope)?;
+            self.compile_assign_expr(&assign_expr, true, bb_id, scope)?;
         }
         Ok(bb_id)
     }
@@ -693,7 +693,7 @@ impl<'f> FuncCodegen<'f> {
     fn compile_expr(&mut self, expr: &ast::Expr, bb_id: BB, scope: &Scope) -> CompileResult<Ty> {
         match expr {
             ast::Expr::Ident(expr) => self.compile_ident_expr(expr, bb_id, scope),
-            ast::Expr::Assign(expr) => self.compile_assign_expr(expr, bb_id, scope),
+            ast::Expr::Assign(expr) => self.compile_assign_expr(expr, false, bb_id, scope),
             ast::Expr::As(expr) => self.compile_as_expr(expr, bb_id, scope),
             ast::Expr::Literal(expr) => self.compile_literal_expr(expr, bb_id, scope),
             ast::Expr::Unary(expr) => self.compile_unary_expr(expr, bb_id, scope),
@@ -707,14 +707,19 @@ impl<'f> FuncCodegen<'f> {
         expr: &ast::Expr,
         bb_id: BB,
         scope: &Scope,
-    ) -> CompileResult<Ty> {
+    ) -> CompileResult<(Ty, bool)> {
         match expr {
             ast::Expr::Ident(i) => self.gen_ident_addr(i, bb_id, scope),
             _ => Err(CompileError(CompileErrorKind::NotLValue, Some(expr.span()))),
         }
     }
 
-    fn gen_ident_addr(&mut self, i: &ast::Ident, bb_id: BB, scope: &Scope) -> CompileResult<Ty> {
+    fn gen_ident_addr(
+        &mut self,
+        i: &ast::Ident,
+        bb_id: BB,
+        scope: &Scope,
+    ) -> CompileResult<(Ty, bool)> {
         let (sym, is_global) = scope.find_is_global(&i.name).ok_or_else(|| {
             CompileError(
                 CompileErrorKind::NoSuchSymbol(i.name.to_string()),
@@ -734,19 +739,26 @@ impl<'f> FuncCodegen<'f> {
             let var_id = sym.id;
             self.append_code(bb_id, op_load_address(self.get_place(var_id).unwrap()));
         }
-        Ok(sym.ty.clone())
+        Ok((sym.ty.clone(), sym.is_const))
     }
 
     fn compile_assign_expr(
         &mut self,
         expr: &ast::AssignExpr,
+        allow_const_assign: bool,
         bb_id: BB,
         scope: &Scope,
     ) -> CompileResult<Ty> {
-        let lhs_ty = self.get_l_value_addr(expr.lhs.as_ref(), bb_id, scope)?;
+        let (lhs_ty, is_const) = self.get_l_value_addr(expr.lhs.as_ref(), bb_id, scope)?;
         let rhs_ty = self.compile_expr(expr.rhs.as_ref(), bb_id, scope)?;
 
         check_type_eq!(lhs_ty, rhs_ty, expr.rhs.span());
+        if !allow_const_assign && is_const {
+            return Err(CompileError(
+                CompileErrorKind::AssignToConst,
+                Some(expr.lhs.span()),
+            ));
+        }
 
         self.append_code(bb_id, store_ty(&lhs_ty));
 
@@ -939,7 +951,7 @@ impl<'f> FuncCodegen<'f> {
         bb_id: BB,
         scope: &Scope,
     ) -> CompileResult<Ty> {
-        let ty = self.gen_ident_addr(expr, bb_id, scope)?;
+        let (ty, _) = self.gen_ident_addr(expr, bb_id, scope)?;
         self.append_code(bb_id, load_ty(&ty));
         Ok(ty)
     }
