@@ -214,6 +214,7 @@ fn compile_start_func(
                 .filter_map(|decl: ast::DeclStmt| {
                     Some(ast::Stmt::Expr(ast::Expr::Assign(ast::AssignExpr {
                         span: decl.span,
+                        allow_assign_const: true,
                         lhs: P::new(ast::Expr::Ident(decl.name)),
                         rhs: decl.val?,
                     })))
@@ -612,10 +613,11 @@ impl<'f> FuncCodegen<'f> {
         if let Some(val) = stmt.val.clone() {
             let assign_expr = ast::AssignExpr {
                 span: Span::default(),
+                allow_assign_const: true,
                 lhs: P::new(ast::Expr::Ident(stmt.name.clone())),
                 rhs: val,
             };
-            self.compile_assign_expr(&assign_expr, true, bb_id, scope)?;
+            self.compile_assign_expr(&assign_expr, bb_id, scope)?;
         }
         Ok(bb_id)
     }
@@ -693,7 +695,7 @@ impl<'f> FuncCodegen<'f> {
     fn compile_expr(&mut self, expr: &ast::Expr, bb_id: BB, scope: &Scope) -> CompileResult<Ty> {
         match expr {
             ast::Expr::Ident(expr) => self.compile_ident_expr(expr, bb_id, scope),
-            ast::Expr::Assign(expr) => self.compile_assign_expr(expr, false, bb_id, scope),
+            ast::Expr::Assign(expr) => self.compile_assign_expr(expr, bb_id, scope),
             ast::Expr::As(expr) => self.compile_as_expr(expr, bb_id, scope),
             ast::Expr::Literal(expr) => self.compile_literal_expr(expr, bb_id, scope),
             ast::Expr::Unary(expr) => self.compile_unary_expr(expr, bb_id, scope),
@@ -745,7 +747,6 @@ impl<'f> FuncCodegen<'f> {
     fn compile_assign_expr(
         &mut self,
         expr: &ast::AssignExpr,
-        allow_const_assign: bool,
         bb_id: BB,
         scope: &Scope,
     ) -> CompileResult<Ty> {
@@ -753,7 +754,7 @@ impl<'f> FuncCodegen<'f> {
         let rhs_ty = self.compile_expr(expr.rhs.as_ref(), bb_id, scope)?;
 
         check_type_eq!(lhs_ty, rhs_ty, expr.rhs.span());
-        if !allow_const_assign && is_const {
+        if !expr.allow_assign_const && is_const {
             return Err(CompileError(
                 CompileErrorKind::AssignToConst,
                 Some(expr.lhs.span()),

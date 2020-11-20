@@ -177,6 +177,7 @@ pub struct UnaryExpr {
 #[cfg_attr(feature = "serde_impl", derive(Serialize, Deserialize))]
 pub struct AssignExpr {
     pub span: Span,
+    pub allow_assign_const: bool,
     pub lhs: P<Expr>,
     pub rhs: P<Expr>,
 }

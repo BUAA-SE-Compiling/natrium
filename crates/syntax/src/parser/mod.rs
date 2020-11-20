@@ -61,6 +61,7 @@ fn combine_expr(lhs: Expr, rhs: Expr, op: Token) -> Expr {
             Expr::Assign(AssignExpr {
                 lhs: P::new(lhs),
                 rhs: P::new(rhs),
+                allow_assign_const: false,
                 span,
             })
         }
