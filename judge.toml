@@ -1,3 +1,3 @@
 [jobs.c0]
-image = {source = "dockerfile", path = "."}
-run = "target/release/natrium $input --emit o0 -o $asm"
+image = {source = "dockerfile", path = ".", tag = "rynco-c0"}
+run = ["target/release/natrium $input --emit o0 -o $asm"]
