@@ -52,10 +52,16 @@ pub fn compile(tree: &ast::Program) -> CompileResult<s0::S0> {
             .insert("_start".into());
     }
     for func in &tree.funcs {
-        global_entries
+        if !global_entries
             .borrow_mut()
             .functions
-            .insert(func.name.name.clone());
+            .insert(func.name.name.clone())
+        {
+            return Err(CompileError(
+                CompileErrorKind::DuplicateSymbol(func.name.name.as_str().into()),
+                Some(func.name.span),
+            ));
+        }
         let func = compile_func(func, &mut global_scope, global_entries.clone())?;
         funcs.push(func);
     }
