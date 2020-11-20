@@ -14,27 +14,27 @@ fn main() {
     let input = std::fs::read_to_string(&opt.input).expect("Unable to read input file");
 
     let output_file = get_output(&opt);
-    let mut output = build_output(output_file);
+    let mut output = build_output(output_file, opt.interpret);
 
     let lexer = r0syntax::lexer::spanned_lexer(&input);
-    if opt.emit == EmitTarget::Token {
+    if !opt.interpret && opt.emit == EmitTarget::Token {
         dump_lex(lexer, output);
     }
 
     let program = parser(lexer, &input);
-    if opt.emit == EmitTarget::Ast {
+    if !opt.interpret && opt.emit == EmitTarget::Ast {
         dump_ast(program, output);
     }
 
     let s0 = compile_s0(&program, &input);
-    if opt.emit == EmitTarget::O0 {
-        s0.write_binary(&mut output)
-            .expect("Failed to write to output");
+    if !opt.interpret {
+        if opt.emit == EmitTarget::O0 {
+            s0.write_binary(&mut output)
+                .expect("Failed to write to output");
+        } else {
+            write!(output, "{}", s0).expect("Failed to write to output");
+        }
     } else {
-        write!(output, "{}", s0).expect("Failed to write to output");
-    }
-
-    if opt.interpret {
         let mut stdin = std::io::stdin();
         let mut stdout = std::io::stdout();
         let mut vm = r0vm::vm::R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
@@ -73,7 +73,10 @@ fn get_output(opt: &Opt) -> Option<PathBuf> {
     }
 }
 
-fn build_output(output: Option<PathBuf>) -> Box<dyn Write> {
+fn build_output(output: Option<PathBuf>, interpret: bool) -> Box<dyn Write> {
+    if interpret {
+        return Box::new(std::io::stdout());
+    }
     if let Some(path) = output {
         let file = std::fs::File::create(path).expect("Failed to open file");
         Box::new(file)

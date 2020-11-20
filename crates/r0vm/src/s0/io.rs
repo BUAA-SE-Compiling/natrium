@@ -24,25 +24,30 @@ macro_rules! unwrap {
     };
 }
 
+macro_rules! read {
+    ($ty:ty,$read:expr) => {
+        match <$ty>::read_binary($read)? {
+            Some(x) => x,
+            None => return Ok(None),
+        }
+    };
+}
+
 impl<T> WriteBinary for Vec<T>
 where
     T: WriteBinary,
 {
     fn read_binary(r: &mut dyn Read) -> std::io::Result<Option<Self>> {
-        let mut size_buf = [0u8; 4];
-        r.read_exact(&mut size_buf)?;
-        let size = u32::from_be_bytes(size_buf);
-        let mut vec = vec![];
+        let size = read!(u32, r) as usize;
+        let mut vec = Vec::with_capacity(size);
         for _ in 0..size {
-            let t = T::read_binary(r)?;
-            let t = unwrap!(t);
-            vec.push(t);
+            vec.push(read!(T, r));
         }
         Ok(Some(vec))
     }
 
     fn write_binary(&self, w: &mut dyn Write) -> std::io::Result<()> {
-        w.write_all(&(self.len() as u32).to_be_bytes())?;
+        (self.len() as u32).write_binary(w)?;
         for item in self {
             item.write_binary(w)?;
         }
@@ -60,7 +65,7 @@ impl WriteBinary for u8 {
 
     #[inline]
     fn write_binary(&self, w: &mut dyn Write) -> std::io::Result<()> {
-        w.write_all(&self.to_be_bytes())
+        w.write_all(&[*self])
     }
 }
 
@@ -94,23 +99,12 @@ impl WriteBinary for u64 {
 
 impl WriteBinary for Op {
     fn read_binary(r: &mut dyn Read) -> std::io::Result<Option<Self>> {
-        let mut buf = [0u8; 1];
-        // read opcode
-        r.read_exact(&mut buf)?;
-        let opcode = buf[0];
+        let opcode = unwrap!(u8::read_binary(r)?);
         let param_length = Op::param_size(opcode);
         let op = match param_length {
             0 => Op::from_code(opcode, 0),
-            4 => {
-                let mut buf = [0u8; 4];
-                r.read_exact(&mut buf)?;
-                Op::from_code(opcode, u32::from_be_bytes(buf) as u64)
-            }
-            8 => {
-                let mut buf = [0u8; 8];
-                r.read_exact(&mut buf)?;
-                Op::from_code(opcode, u64::from_be_bytes(buf))
-            }
+            4 => Op::from_code(opcode, read!(u32, r) as u64),
+            8 => Op::from_code(opcode, read!(u64, r)),
             _ => unreachable!(),
         };
         Ok(op)
@@ -126,9 +120,9 @@ impl WriteBinary for Op {
             0 => (),
             4 => {
                 let x = param as u32;
-                w.write_all(&x.to_be_bytes())?;
+                x.write_binary(w)?
             }
-            8 => w.write_all(&param.to_be_bytes())?,
+            8 => param.write_binary(w)?,
             _ => unreachable!(),
         }
         Ok(())
@@ -137,11 +131,11 @@ impl WriteBinary for Op {
 
 impl WriteBinary for FnDef {
     fn read_binary(r: &mut dyn Read) -> std::io::Result<Option<Self>> {
-        let name = u32::read_binary(r)?.unwrap();
-        let ret_slots = u32::read_binary(r)?.unwrap();
-        let param_slots = u32::read_binary(r)?.unwrap();
-        let loc_slots = u32::read_binary(r)?.unwrap();
-        let ins = unwrap!(Vec::<Op>::read_binary(r)?);
+        let name = read!(u32, r);
+        let ret_slots = read!(u32, r);
+        let param_slots = read!(u32, r);
+        let loc_slots = read!(u32, r);
+        let ins = read!(Vec<Op>, r);
         Ok(Some(FnDef {
             name,
             ret_slots,
@@ -162,8 +156,8 @@ impl WriteBinary for FnDef {
 
 impl WriteBinary for GlobalValue {
     fn read_binary(r: &mut dyn Read) -> std::io::Result<Option<Self>> {
-        let is_const = u8::read_binary(r)?.unwrap();
-        let payload = unwrap!(Vec::<u8>::read_binary(r)?);
+        let is_const = read!(u8, r);
+        let payload = read!(Vec<u8>, r);
         Ok(Some(GlobalValue {
             is_const: is_const != 0,
             bytes: payload,
@@ -177,13 +171,13 @@ impl WriteBinary for GlobalValue {
 
 impl WriteBinary for S0 {
     fn read_binary(r: &mut dyn Read) -> std::io::Result<Option<Self>> {
-        let magic_number = u32::read_binary(r)?.unwrap();
-        let version = u32::read_binary(r)?.unwrap();
+        let magic_number = read!(u32, r);
+        let version = read!(u32, r);
         if magic_number != S0::MAGIC_NUMBER || version != S0::VERSION {
             return Ok(None);
         }
-        let global_values = unwrap!(Vec::<GlobalValue>::read_binary(r)?);
-        let fn_defs = unwrap!(Vec::<FnDef>::read_binary(r)?);
+        let global_values = read!(Vec<GlobalValue>, r);
+        let fn_defs = read!(Vec<FnDef>, r);
         Ok(Some(S0 {
             globals: global_values,
             functions: fn_defs,
