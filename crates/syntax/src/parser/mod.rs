@@ -445,6 +445,8 @@ where
             Stmt::Continue(self.parse_continue_stmt()?)
         } else if is_next!(self, Token::ReturnKw) {
             Stmt::Return(self.parse_return_stmt()?)
+        } else if is_next!(self, Token::Semicolon) {
+            Stmt::Empty(self.lexer.next().unwrap().1)
         } else {
             Stmt::Expr(self.parse_expr_stmt()?)
         };

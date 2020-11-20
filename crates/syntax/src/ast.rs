@@ -47,6 +47,7 @@ pub enum Stmt {
     Return(ReturnStmt),
     Break(Span),
     Continue(Span),
+    Empty(Span),
 }
 
 impl Stmt {
@@ -60,6 +61,7 @@ impl Stmt {
             Stmt::Return(i) => i.span,
             Stmt::Break(s) => *s,
             Stmt::Continue(s) => *s,
+            Stmt::Empty(s) => *s,
         }
     }
 }

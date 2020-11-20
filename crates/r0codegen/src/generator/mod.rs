@@ -502,6 +502,7 @@ impl<'f> FuncCodegen<'f> {
             ast::Stmt::Return(stmt) => self.compile_return(stmt, bb_id, scope),
             ast::Stmt::Break(span) => self.compile_break(*span, bb_id, scope),
             ast::Stmt::Continue(span) => self.compile_continue(*span, bb_id, scope),
+            ast::Stmt::Empty(_span) => Ok(bb_id),
         }
     }
 
