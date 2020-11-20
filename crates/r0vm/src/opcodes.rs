@@ -114,8 +114,8 @@ impl Op {
             IToF => 0x36,
             FToI => 0x37,
             ShrL => 0x38,
-            SetLt => 0x3a,
-            SetGt => 0x3b,
+            SetLt => 0x39,
+            SetGt => 0x3a,
             BrA(..) => 0x40,
             Br(..) => 0x41,
             BrFalse(..) => 0x42,
@@ -138,7 +138,7 @@ impl Op {
     pub fn param_size(code: u8) -> usize {
         match code {
             0x01 | 0x40 => 8,
-            0x03 | 0x0a | 0x0b | 0x0c | 0x1a | 0x41..=0x49 => 4,
+            0x03 | 0x0a | 0x0b | 0x0c | 0x1a | 0x41 | 0x42 | 0x43 | 0x48 | 0x4a => 4,
             _ => 0,
         }
     }
@@ -188,8 +188,8 @@ impl Op {
             0x36 => IToF.into(),
             0x37 => FToI.into(),
             0x38 => ShrL.into(),
+            0x39 => SetLt.into(),
             0x3a => SetGt.into(),
-            0x3b => SetLt.into(),
             0x40 => BrA(param as u64).into(),
             0x41 => Br(param as i64 as i32).into(),
             0x42 => BrFalse(param as i64 as i32).into(),
@@ -220,11 +220,11 @@ impl Op {
             GlobA(x) => x as u64,
             StackAlloc(x) => x as u64,
             BrA(x) => x,
-            Br(x) => x as u32 as u64,
-            BrFalse(x) => x as u32 as u64,
-            BrTrue(x) => x as u32 as u64,
-            Call(x) => x as u32 as u64,
-            CallName(x) => x as u32 as u64,
+            Br(x) => x as i64 as u64,
+            BrFalse(x) => x as i64 as u64,
+            BrTrue(x) => x as i64 as u64,
+            Call(x) => x as u64,
+            CallName(x) => x as u64,
             _ => 0u64,
         }
     }
