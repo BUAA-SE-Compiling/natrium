@@ -533,7 +533,7 @@ impl<'f> FuncCodegen<'f> {
         scope: &Scope,
     ) -> CompileResult<BB> {
         /*
-         *               v----------------------------------\
+         * break -v      v----------------------------------\  v- continue
          * begin --> [bb:A cond] -true--> [bb:B body bb:C] -/  /--> [bb:D next]
          *               \-false------------------------------/
          */
@@ -542,7 +542,7 @@ impl<'f> FuncCodegen<'f> {
         let body_bb = self.new_bb();
         let next_bb = self.new_bb();
 
-        self.break_continue_positions.push((body_bb, next_bb));
+        self.break_continue_positions.push((cond_bb, next_bb));
 
         self.compile_expr(stmt.cond.as_ref(), cond_bb, scope)?;
         self.set_jump(bb_id, JumpInst::Jump(cond_bb));
