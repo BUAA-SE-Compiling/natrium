@@ -969,6 +969,12 @@ impl<'f> FuncCodegen<'f> {
 
 fn add_decl_scope(decl: &ast::DeclStmt, scope: &mut Scope) -> CompileResult<(u64, Ty)> {
     let ty = get_ty(&decl.ty)?;
+    if matches!(ty, Ty::Void) {
+        return Err(CompileError(
+            CompileErrorKind::VoidTypeVariable,
+            Some(decl.span),
+        ));
+    }
     let name = decl.name.name.clone();
 
     let symbol = Symbol::new(ty.clone(), decl.is_const);
