@@ -3,7 +3,7 @@ name: release
 on:
   push:
     tags:
-      - "*"
+      - '*'
 
 jobs:
   build-judger:
@@ -43,8 +43,8 @@ jobs:
           cargo build --frozen --release
 
       - name: install musl tools
-        if: ${{matrix.target_name == "x86_64-unknown-linux-musl"}}
-        run: apt install musl musl-dev musl-tools
+        if: ${{ matrix.target_name == 'x86_64-unknown-linux-musl' }}
+        run: sudo apt update && sudo apt install musl musl-dev musl-tools
 
       - name: Install rust target
         if: ${{ matrix.target_name != 0 }}
