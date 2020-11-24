@@ -72,7 +72,7 @@ pub fn run(
     let code = compile_internal(input).map_err(|x| JsValue::from_str(&x))?;
     let mut stdout = JsStdioAdaptor::new(read_chunk, write_chunk);
     let mut var_name = io::empty();
-    let mut vm = r0vm::vm::R0Vm::new(&code, &mut var_name, &mut stdout).map_err(|x| {
+    let mut vm = r0vm::vm::R0Vm::new(&code, Box::new(var_name), Box::new(stdout)).map_err(|x| {
         let mut s = String::new();
         write!(s, "{:?}", x).unwrap();
         s

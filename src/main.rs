@@ -35,9 +35,9 @@ fn main() {
             write!(output, "{}", s0).expect("Failed to write to output");
         }
     } else {
-        let mut stdin = std::io::stdin();
-        let mut stdout = std::io::stdout();
-        let mut vm = r0vm::vm::R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+        let stdin = std::io::stdin();
+        let stdout = std::io::stdout();
+        let mut vm = r0vm::vm::R0Vm::new(&s0, Box::new(stdin), Box::new(stdout)).unwrap();
 
         match vm.run_to_end() {
             Ok(_) => {}

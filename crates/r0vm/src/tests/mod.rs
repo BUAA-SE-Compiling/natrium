@@ -2,7 +2,6 @@ mod ser;
 
 use super::*;
 use crate::error::*;
-use crate::opcodes::Op::*;
 use crate::opcodes::*;
 use crate::s0::*;
 use crate::vm::ops::{reinterpret_t, reinterpret_u};
@@ -21,9 +20,9 @@ pub fn base_test() {
             MulF,
         }
     );
-    let mut stdin = std::io::empty();
-    let mut stdout = std::io::sink();
-    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    let stdin = std::io::empty();
+    let stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, Box::new(stdin), Box::new(stdout)).unwrap();
     for _ in 0..3 {
         vm.step().unwrap();
     }
@@ -43,9 +42,9 @@ pub fn panic_test() {
             Panic
         }
     );
-    let mut stdin = std::io::empty();
-    let mut stdout = std::io::sink();
-    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    let stdin = std::io::empty();
+    let stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, Box::new(stdin), Box::new(stdout)).unwrap();
     let e = vm.run_to_end().unwrap_err();
     assert!(matches!(e, Error::Halt))
 }
@@ -70,9 +69,9 @@ pub fn call_test() {
             Ret
         }
     );
-    let mut stdin = std::io::empty();
-    let mut stdout = std::io::sink();
-    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    let stdin = std::io::empty();
+    let stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, Box::new(stdin), Box::new(stdout)).unwrap();
     match vm.run_to_end() {
         Ok(_) => {}
         Err(e) => panic!("{}, stack:\n{}", e, vm.debug_stack()),
@@ -123,9 +122,9 @@ pub fn simple_local_var_test() {
             Load8
         }
     );
-    let mut stdin = std::io::empty();
-    let mut stdout = std::io::sink();
-    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    let stdin = std::io::empty();
+    let stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, Box::new(stdin), Box::new(stdout)).unwrap();
     vm.run_to_end().unwrap();
     assert_eq!(
         vm.stack()[3],
@@ -153,9 +152,9 @@ pub fn simple_alloc_test() {
             Load64
         }
     );
-    let mut stdin = std::io::empty();
-    let mut stdout = std::io::sink();
-    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    let stdin = std::io::empty();
+    let stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, Box::new(stdin), Box::new(stdout)).unwrap();
     vm.run_to_end().unwrap();
     assert_eq!(
         vm.stack()[3..],
@@ -179,9 +178,9 @@ pub fn simple_branch_test() {
             Push(5)
         }
     );
-    let mut stdin = std::io::empty();
-    let mut stdout = std::io::sink();
-    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    let stdin = std::io::empty();
+    let stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, Box::new(stdin), Box::new(stdout)).unwrap();
     vm.run_to_end().unwrap();
 
     assert_eq!(
@@ -207,9 +206,9 @@ pub fn simple_branch_test_2() {
             Push(5)
         }
     );
-    let mut stdin = std::io::empty();
-    let mut stdout = std::io::sink();
-    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    let stdin = std::io::empty();
+    let stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, Box::new(stdin), Box::new(stdout)).unwrap();
     vm.run_to_end().unwrap();
 
     assert_eq!(
@@ -229,9 +228,9 @@ pub fn simple_stdin_test() {
             ScanI
         }
     );
-    let mut stdin = std::io::Cursor::new("A3.1415926e3 1234");
-    let mut stdout = std::io::sink();
-    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    let stdin = std::io::Cursor::new("A3.1415926e3 1234");
+    let stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, Box::new(stdin), Box::new(stdout)).unwrap();
     vm.run_to_end().unwrap();
     assert_eq!(vm.stack()[3], b'A' as u64);
     assert!((reinterpret_u::<f64>(vm.stack()[4]) - 3.1415926e3f64).abs() < 1e-10);
@@ -250,9 +249,9 @@ pub fn simple_global_test() {
             Load64
         }
     );
-    let mut stdin = std::io::empty();
-    let mut stdout = std::io::sink();
-    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    let stdin = std::io::empty();
+    let stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, Box::new(stdin), Box::new(stdout)).unwrap();
     vm.run_to_end().unwrap();
     assert_eq!(
         vm.stack()[3..],
@@ -286,13 +285,14 @@ pub fn stacktrace_test() {
             Ret
         }
     );
-    let mut stdin = std::io::empty();
-    let mut stdout = std::io::sink();
-    let mut vm = R0Vm::new(&s0, &mut stdin, &mut stdout).unwrap();
+    let stdin = std::io::empty();
+    let stdout = std::io::sink();
+    let mut vm = R0Vm::new(&s0, Box::new(stdin), Box::new(stdout)).unwrap();
     for _ in 0..9 {
         vm.step().unwrap();
     }
-    let stacktrace = vm.stack_trace().unwrap();
+    let (stacktrace, corrupted) = vm.stack_trace();
+    assert!(!corrupted, "The stack should not be corrupted");
     let expected = vec![
         StackInfo {
             fn_name: Some("test".into()),

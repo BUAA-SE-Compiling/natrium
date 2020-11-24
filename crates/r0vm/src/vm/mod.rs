@@ -7,6 +7,7 @@ use mem::*;
 use ops::*;
 use smol_str::SmolStr;
 use std::{
+    borrow::Cow,
     collections::{BTreeMap, HashMap},
     io::Write,
     io::{Bytes, Read},
@@ -45,17 +46,13 @@ pub struct R0Vm<'src> {
     bp: usize,
 
     /// Standard Input Stream
-    stdin: Bytes<&'src mut dyn Read>,
+    stdin: Bytes<Box<dyn Read>>,
     /// Standard Output Stream
-    stdout: &'src mut dyn Write,
+    stdout: Box<dyn Write>,
 }
 
 impl<'src> R0Vm<'src> {
-    pub fn new(
-        src: &'src S0,
-        stdin: &'src mut dyn Read,
-        stdout: &'src mut dyn Write,
-    ) -> Result<R0Vm<'src>> {
+    pub fn new(src: &'src S0, stdin: Box<dyn Read>, stdout: Box<dyn Write>) -> Result<R0Vm<'src>> {
         let start = src.functions.get(0).ok_or(Error::NoEntryPoint)?;
         let stack = unsafe {
             std::alloc::alloc_zeroed(std::alloc::Layout::array::<u64>(MAX_STACK_SIZE).unwrap())
@@ -149,20 +146,27 @@ impl<'src> R0Vm<'src> {
         }
     }
 
-    /// Drive virtual machine to end, and abort when any error occurs.
+    /// Drive virtual machine to end with an inspecting function to break when returning
+    /// false, and abort when any error occurs.
     pub fn run_to_end_inspect<F>(&mut self, mut inspect: F) -> Result<()>
     where
-        F: FnMut(&Self),
+        F: FnMut(&Self) -> bool,
     {
         loop {
             let res = self.step();
-            inspect(self);
+            if !inspect(self) {
+                break Ok(());
+            }
             match res {
                 Ok(_) => (),
                 Err(Error::ControlReachesEnd(0)) => break Ok(()),
                 Err(e) => return Err(e),
             }
         }
+    }
+
+    pub fn is_at_end(&self) -> bool {
+        self.fn_id == 0 && self.ip == self.fn_info.ins.len()
     }
 
     #[inline]
@@ -174,6 +178,26 @@ impl<'src> R0Vm<'src> {
             .ok_or(Error::ControlReachesEnd(self.fn_id))?;
         self.ip += 1;
         Ok(op)
+    }
+
+    pub fn fn_info(&self) -> &FnDef {
+        self.fn_info
+    }
+
+    pub fn fn_id(&self) -> usize {
+        self.fn_id
+    }
+
+    pub fn ip(&self) -> usize {
+        self.ip
+    }
+
+    pub fn sp(&self) -> usize {
+        self.sp
+    }
+
+    pub fn bp(&self) -> usize {
+        self.bp
     }
 
     pub(crate) fn check_stack_overflow(&self, push_cnt: usize) -> Result<()> {
@@ -273,15 +297,28 @@ impl<'src> R0Vm<'src> {
     }
 
     /// All information from current runtime stack. Usually being called
-    /// during panic, halt, stack overflow or debug.
-    pub fn stack_trace(&self) -> Result<Vec<StackInfo>> {
+    /// during panic, halt, stack overflow or debug. Returns stacks and whether
+    /// the stack is corrupted
+    pub fn stack_trace(&self) -> (Vec<StackInfo>, bool) {
         let mut infos = Vec::new();
-
-        infos.push(self.cur_stack_info()?);
+        let cur_stack = match self.cur_stack_info() {
+            Ok(i) => i,
+            Err(_) => {
+                return (Vec::new(), true);
+            }
+        };
+        infos.push(cur_stack);
 
         let mut bp = self.bp;
+        let mut corrupted = false;
         while bp != usize::max_value() {
-            let (info, bp_) = self.stack_info(bp)?;
+            let (info, bp_) = match self.stack_info(bp) {
+                Ok(info) => info,
+                Err(_) => {
+                    corrupted = true;
+                    break;
+                }
+            };
             if info.fn_id == usize::max_value() as u64 {
                 // Stack bottom sentinel item
                 break;
@@ -289,7 +326,7 @@ impl<'src> R0Vm<'src> {
             bp = bp_;
             infos.push(info);
         }
-        Ok(infos)
+        (infos, corrupted)
     }
 
     /// Return the information of current running function
@@ -327,18 +364,18 @@ impl<'src> R0Vm<'src> {
         ))
     }
 
-    pub fn debug_stack<'s>(&'s self) -> StackDebugger<'s, 'src> {
-        StackDebugger::new(self, self.sp, self.bp, self.fn_info)
+    pub fn debug_stack(&self) -> StackDebugger {
+        StackDebugger::new(self.sp, self.bp, self.fn_info, self.stack().into())
     }
 
-    pub fn debug_frame<'s>(&'s self, frame: usize) -> Result<StackDebugger<'s, 'src>> {
+    pub fn debug_frame(&self, frame: usize) -> Result<StackDebugger> {
         let (sp, bp, fn_id) =
             (0..frame).try_fold((self.sp, self.bp, self.fn_id as u64), |(_sp, bp, _), _| {
                 let (info, nbp) = self.stack_info(bp)?;
                 Ok::<_, Error>((bp, nbp, info.fn_id))
             })?;
         let fn_info = self.get_fn_by_id(fn_id as u32)?;
-        Ok(StackDebugger::new(self, sp, bp, fn_info))
+        Ok(StackDebugger::new(sp, bp, fn_info, self.stack().into()))
     }
 
     pub fn stack(&self) -> &[Slot] {
@@ -349,6 +386,17 @@ impl<'src> R0Vm<'src> {
     fn total_loc(&self) -> usize {
         let total_loc = self.fn_info.loc_slots + self.fn_info.param_slots + self.fn_info.ret_slots;
         total_loc as usize
+    }
+}
+
+impl<'s> Drop for R0Vm<'s> {
+    fn drop(&mut self) {
+        unsafe {
+            std::alloc::dealloc(
+                self.stack as *mut u8,
+                std::alloc::Layout::array::<u64>(MAX_STACK_SIZE).unwrap(),
+            );
+        }
     }
 }
 
@@ -366,35 +414,34 @@ impl std::fmt::Display for StackInfo {
     }
 }
 
-pub struct StackDebugger<'s, 'a> {
-    vm: &'s R0Vm<'a>,
+pub struct StackDebugger<'s, 'stack> {
     sp: usize,
     bp: usize,
     fn_info: &'s FnDef,
+    stack: Cow<'stack, [Slot]>,
     stacktrace: bool,
     bounds: bool,
 }
 
-impl<'s, 'a> StackDebugger<'s, 'a> {
+impl<'s, 'stack> StackDebugger<'s, 'stack> {
     pub fn new(
-        vm: &'s R0Vm<'a>,
         sp: usize,
         bp: usize,
         fn_info: &'s FnDef,
-    ) -> StackDebugger<'s, 'a> {
+        stack: Cow<'stack, [Slot]>,
+    ) -> StackDebugger<'s, 'stack> {
         StackDebugger {
-            vm,
             sp,
             bp,
             fn_info,
+            stack,
             stacktrace: true,
             bounds: true,
         }
     }
 
-    pub fn stacktrace(mut self, op: bool) -> Self {
-        self.stacktrace = op;
-        self
+    pub fn snapshot_stack(&mut self) {
+        self.stack = self.stack.to_owned()
     }
 
     pub fn bounds(mut self, op: bool) -> Self {
@@ -403,7 +450,7 @@ impl<'s, 'a> StackDebugger<'s, 'a> {
     }
 }
 
-impl<'s, 'a> std::fmt::Display for StackDebugger<'s, 'a> {
+impl<'s, 'stack> std::fmt::Display for StackDebugger<'s, 'stack> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let sp = self.sp;
         let bp = self.bp;
@@ -412,35 +459,16 @@ impl<'s, 'a> std::fmt::Display for StackDebugger<'s, 'a> {
         let param_slots = self.fn_info.param_slots as usize;
         let loc_slots = self.fn_info.loc_slots as usize;
 
-        let upper_bound = std::cmp::min(sp + 5, self.vm.max_stack_size);
+        let upper_bound = std::cmp::min(sp + 5, self.stack.len());
         let lower_bound = bp.saturating_sub((param_slots + ret_slots) as usize);
 
         let loc_start = bp + 3;
         let loc_end = loc_start + loc_slots;
         let ret_end = bp - param_slots;
 
-        if self.stacktrace {
-            writeln!(f, "Stacktrace:")?;
-            let stack = self.vm.stack_trace().ok();
-            if let Some(stack) = stack {
-                for (idx, call) in stack.iter().enumerate() {
-                    writeln!(f, "#{}: at {}", idx, call)?;
-                }
-            } else {
-                writeln!(f, "at unknown function",)?;
-            }
-
-            writeln!(f)?;
-        }
-
         writeln!(f, "Stack:")?;
         for i in (lower_bound..upper_bound).rev() {
-            write!(
-                f,
-                "{:5} | {:#018x} |",
-                i,
-                self.vm.stack_slot_get(i).unwrap()
-            )?;
+            write!(f, "{:5} | {:#018x} |", i, self.stack.get(i).unwrap())?;
             if i == sp {
                 write!(f, " <- sp")?;
             }
