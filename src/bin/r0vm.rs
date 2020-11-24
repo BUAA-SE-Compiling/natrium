@@ -29,7 +29,9 @@ pub fn main() {
         }
     };
 
-    if opt.debug {
+    if opt.dump {
+        println!("{}", s0);
+    } else if opt.debug {
         debug_run(&s0)
     } else {
         run(&s0)
