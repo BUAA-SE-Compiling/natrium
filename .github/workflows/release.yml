@@ -43,7 +43,7 @@ jobs:
           cargo build --frozen --release
 
       - name: install musl tools
-        if: ${{matrix.target_name == "x86_64-unknown-linux-musl"}}
+        if: ${{ matrix.target_name == 'x86_64-unknown-linux-musl' }}
         run: apt install musl musl-dev musl-tools
 
       - name: Install rust target
