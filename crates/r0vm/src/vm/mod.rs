@@ -27,7 +27,7 @@ pub struct R0Vm<'src> {
     /// Global variable index
     global_idx: HashMap<u32, Addr>,
     /// Global variable index
-    function_idx: HashMap<SmolStr, usize>,
+    function_idx: HashMap<SmolStr, u32>,
 
     /// Memory heap
     heap: BTreeMap<Addr, ManagedMemory>,
@@ -114,7 +114,7 @@ impl<'src> R0Vm<'src> {
         Ok((globals_map, idx))
     }
 
-    fn index_functions(asm: &S0) -> Result<HashMap<SmolStr, usize>> {
+    fn index_functions(asm: &S0) -> Result<HashMap<SmolStr, u32>> {
         let mut res = HashMap::new();
         for (idx, f) in asm.functions.iter().enumerate() {
             let name = asm
@@ -123,7 +123,7 @@ impl<'src> R0Vm<'src> {
                 .ok_or_else(|| Error::InvalidGlobalIndex(f.name))?;
             let name = String::from_utf8_lossy(&name.bytes);
             let name = SmolStr::new_inline(&name);
-            res.insert(name, idx);
+            res.insert(name, idx as u32);
         }
         Ok(res)
     }
@@ -208,26 +208,30 @@ impl<'src> R0Vm<'src> {
         }
     }
 
-    fn get_fn_by_id(&self, id: u32) -> Result<&'src FnDef> {
+    pub fn get_fn_by_id(&self, id: u32) -> Result<&'src FnDef> {
         self.src
             .functions
             .get(id as usize)
             .ok_or(Error::InvalidFnId(id))
     }
 
-    fn get_fn_by_name(&self, name: &[u8]) -> Result<&'src FnDef> {
-        todo!()
-        // self.src
-        //     .functions
-        //     .get(id as usize)
-        //     .ok_or(Error::InvalidFnId(id))
+    pub fn get_fn_by_name(&self, name: &str) -> Result<u32> {
+        self.function_idx
+            .get(name)
+            .copied()
+            .ok_or_else(|| Error::UnknownFunctionName(name.to_owned()))
     }
 
-    fn get_global_by_id(&self, id: u32) -> Result<&'src GlobalValue> {
+    pub fn get_global_by_id(&self, id: u32) -> Result<&'src GlobalValue> {
         self.src
             .globals
             .get(id as usize)
             .ok_or(Error::InvalidFnId(id))
+    }
+
+    pub fn get_fn_name_by_id(&self, id: u32) -> Result<String> {
+        let func = self.get_fn_by_id(id)?;
+        Ok(String::from_utf8_lossy(&self.get_global_by_id(func.name)?.bytes).into_owned())
     }
 
     pub fn exec_instruction(&mut self, op: Op) -> Result<()> {

@@ -2,7 +2,7 @@ use clap::{AppSettings, Clap};
 use clap::{FromArgMatches, IntoApp};
 use crossterm::{style::Attribute, ExecutableCommand, QueueableCommand};
 use natrium::util::pretty_print_error;
-use r0vm::{s0::io::WriteBinary, vm::R0Vm};
+use r0vm::{opcodes::Op, s0::io::WriteBinary, vm::R0Vm};
 use r0vm::{s0::S0, vm};
 use std::{io::stdout, path::PathBuf, str::FromStr};
 
@@ -58,13 +58,14 @@ macro_rules! print_unwrap {
     ($calc:expr,$p:pat => $if_true:block) => {
         match $calc {
             $p => $if_true,
-            Err(e) => println!("{:?}", e),
+            Err(e) => println!("Error: {:?}", e),
         }
     };
 }
 
 fn debug_run(s0: &S0) {
     let mut vm = create_vm_stdio(s0);
+    let mut breakpoints = bimap::BiBTreeMap::<usize, Breakpoint>::new();
 
     let mut terminal = rustyline::Editor::<()>::with_config(
         rustyline::Config::builder().max_history_size(100).build(),
@@ -108,17 +109,13 @@ fn debug_run(s0: &S0) {
                         let mut app = DebuggerInst::into_app()
                             .setting(AppSettings::NoBinaryName)
                             .setting(AppSettings::InferSubcommands)
-                            .help_template(
-                                r"
-Commands:
-{subcommands}",
-                            )
+                            .help_template("Commands:\r\n{subcommands}")
                             .override_usage("<command> [args]");
                         let res = app
                             .try_get_matches_from_mut(&s)
                             .map(|x| DebuggerInst::from_arg_matches(&x));
                         match res {
-                            Ok(s) => match exec_opt(s, &mut vm) {
+                            Ok(s) => match exec_opt(s, &mut vm, &mut breakpoints) {
                                 InstructionResult::Exit => {
                                     break;
                                 }
@@ -150,13 +147,24 @@ Commands:
     }
 }
 
-fn exec_opt(opt: DebuggerInst, vm: &mut r0vm::vm::R0Vm) -> InstructionResult {
+fn exec_opt(
+    opt: DebuggerInst,
+    vm: &mut r0vm::vm::R0Vm,
+    breakpoints: &mut bimap::BiBTreeMap<usize, Breakpoint>,
+) -> InstructionResult {
     match opt {
         DebuggerInst::Run => print_unwrap! {
-            vm.run_to_end(),
+            vm.run_to_end_inspect(|vm| cur_breakpoint(vm, breakpoints).is_none()),
             Ok(_) => {
-                println!("Program exited without error");
-                return InstructionResult::Reset;
+                if vm.is_at_end() {
+                    println!("Program exited without error");
+                    return InstructionResult::Reset;
+                } else {
+                    if let Some(b) = cur_breakpoint(vm, breakpoints){
+                        println!("At breakpoint {}: {}", b, vm.cur_stack_info().unwrap());
+                    }
+                    print_vm_next_instruction(vm, None);
+                }
             }
         },
         DebuggerInst::Step => print_unwrap! {
@@ -166,13 +174,22 @@ fn exec_opt(opt: DebuggerInst, vm: &mut r0vm::vm::R0Vm) -> InstructionResult {
                     println!("Program exited without error");
                     return InstructionResult::Reset;
                 } else {
-                    let next_op = vm.fn_info().ins[vm.ip()];
-                    println!("   | {:?}", executed_op);
-                    println!("-> | {:?}", next_op);
+                    print_vm_next_instruction(vm, Some(executed_op));
                 }
             }
         },
-        DebuggerInst::Finish => {}
+        DebuggerInst::Finish => {
+            let current_fn_bp = vm.bp();
+            print_unwrap! {
+                vm.run_to_end_inspect(|vm| vm.bp() >= current_fn_bp && cur_breakpoint(vm, breakpoints).is_none()),
+                Ok(_) => {
+                    if let Some(b) = cur_breakpoint(vm, breakpoints){
+                        println!("At breakpoint {}: {}", b, vm.cur_stack_info().unwrap());
+                    }
+                    print_vm_next_instruction(vm, None);
+                }
+            }
+        }
         DebuggerInst::Backtrace => {
             let (stacktrace, corrupted) = vm.stack_trace();
             for (idx, frame) in stacktrace.into_iter().enumerate() {
@@ -188,13 +205,80 @@ fn exec_opt(opt: DebuggerInst, vm: &mut r0vm::vm::R0Vm) -> InstructionResult {
                 Err(_) => println!("The stack is corrupted"),
             };
         }
-        DebuggerInst::Breakpoint(b) => todo!("Enable breakpoints"),
+        DebuggerInst::Breakpoint(b) => {
+            let pos = b.position;
+            match vm.get_fn_by_name(&pos.function_name) {
+                Ok(id) => {
+                    let def = vm.get_fn_by_id(id).unwrap();
+                    if pos.offset < def.ins.len() {
+                        let max_breakpoint = breakpoints
+                            .left_values()
+                            .last()
+                            .cloned()
+                            .map(|x| x + 1)
+                            .unwrap_or(0);
+
+                        breakpoints.insert(
+                            max_breakpoint,
+                            Breakpoint {
+                                fn_id: id as u32,
+                                offset: pos.offset,
+                            },
+                        );
+
+                        println!("Added breakpoint {}", max_breakpoint);
+                    } else {
+                        println!("Error: offset is larger than function length");
+                    }
+                }
+                Err(e) => println!("Error: {}", e),
+            }
+        }
+        DebuggerInst::RemoveBreakpoint { id } => {
+            if let Some(point) = breakpoints.get_by_left(&id) {
+                let fn_name = vm.get_fn_name_by_id(point.fn_id).unwrap();
+                println!("Remove breakpoint #{} at {}:{}", id, fn_name, point.offset);
+            } else {
+                println!("No such breakpoint was found.");
+            }
+        }
+        DebuggerInst::ListBreakpoint => {
+            for (id, point) in breakpoints.iter() {
+                let fn_name = vm.get_fn_name_by_id(point.fn_id).unwrap();
+                println!("#{}: {}:{}", id, fn_name, point.offset);
+            }
+        }
         DebuggerInst::Exit => return InstructionResult::Exit,
         DebuggerInst::Reset => {
             return InstructionResult::Reset;
         }
     }
     InstructionResult::None
+}
+
+fn print_vm_next_instruction(vm: &R0Vm, executed_op: Option<Op>) {
+    let fn_info = vm.fn_info();
+    let ip = vm.ip();
+    if let Some(executed_op) = executed_op {
+        println!("        | {:?}", executed_op);
+    }
+    if let Some(next_op) = fn_info.ins.get(ip) {
+        println!("-> {:4} | {:?}", ip, next_op);
+    } else {
+        println!("-> {:4}| Function end", ip);
+    }
+    if let Ok(cur) = vm.cur_stack_info() {
+        println!("at: {}", cur)
+    }
+}
+
+#[inline]
+fn cur_breakpoint(vm: &R0Vm, breakpoints: &bimap::BiBTreeMap<usize, Breakpoint>) -> Option<usize> {
+    let fn_id = vm.fn_id() as u32;
+    let ip = vm.ip();
+    breakpoints
+        .get_by_right(&Breakpoint { fn_id, offset: ip })
+        .copied()
 }
 
 #[derive(Clap, Debug)]
@@ -207,6 +291,10 @@ struct Opt {
     /// Run in debugger mode
     #[clap(short, long)]
     pub debug: bool,
+
+    /// Dump the assembly in human-readable format
+    #[clap(long)]
+    pub dump: bool,
 }
 
 #[derive(Clap, Debug)]
@@ -219,16 +307,22 @@ struct FrameInst {
 #[derive(Clap, Debug)]
 struct BreakpointInst {
     /// Breakpoint position, in format `<function>[:<instruction>]`
-    pub position: Breakpoint,
+    pub position: BreakpointRef,
 }
 
 #[derive(Debug)]
-struct Breakpoint {
+struct BreakpointRef {
     pub function_name: String,
     pub offset: usize,
 }
 
-impl FromStr for Breakpoint {
+#[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
+struct Breakpoint {
+    pub fn_id: u32,
+    pub offset: usize,
+}
+
+impl FromStr for BreakpointRef {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -240,11 +334,11 @@ impl FromStr for Breakpoint {
                 Err("No function name supplied. Expected: <function_name>[:<offset>]".into())
             }
             (_, Some(None)) => Err("Offset is not a number".into()),
-            (Some(name), Some(Some(offset))) => Ok(Breakpoint {
+            (Some(name), Some(Some(offset))) => Ok(BreakpointRef {
                 function_name: name.into(),
                 offset,
             }),
-            (Some(name), None) => Ok(Breakpoint {
+            (Some(name), None) => Ok(BreakpointRef {
                 function_name: name.into(),
                 offset: 0,
             }),
@@ -257,22 +351,37 @@ enum DebuggerInst {
     /// Run or continue the current execution to end. [alias: r, continue, c]
     #[clap(alias = "r", alias = "continue")]
     Run,
+
     /// Move one instruction forward. [alias: s, si, n]
     #[clap(alias = "s", alias = "n", alias = "si")]
     Step,
+
     /// Continue until function returns. [alias: f]
     #[clap(alias = "f")]
     Finish,
+
     /// Show call stack. [alias: where, stacktrace]
     #[clap(alias = "where", alias = "stacktrace")]
     Backtrace,
+
     /// Add breakpoint. [alias: b]
     #[clap(alias = "b")]
     Breakpoint(BreakpointInst),
+
+    /// Remove breakpoint. [alias: rb]
+    #[clap(alias = "rb")]
+    RemoveBreakpoint { id: usize },
+
+    /// List all breakpoints [alias: rb]
+    #[clap(alias = "lb")]
+    ListBreakpoint,
+
     /// Show function frame
     Frame(FrameInst),
+
     /// Reset execution to start
     Reset,
+
     /// Exit the debugger. [alias: q, quit]
     #[clap(alias = "quit")]
     Exit,

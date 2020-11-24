@@ -37,6 +37,9 @@ pub enum Error {
     #[fail(display = "Unknown function (name index: {})", _0)]
     UnknownFunction(u32),
 
+    #[fail(display = "Unknown function name: {}", _0)]
+    UnknownFunctionName(String),
+
     #[fail(display = "Invalid instruction offset {}", _0)]
     InvalidInstructionOffset(usize),
 
