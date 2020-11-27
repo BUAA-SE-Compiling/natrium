@@ -37,6 +37,8 @@ navm 在运算中支持三种基本数据类型，分别是 64 位无符号整�
 
 o0 是 navm 所使用的二进制程序文件格式，其作用和内容类似 Java 的 `.class` 文件或者 DotNet 的 `.dll` 文件。
 
+> 注意：之前这里写错了，所有的 `u16` 都应为 `u32`。
+
 下面的结构体表示了 o0 的二进制文件结构（也就是说你输出的时候应该按顺序输出下面这些结构体的各个字段的内容，中间不加空隙）。其中，`uXX` 表示 XX 位无符号整数。所有涉及到的多字节整数都是大端序，即高位字节在前、低位字节在后。
 
 ```rust,ignore
@@ -71,13 +73,13 @@ struct GlobalDef {
 /// 函数
 struct FunctionDef {
     /// 函数名称在全局变量中的位置
-    name: u16,
+    name: u32,
     /// 返回值占据的 slot 数
-    return_slots: u16,
+    return_slots: u32,
     /// 参数占据的 slot 数
-    param_slots: u16,
+    param_slots: u32,
     /// 局部变量占据的 slot 数
-    loc_slots: u16,
+    loc_slots: u32,
     /// 函数体
     body: Array<Instruction>,
 }
@@ -101,34 +103,38 @@ union Instruction {
 }
 ```
 
-下面是一个合法的 o0 文件的例子（以每一字节以十六进制或字符展示，`//` 后的是注释）：
+下面是一个合法的 o0 文件的例子（**每一字节以十六进制或字符常量展示**，`//` 后的是注释）：
 
 ```
-0x72, 0x30, 0x3b, 0x3e, // magic
-0x00, 0x00, 0x00, 0x01, // version
+// start
+72 30 3b 3e // magic
+00 00 00 01 // version
 
-0x00, 0x00, 0x00, 0x02, // globals.count
+00 00 00 02 // globals.count
 
-0x00, // globals[0].is_const
-0x00, 0x00, 0x00, 0x03, // globals[0].value.count
-0x00, 0x01, 0x02, // globals[0].value.items
+// globals[0]
+00 // globals[0].is_const
+00 00 00 03 // globals[0].value.count
+00 01 02 // globals[0].value.items
 
-0x01, // globals[1].is_const
-0x00, 0x00, 0x00, 0x06, // globals[1].value.count
-'_',  's',  't',  'a',  'r',  't', // globals[1].value.items
+// globals[1]
+01 // globals[1].is_const
+00 00 00 06 // globals[1].value.count
+'_' 's' 't' 'a' 'r' 't' // globals[1].value.items
 
-0x00, 0x00, 0x00, 0x01, // functions.count
+00 00 00 01 // functions.count
 
-0x00, 0x00, 0x00, 0x01, // functions[0].name
-0x00, 0x00, 0x00, 0x00, // functions[0].ret_slots
-0x00, 0x00, 0x00, 0x00, // functions[0].param_slots
-0x00, 0x00, 0x00, 0x00, // functions[0].loc_slots
-0x00, 0x00, 0x00, 0x04, // functions[0].body.count
+// functions[0]
+00 00 00 01 // functions[0].name
+00 00 00 00 // functions[0].ret_slots
+00 00 00 00 // functions[0].param_slots
+00 00 00 00 // functions[0].loc_slots
+00 00 00 04 // functions[0].body.count
     // functions[0].body.items
-    0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // Push(1)
-    0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, // Push(2)
-    0x20, // AddI
-    0x34, // NegI
+    01 00 00 00 00 00 00 00 01 // Push(1)
+    01 00 00 00 00 00 00 00 02 // Push(2)
+    20 // AddI
+    34 // NegI
 // finish
 ```
 
@@ -197,7 +203,7 @@ fn test(a: int, b: int) -> int {
 | ...        | ...表达式栈
 ```
 
-在执行 `call` 指令后，栈中的变量以及对应的偏移量如下：
+在执行 `call` 指令后，栈中的变量（**局部变量空间将由虚拟机自动创建**）以及对应的偏移量如下：
 
 ```
 | -            | <- 栈顶（表达式栈）
@@ -254,7 +260,7 @@ fn _start 0 0 -> 0 {
 
 ## 关于全局变量
 
-在 navm 中，每个全局变量都是多个字节组成的数组。
+在 navm 中，每个全局变量都是多个字节组成的数组。全局变量的编号是它在全局变量表中的序号（0 开始）。
 
 ### 用来存储数字
 
