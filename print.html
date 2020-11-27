@@ -1281,6 +1281,9 @@ fn test(a: int, b: int) -&gt; int {
 <p>使用全局变量存储字符串时，直接将初始值设置为以 ASCII 存储的字符串内容（类似于 memcpy）即可。存储的字符串不需要以 <code>\0</code> 结尾。</p>
 <h1><a class="header" href="#指令集" id="指令集">指令集</a></h1>
 <p>navm 的指令使用 8 位（1 字节）无符号整数标识，后面跟随可变长度的操作数。操作数类型为 <code>u64</code> <code>i64</code> 时，长度为 64 位（8 字节），类型为 <code>u32</code> <code>i32</code> 时，长度为 32 位（4 字节）。</p>
+<blockquote>
+<p>勘误：之前 <code>cmp.u</code> 和 <code>cmp.f</code> 的指令写反了</p>
+</blockquote>
 <p>下表展示了 navm 的所有指令。其中弹栈和压栈的格式为：<code>栈变化范围[:变量]</code>，数字按照栈底到栈顶编号。</p>
 <table><thead><tr><th>指令</th><th>指令名</th><th>操作数</th><th>弹栈</th><th>压栈</th><th>介绍</th></tr></thead><tbody>
 <tr><td>0x00</td><td><code>nop</code></td><td>-</td><td>-</td><td>-</td><td>空指令</td></tr>
@@ -1318,8 +1321,8 @@ fn test(a: int, b: int) -&gt; int {
 <tr><td>0x2d</td><td><code>xor</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>计算 res = lhs ^ rhs</td></tr>
 <tr><td>0x2e</td><td><code>not</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>计算 res = !lhs</td></tr>
 <tr><td>0x30</td><td><code>cmp.i</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>比较有符号整数 lhs 和 rhs 大小</td></tr>
-<tr><td>0x31</td><td><code>cmp.f</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>比较浮点数 lhs 和 rhs 大小</td></tr>
-<tr><td>0x32</td><td><code>cmp.u</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>比较无符号整数 lhs 和 rhs 大小</td></tr>
+<tr><td>0x31</td><td><code>cmp.u</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>比较无符号整数 lhs 和 rhs 大小</td></tr>
+<tr><td>0x32</td><td><code>cmp.f</code></td><td>-</td><td>1:lhs, 2:rhs</td><td>1:res</td><td>比较浮点数 lhs 和 rhs 大小</td></tr>
 <tr><td>0x34</td><td><code>neg.i</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>对 lhs 取反</td></tr>
 <tr><td>0x35</td><td><code>neg.f</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>对 lhs 取反</td></tr>
 <tr><td>0x36</td><td><code>itof</code></td><td>-</td><td>1:lhs</td><td>1:res</td><td>把 lhs 从整数转换成浮点数</td></tr>
