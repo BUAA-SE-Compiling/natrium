@@ -1350,6 +1350,8 @@ fn test(a: int, b: int) -&gt; int {
 <p>指令会从 <code>addr</code> 处取 <code>T</code> 长度的数据压入栈中。如果 <code>addr</code> 不是 <code>T</code> 的倍数，将会产生 <code>UnalignedAccess</code> 错误。如果 <code>T</code> 小于 64，多余的数位将会被补成 0。</p>
 <h3><a class="header" href="#store8163264-指令" id="store8163264-指令"><code>store.8/16/32/64</code> 指令</a></h3>
 <p>指令会将 <code>T</code> 长度的数据弹栈并存入 <code>addr</code> 地址处。如果 <code>addr</code> 不是 <code>T</code> 的倍数，将会产生 <code>UnalignedAccess</code> 错误。如果 <code>T</code> 小于 64，数据将被截断至 <code>T</code> 长度。</p>
+<h3><a class="header" href="#br-系列分支指令" id="br-系列分支指令"><code>br</code> 系列分支指令</a></h3>
+<p>指令会将（指向下一条指令的）当前指令指针 <code>ip</code> 与 <code>offset</code> 相加得出新的指令指针的值。比如如果 <code>br 3</code> 是一个函数的第 5 条指令，那么此时 <code>ip</code> = 6，指令执行之后 <code>ip</code> = 6 + 3 = 9。<code>br.true</code>, <code>br.false</code> 指令的执行规则相同。</p>
 <h1><a class="header" href="#应该比较常见的问题" id="应该比较常见的问题">应该比较常见的问题</a></h1>
 <h2><a class="header" href="#条件跳转" id="条件跳转">条件跳转</a></h2>
 <p>如果需要实现条件跳转，请使用以下指令的组合（<code>T</code> 代表 <code>u</code>、<code>f</code> 或 <code>i</code>：</p>
