@@ -1083,6 +1083,9 @@ struct BinaryExpr {
 <p><code>f64</code> 是符合 <a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE 754</a> 规定的<a href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format">双精度浮点数</a>。</p>
 <h2><a class="header" href="#二进制格式" id="二进制格式">二进制格式</a></h2>
 <p>o0 是 navm 所使用的二进制程序文件格式，其作用和内容类似 Java 的 <code>.class</code> 文件或者 DotNet 的 <code>.dll</code> 文件。</p>
+<blockquote>
+<p>注意：之前这里写错了，所有的 <code>u16</code> 都应为 <code>u32</code>。</p>
+</blockquote>
 <p>下面的结构体表示了 o0 的二进制文件结构（也就是说你输出的时候应该按顺序输出下面这些结构体的各个字段的内容，中间不加空隙）。其中，<code>uXX</code> 表示 XX 位无符号整数。所有涉及到的多字节整数都是大端序，即高位字节在前、低位字节在后。</p>
 <pre><code class="language-rust ignore">/// 整个 o0 二进制文件
 struct o0 {
@@ -1115,13 +1118,13 @@ struct GlobalDef {
 /// 函数
 struct FunctionDef {
     /// 函数名称在全局变量中的位置
-    name: u16,
+    name: u32,
     /// 返回值占据的 slot 数
-    return_slots: u16,
+    return_slots: u32,
     /// 参数占据的 slot 数
-    param_slots: u16,
+    param_slots: u32,
     /// 局部变量占据的 slot 数
-    loc_slots: u16,
+    loc_slots: u32,
     /// 函数体
     body: Array&lt;Instruction&gt;,
 }
@@ -1144,32 +1147,36 @@ union Instruction {
     }
 }
 </code></pre>
-<p>下面是一个合法的 o0 文件的例子（以每一字节以十六进制或字符展示，<code>//</code> 后的是注释）：</p>
-<pre><code>0x72, 0x30, 0x3b, 0x3e, // magic
-0x00, 0x00, 0x00, 0x01, // version
+<p>下面是一个合法的 o0 文件的例子（<strong>每一字节以十六进制或字符常量展示</strong>，<code>//</code> 后的是注释）：</p>
+<pre><code>// start
+72 30 3b 3e // magic
+00 00 00 01 // version
 
-0x00, 0x00, 0x00, 0x02, // globals.count
+00 00 00 02 // globals.count
 
-0x00, // globals[0].is_const
-0x00, 0x00, 0x00, 0x03, // globals[0].value.count
-0x00, 0x01, 0x02, // globals[0].value.items
+// globals[0]
+00 // globals[0].is_const
+00 00 00 03 // globals[0].value.count
+00 01 02 // globals[0].value.items
 
-0x01, // globals[1].is_const
-0x00, 0x00, 0x00, 0x06, // globals[1].value.count
-'_',  's',  't',  'a',  'r',  't', // globals[1].value.items
+// globals[1]
+01 // globals[1].is_const
+00 00 00 06 // globals[1].value.count
+'_' 's' 't' 'a' 'r' 't' // globals[1].value.items
 
-0x00, 0x00, 0x00, 0x01, // functions.count
+00 00 00 01 // functions.count
 
-0x00, 0x00, 0x00, 0x01, // functions[0].name
-0x00, 0x00, 0x00, 0x00, // functions[0].ret_slots
-0x00, 0x00, 0x00, 0x00, // functions[0].param_slots
-0x00, 0x00, 0x00, 0x00, // functions[0].loc_slots
-0x00, 0x00, 0x00, 0x04, // functions[0].body.count
+// functions[0]
+00 00 00 01 // functions[0].name
+00 00 00 00 // functions[0].ret_slots
+00 00 00 00 // functions[0].param_slots
+00 00 00 00 // functions[0].loc_slots
+00 00 00 04 // functions[0].body.count
     // functions[0].body.items
-    0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // Push(1)
-    0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, // Push(2)
-    0x20, // AddI
-    0x34, // NegI
+    01 00 00 00 00 00 00 00 01 // Push(1)
+    01 00 00 00 00 00 00 00 02 // Push(2)
+    20 // AddI
+    34 // NegI
 // finish
 </code></pre>
 <h2><a class="header" href="#栈帧结构" id="栈帧结构">栈帧结构</a></h2>
@@ -1223,7 +1230,7 @@ fn test(a: int, b: int) -&gt; int {
 | _ret       | 返回值
 | ...        | ...表达式栈
 </code></pre>
-<p>在执行 <code>call</code> 指令后，栈中的变量以及对应的偏移量如下：</p>
+<p>在执行 <code>call</code> 指令后，栈中的变量（<strong>局部变量空间将由虚拟机自动创建</strong>）以及对应的偏移量如下：</p>
 <pre><code>| -            | &lt;- 栈顶（表达式栈）
 | d            | ↑          loc.1
 | c            | 局部变量   loc.0
@@ -1267,7 +1274,7 @@ fn test(a: int, b: int) -&gt; int {
 }
 </code></pre>
 <h2><a class="header" href="#关于全局变量" id="关于全局变量">关于全局变量</a></h2>
-<p>在 navm 中，每个全局变量都是多个字节组成的数组。</p>
+<p>在 navm 中，每个全局变量都是多个字节组成的数组。全局变量的编号是它在全局变量表中的序号（0 开始）。</p>
 <h3><a class="header" href="#用来存储数字" id="用来存储数字">用来存储数字</a></h3>
 <p>使用全局变量存储数字的初始化操作建议在 <code>_start</code> 函数中进行，这样不用考虑字节顺序问题。如果你直接给全局变量赋初始值的话，请使用小端序存储（低位字节在前，高位字节在后）。</p>
 <h3><a class="header" href="#用来存储字符串" id="用来存储字符串">用来存储字符串</a></h3>
