@@ -849,7 +849,7 @@ fn putstr(int) -&gt; void;
 /// 输出一个换行
 fn putln() -&gt; void;
 </code></pre>
-<p>在实现时，这些函数既可以编译成使用虚拟机中的 <code>callname</code> 指令调用，也可以编译成相应的虚拟机指令（<code>scan.i</code>, <code>print.i</code> 等），在虚拟机实现上两者是等价的。</p>
+<p>在实现时，这些函数既可以编译成使用虚拟机中的 <code>callname</code> 指令调用，也可以编译成相应的虚拟机指令（<code>scan.i</code>, <code>print.i</code> 等），在虚拟机实现上两者是等价的。<strong>请注意，直接使用指令的时候，是不用预留返回值空间的。</strong></p>
 <h1><a class="header" href="#扩展-c0" id="扩展-c0">扩展 C0</a></h1>
 <p>这里列出了实现之后可以获得加分的扩展 C0 特性。</p>
 <p>加分的单位尚未确定，目前的加分数量都是相对值。</p>
