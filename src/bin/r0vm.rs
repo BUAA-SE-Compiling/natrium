@@ -8,6 +8,12 @@ use std::{io::stdout, path::PathBuf, str::FromStr};
 
 pub fn main() {
     let opt = Opt::parse();
+    let sub = tracing_subscriber::FmtSubscriber::builder()
+        .compact()
+        .without_time()
+        .with_max_level(opt.log)
+        .finish();
+    tracing::subscriber::set_global_default(sub).unwrap();
 
     let mut file = match std::fs::File::open(&opt.file) {
         Ok(f) => f,
@@ -297,6 +303,10 @@ struct Opt {
     /// Dump the assembly in human-readable format
     #[clap(long)]
     pub dump: bool,
+
+    /// Set log level. Values: error, warning, info, debug, trace
+    #[clap(long, default_value = "warning")]
+    pub log: tracing::level_filters::LevelFilter,
 }
 
 #[derive(Clap, Debug)]

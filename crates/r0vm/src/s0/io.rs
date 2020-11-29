@@ -1,6 +1,6 @@
 //! Module for reading and writing s0 values
-
 use super::*;
+use tracing::*;
 // use nom::*;
 use std::io::{Read, Write};
 
@@ -37,11 +37,14 @@ impl<T> WriteBinary for Vec<T>
 where
     T: WriteBinary,
 {
+    #[instrument(name = "vec/read", skip(r), err)]
     fn read_binary(r: &mut dyn Read) -> std::io::Result<Option<Self>> {
         let size = read!(u32, r) as usize;
+        debug!("vec size: {}", size);
         let mut vec = Vec::with_capacity(size);
         for _ in 0..size {
-            vec.push(read!(T, r));
+            let t = read!(T, r);
+            vec.push(t);
         }
         Ok(Some(vec))
     }
@@ -98,6 +101,7 @@ impl WriteBinary for u64 {
 }
 
 impl WriteBinary for Op {
+    #[instrument(name = "op/read", skip(r), err)]
     fn read_binary(r: &mut dyn Read) -> std::io::Result<Option<Self>> {
         let opcode = unwrap!(u8::read_binary(r)?);
         let param_length = Op::param_size(opcode);
@@ -107,6 +111,7 @@ impl WriteBinary for Op {
             8 => Op::from_code(opcode, read!(u64, r)),
             _ => unreachable!(),
         };
+        debug!("Op: {:?}", op);
         Ok(op)
     }
 
@@ -130,11 +135,16 @@ impl WriteBinary for Op {
 }
 
 impl WriteBinary for FnDef {
+    #[instrument(name = "fn/read", skip(r), err)]
     fn read_binary(r: &mut dyn Read) -> std::io::Result<Option<Self>> {
         let name = read!(u32, r);
+        debug!("name: {}", name);
         let ret_slots = read!(u32, r);
+        debug!("ret_slots: {}", ret_slots);
         let param_slots = read!(u32, r);
+        debug!("param_slots: {}", param_slots);
         let loc_slots = read!(u32, r);
+        debug!("loc_slots: {}", loc_slots);
         let ins = read!(Vec<Op>, r);
         Ok(Some(FnDef {
             name,
@@ -155,6 +165,7 @@ impl WriteBinary for FnDef {
 }
 
 impl WriteBinary for GlobalValue {
+    #[instrument(name = "global/read", skip(r), err)]
     fn read_binary(r: &mut dyn Read) -> std::io::Result<Option<Self>> {
         let is_const = read!(u8, r);
         let payload = read!(Vec<u8>, r);
@@ -170,9 +181,12 @@ impl WriteBinary for GlobalValue {
 }
 
 impl WriteBinary for S0 {
+    #[instrument(name = "o0/read", skip(r), err)]
     fn read_binary(r: &mut dyn Read) -> std::io::Result<Option<Self>> {
         let magic_number = read!(u32, r);
+        debug!("Magic {:08x}", magic_number);
         let version = read!(u32, r);
+        debug!("Version {:08x}", version);
         if magic_number != S0::MAGIC_NUMBER || version != S0::VERSION {
             return Ok(None);
         }

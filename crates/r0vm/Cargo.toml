@@ -11,6 +11,7 @@ version = "0.1.0"
 smol_str = "0.1.17"
 "static_assertions" = "1.1.0"
 "text_io" = "0.1.8"
+"tracing" = "0.1.22"
 
 [dev-dependencies]
 "ntest" = "0.7.1"
