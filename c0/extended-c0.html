@@ -256,7 +256,7 @@ continue_stmt -&gt; 'continue' ';'
 </blockquote>
 <h2><a class="header" href="#函数返回路径检查" id="函数返回路径检查">函数返回路径检查</a></h2>
 <p>加分：10pt</p>
-<p>你需要对每一个函数的所有控制流进行检查，保证如果函数有返回值，那么所有可能的控制流都能导向 <code>return</code> 语句。比如，以下的函数不能通过编译：</p>
+<p>你需要对每一个函数的所有控制流进行检查，保证如果函数有返回值，那么所有可能的控制流（这里认为一个条件语句的所有分支都能访问到）都能导向 <code>return</code> 语句。比如，以下的函数不能通过编译：</p>
 <pre><code class="language-rust ignore">fn foo(i: int) -&gt; int {
     if i == 0 {
         return 1;

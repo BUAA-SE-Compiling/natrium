@@ -943,7 +943,7 @@ continue_stmt -&gt; 'continue' ';'
 </blockquote>
 <h2><a class="header" href="#函数返回路径检查" id="函数返回路径检查">函数返回路径检查</a></h2>
 <p>加分：10pt</p>
-<p>你需要对每一个函数的所有控制流进行检查，保证如果函数有返回值，那么所有可能的控制流都能导向 <code>return</code> 语句。比如，以下的函数不能通过编译：</p>
+<p>你需要对每一个函数的所有控制流进行检查，保证如果函数有返回值，那么所有可能的控制流（这里认为一个条件语句的所有分支都能访问到）都能导向 <code>return</code> 语句。比如，以下的函数不能通过编译：</p>
 <pre><code class="language-rust ignore">fn foo(i: int) -&gt; int {
     if i == 0 {
         return 1;
@@ -1335,7 +1335,7 @@ fn test(a: int, b: int) -&gt; int {
 <tr><td>0x43</td><td><code>br.true</code></td><td>off:i32</td><td>1:test</td><td></td><td>如果 <code>test</code> 非 0 则跳转偏移 <code>off</code></td></tr>
 <tr><td>0x48</td><td><code>call</code></td><td>id:u32</td><td></td><td>见栈帧介绍</td><td>调用编号为 id 的函数</td></tr>
 <tr><td>0x49</td><td><code>ret</code></td><td>-</td><td>见栈帧介绍</td><td></td><td>从当前函数返回</td></tr>
-<tr><td>0x4a</td><td><code>callname</code></td><td>id:u32</td><td></td><td>见栈帧介绍</td><td>调用名称与编号为 id 的全局变量相同的函数</td></tr>
+<tr><td>0x4a</td><td><code>callname</code></td><td>id:u32</td><td></td><td>见栈帧介绍</td><td>调用名称与编号为 id 的全局变量内容相同的函数</td></tr>
 <tr><td>0x50</td><td><code>scan.i</code></td><td>-</td><td>-</td><td>1:n</td><td>从标准输入读入一个整数 n</td></tr>
 <tr><td>0x51</td><td><code>scan.c</code></td><td>-</td><td>-</td><td>1:c</td><td>从标准输入读入一个字符 c</td></tr>
 <tr><td>0x52</td><td><code>scan.f</code></td><td>-</td><td>-</td><td>1:f</td><td>从标准输入读入一个浮点数 f</td></tr>
@@ -1355,9 +1355,10 @@ fn test(a: int, b: int) -&gt; int {
 <p>指令会将 <code>T</code> 长度的数据弹栈并存入 <code>addr</code> 地址处。如果 <code>addr</code> 不是 <code>T</code> 的倍数，将会产生 <code>UnalignedAccess</code> 错误。如果 <code>T</code> 小于 64，数据将被截断至 <code>T</code> 长度。</p>
 <h3><a class="header" href="#br-系列分支指令" id="br-系列分支指令"><code>br</code> 系列分支指令</a></h3>
 <p>指令会将（指向下一条指令的）当前指令指针 <code>ip</code> 与 <code>offset</code> 相加得出新的指令指针的值。比如如果 <code>br 3</code> 是一个函数的第 5 条指令，那么此时 <code>ip</code> = 6，指令执行之后 <code>ip</code> = 6 + 3 = 9。<code>br.true</code>, <code>br.false</code> 指令的执行规则相同。</p>
+<h3><a class="header" href="#" id=""></a></h3>
 <h1><a class="header" href="#应该比较常见的问题" id="应该比较常见的问题">应该比较常见的问题</a></h1>
 <h2><a class="header" href="#条件跳转" id="条件跳转">条件跳转</a></h2>
-<p>如果需要实现条件跳转，请使用以下指令的组合（<code>T</code> 代表 <code>u</code>、<code>f</code> 或 <code>i</code>：</p>
+<p>如果需要实现条件跳转，请使用以下指令的组合（<code>T</code> 代表 <code>u</code>、<code>f</code> 或 <code>i</code>；在 <strong>符合条件</strong> 时跳转）：</p>
 <ul>
 <li>等于：<code>cmp.T</code>, <code>br.false</code></li>
 <li>不等于：<code>cmp.T</code>, <code>br.true</code></li>
