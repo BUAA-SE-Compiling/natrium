@@ -120,9 +120,9 @@ impl<'src> R0Vm<'src> {
             let name = asm
                 .globals
                 .get(f.name as usize)
-                .ok_or_else(|| Error::InvalidGlobalIndex(f.name))?;
+                .ok_or(Error::InvalidGlobalIndex(f.name))?;
             let name = String::from_utf8_lossy(&name.bytes);
-            let name = SmolStr::new_inline(&name);
+            let name = SmolStr::new(&name);
             res.insert(name, idx as u32);
         }
         Ok(res)
