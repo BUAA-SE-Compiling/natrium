@@ -1111,7 +1111,7 @@ struct Array&lt;T&gt; {
 struct GlobalDef {
     /// 是否为常量？非零值视为真
     is_const: u8,
-    /// 值
+    /// 按字节顺序排列的变量值
     value: Array&lt;u8&gt;,
 }
 
@@ -1156,8 +1156,8 @@ union Instruction {
 
 // globals[0]
 00 // globals[0].is_const
-00 00 00 03 // globals[0].value.count
-00 01 02 // globals[0].value.items
+00 00 00 08 // globals[0].value.count
+00 00 00 00 00 00 00 00 // globals[0].value.items
 
 // globals[1]
 01 // globals[1].is_const
