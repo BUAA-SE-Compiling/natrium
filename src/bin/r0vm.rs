@@ -305,7 +305,7 @@ struct Opt {
     pub dump: bool,
 
     /// Set log level. Values: error, warning, info, debug, trace
-    #[clap(long, default_value = "warning")]
+    #[clap(long, default_value = "warn")]
     pub log: tracing::level_filters::LevelFilter,
 }
 
