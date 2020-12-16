@@ -640,7 +640,7 @@ call_expr -&gt; IDENT '(' call_param_list? ')'
 
 digit -&gt; [0-9]
 UINT_LITERAL -&gt; digit+
-DOUBLE_LITERAL -&gt; digit+ '.' digit+ ([eE] digit+)?
+DOUBLE_LITERAL -&gt; digit+ '.' digit+ ([eE] [+-]? digit+)?
 
 escape_sequence -&gt; '\' [\\&quot;'nrt]
 string_regular_char -&gt; [^&quot;\\]
