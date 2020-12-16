@@ -111,7 +111,7 @@ literal_expr -> UINT_LITERAL | DOUBLE_LITERAL | STRING_LITERAL
 
 digit -> [0-9]
 UINT_LITERAL -> digit+
-DOUBLE_LITERAL -> digit+ '.' digit+ ([eE] digit+)?
+DOUBLE_LITERAL -> digit+ '.' digit+ ([eE] [+-]? digit+)?
 
 escape_sequence -> '\' [\\"'nrt]
 string_regular_char -> [^"\\]
