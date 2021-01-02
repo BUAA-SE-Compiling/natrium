@@ -59,7 +59,12 @@ fn run(s0: &S0) {
 fn create_vm_stdio(s0: &S0) -> R0Vm {
     let stdin = std::io::stdin();
     let stdout = stdout();
-    vm::R0Vm::new(s0, Box::new(stdin), Box::new(stdout)).expect("Failed to create virtual machine")
+    match vm::R0Vm::new(s0, Box::new(stdin), Box::new(stdout)) {
+        Ok(vm) => vm,
+        Err(e) => {
+            panic!("Failed to create VM: {}", e)
+        }
+    }
 }
 
 macro_rules! print_unwrap {

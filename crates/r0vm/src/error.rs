@@ -25,6 +25,12 @@ pub enum Error {
     #[fail(display = "Invalid global variable index {}", _0)]
     InvalidGlobalIndex(u32),
 
+    #[fail(
+        display = "Invalid function name index in global variable for function {} :{}",
+        _0, _1
+    )]
+    InvalidFunctionNameIndex(usize, u32),
+
     #[fail(display = "Invalid address 0x{:016x}", _0)]
     InvalidAddress(u64),
 

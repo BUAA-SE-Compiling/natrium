@@ -800,6 +800,7 @@ version = "0.1.0"
 dependencies = [
  "indexmap",
  "logos",
+ "ryu",
  "serde",
  "smol_str",
  "unescape",
